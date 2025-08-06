@@ -182,15 +182,15 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
                 <div class="card-body">
-                    <?php if ($message): ?>
+<?php if ($message): ?>
                         <div class="alert alert-info"> <?= htmlspecialchars($message) ?> </div>
-                    <?php endif; ?>
+<?php endif; ?>
 
                     <!-- Create Customer Form (Hidden by default) -->
                     <div id="createCustomerForm" style="display:none; margin-bottom:24px; padding:20px; border:1px solid #ddd; border-radius:8px; background:#f9f9f9;">
                         <h5 class="mb-3">Add New Customer</h5>
                         <form method="post" class="row g-3">
-                            <?= csrf_field() ?>
+    <?= csrf_field() ?>
                             <div class="col-md-6">
                                 <label class="form-label">Customer ID *</label>
                                 <input type="text" name="customer_id" class="form-control" required>
@@ -202,7 +202,7 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="col-md-3">
                                 <label class="form-label">Star</label>
                                 <select name="star" class="form-select">
-                                    <option value="">-</option>
+        <option value="">-</option>
                                     <option value="1">1 Star</option>
                                     <option value="2">2 Star</option>
                                     <option value="3">3 Star</option>
@@ -221,9 +221,9 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="col-md-3">
                                 <label class="form-label">Type</label>
                                 <select name="type" class="form-select">
-                                    <option value="">-</option>
-                                    <option value="Hotel">Hotel</option>
-                                    <option value="Restaurant">Restaurant</option>
+        <option value="">-</option>
+        <option value="Hotel">Hotel</option>
+        <option value="Restaurant">Restaurant</option>
                                     <option value="Office">Office</option>
                                 </select>
                             </div>
@@ -242,17 +242,17 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="col-md-3">
                                 <label class="form-label">Billing</label>
                                 <select name="billing" class="form-select">
-                                    <option value="">-</option>
+        <option value="">-</option>
                                     <option value="Monthly">Monthly</option>
                                     <option value="Quarterly">Quarterly</option>
                                     <option value="Annually">Annually</option>
-                                </select>
+    </select>
                             </div>
                             <div class="col-12">
                                 <button type="submit" name="create" class="btn btn-primary">Add Customer</button>
                                 <button type="button" onclick="hideCreateForm()" class="btn btn-secondary">Cancel</button>
                             </div>
-                        </form>
+</form>
                     </div>
 
                     <table class="table bordered-table mb-0">
@@ -284,7 +284,7 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <?= str_pad($index + 1 + $offset, 2, '0', STR_PAD_LEFT) ?>
                                         </label>
                                     </div>
-                                </td>
+    </td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <img src="assets/images/avatar/avatar2.png" alt="" class="flex-shrink-0 me-12 radius-8" style="width:40px;height:40px;">
@@ -293,7 +293,7 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <span class="text-sm text-secondary-light"><?= htmlspecialchars($c['customer_id']) ?></span>
                                         </div>
                                     </div>
-                                </td>
+    </td>
                                 <td><?= $c['type'] ? '<span class="bg-info-focus text-info-main px-8 py-4 rounded-pill fw-medium text-sm">' . htmlspecialchars($c['type']) . '</span>' : '-' ?></td>
                                 <td><?= $c['star'] ? str_repeat('⭐', $c['star']) : '-' ?></td>
                                 <td><?= htmlspecialchars($c['address'] ?: '-') ?></td>
@@ -305,32 +305,32 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <a href="javascript:void(0)" onclick="deleteCustomer(<?= $c['id'] ?>)" class="w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
                                         <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
                                     </a>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
+    </td>
+</tr>
+<?php endforeach; ?>
                         </tbody>
-                    </table>
+</table>
 
-                    <!-- Pagination -->
+<!-- Pagination -->
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
                         <span class="text-md text-secondary-light fw-normal">Showing <?= count($customers) ?> of <?= $total_customers ?> results</span>
-                        <?php if ($total_pages > 1): ?>
+<?php if ($total_pages > 1): ?>
                         <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
                             <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                <?php if ($i == $page): ?>
+        <?php if ($i == $page): ?>
                                     <li class="page-item">
                                         <a class="page-link bg-primary-600 text-white rounded-8 fw-medium text-md px-9 py-6" href="#"><?= $i ?></a>
                                     </li>
-                                <?php else: ?>
+        <?php else: ?>
                                     <li class="page-item">
                                         <a class="page-link bg-neutral-200 text-secondary-light rounded-8 fw-medium text-md px-9 py-6 hover-bg-primary-600 hover-text-white" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>"><?= $i ?></a>
                                     </li>
-                                <?php endif; ?>
-                            <?php endfor; ?>
+        <?php endif; ?>
+    <?php endfor; ?>
                         </ul>
-                        <?php endif; ?>
-                    </div>
-                </div>
+<?php endif; ?>
+</div>
+</div>
             </div>
         </div>
 

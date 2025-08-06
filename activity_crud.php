@@ -254,7 +254,7 @@ $projects = $pdo->query('SELECT project_id, project_name FROM projects ORDER BY 
         <option value="On Progress">On Progress</option>
         <option value="Need Requirement">Need Requirement</option>
         <option value="Done">Done</option>
-                                </select>
+    </select>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Due Date</label>

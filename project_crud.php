@@ -225,15 +225,15 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
                 <div class="card-body">
-                    <?php if ($message): ?>
+<?php if ($message): ?>
                         <div class="alert alert-info"> <?= htmlspecialchars($message) ?> </div>
-                    <?php endif; ?>
+<?php endif; ?>
 
                     <!-- Create Project Form (Hidden by default) -->
                     <div id="createProjectForm" style="display:none; margin-bottom:24px; padding:20px; border:1px solid #ddd; border-radius:8px; background:#f9f9f9;">
                         <h5 class="mb-3">Add New Project</h5>
                         <form method="post" class="row g-3">
-                            <?= csrf_field() ?>
+    <?= csrf_field() ?>
                             <div class="col-md-6">
                                 <label class="form-label">Project ID *</label>
                                 <input type="text" name="project_id" class="form-control" required>
@@ -257,7 +257,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <option value="In Progress">In Progress</option>
                                     <option value="Completed">Completed</option>
                                     <option value="On Hold">On Hold</option>
-                                </select>
+    </select>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Start Date</label>
@@ -275,7 +275,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <button type="submit" name="create" class="btn btn-primary">Add Project</button>
                                 <button type="button" onclick="hideCreateForm()" class="btn btn-secondary">Cancel</button>
                             </div>
-                        </form>
+</form>
                     </div>
 
                     <table class="table bordered-table mb-0">
@@ -307,8 +307,8 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <?= str_pad($index + 1 + $offset, 2, '0', STR_PAD_LEFT) ?>
                                         </label>
                                     </div>
-                                </td>
-                                <td>
+    </td>
+    <td>
                                     <div class="d-flex align-items-center">
                                         <img src="assets/images/avatar/avatar3.png" alt="" class="flex-shrink-0 me-12 radius-8" style="width:40px;height:40px;">
                                         <div class="flex-grow-1">
@@ -316,7 +316,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <span class="text-sm text-secondary-light"><?= htmlspecialchars($p['project_id']) ?></span>
                                         </div>
                                     </div>
-                                </td>
+    </td>
                                 <td><?= htmlspecialchars($p['hotel_name'] ?: '-') ?></td>
                                 <td>
                                     <?php if ($p['start_date'] && $p['end_date']): ?>
@@ -325,8 +325,8 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <?php else: ?>
                                         -
                                     <?php endif; ?>
-                                </td>
-                                <td>
+    </td>
+    <td>
                                     <?php
                                     $status_colors = [
                                         'Planning' => 'bg-warning-focus text-warning-main',
@@ -337,7 +337,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     $color_class = $status_colors[$p['status']] ?? 'bg-neutral-200 text-neutral-600';
                                     ?>
                                     <span class="<?= $color_class ?> px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($p['status']) ?></span>
-                                </td>
+    </td>
                                 <td><?= htmlspecialchars($p['pic'] ?: '-') ?></td>
                                 <td>
                                     <a href="javascript:void(0)" onclick="editProject(<?= $p['id'] ?>)" class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
@@ -346,32 +346,32 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <a href="javascript:void(0)" onclick="deleteProject(<?= $p['id'] ?>)" class="w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
                                         <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
                                     </a>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
+    </td>
+</tr>
+<?php endforeach; ?>
                         </tbody>
-                    </table>
+</table>
 
-                    <!-- Pagination -->
+<!-- Pagination -->
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
                         <span class="text-md text-secondary-light fw-normal">Showing <?= count($projects) ?> of <?= $total_projects ?> results</span>
-                        <?php if ($total_pages > 1): ?>
+<?php if ($total_pages > 1): ?>
                         <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
                             <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                <?php if ($i == $page): ?>
+        <?php if ($i == $page): ?>
                                     <li class="page-item">
                                         <a class="page-link bg-primary-600 text-white rounded-8 fw-medium text-md px-9 py-6" href="#"><?= $i ?></a>
                                     </li>
-                                <?php else: ?>
+        <?php else: ?>
                                     <li class="page-item">
                                         <a class="page-link bg-neutral-200 text-secondary-light rounded-8 fw-medium text-md px-9 py-6 hover-bg-primary-600 hover-text-white" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>"><?= $i ?></a>
                                     </li>
-                                <?php endif; ?>
-                            <?php endfor; ?>
+        <?php endif; ?>
+    <?php endfor; ?>
                         </ul>
-                        <?php endif; ?>
-                    </div>
-                </div>
+<?php endif; ?>
+</div>
+</div>
             </div>
         </div>
 
