@@ -18,7 +18,10 @@
                 </a>
                 <ul class="sidebar-submenu">
                     <li>
-                        <a href="index.php"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> AI</a>
+                        <a href="index.php"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Main Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="dashboard.php"><i class="ri-circle-fill circle-icon text-success-main w-auto"></i> Analytics Dashboard</a>
                     </li>
                     <li>
                         <a href="index-2.php"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> CRM</a>
@@ -303,6 +306,43 @@
                         <a href="assign-role.php"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Assign Role</a>
                     </li>
                 </ul>
+            </li>
+
+            <li class="sidebar-menu-group-title">Data Management</li>
+            
+            <li>
+                <a href="user_crud.php">
+                    <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
+                    <span>User List</span>
+                </a>
+            </li>
+            
+            <li>
+                <a href="customer_crud.php">
+                    <iconify-icon icon="solar:buildings-2-outline" class="menu-icon"></iconify-icon>
+                    <span>Customer List</span>
+                </a>
+            </li>
+            
+            <li>
+                <a href="project_crud.php">
+                    <iconify-icon icon="solar:folder-outline" class="menu-icon"></iconify-icon>
+                    <span>Project List</span>
+                </a>
+            </li>
+            
+            <li>
+                <a href="activity_crud.php">
+                    <iconify-icon icon="solar:checklist-outline" class="menu-icon"></iconify-icon>
+                    <span>Activity List</span>
+                </a>
+            </li>
+            
+            <li>
+                <a href="log_view.php">
+                    <iconify-icon icon="solar:file-text-outline" class="menu-icon"></iconify-icon>
+                    <span>Audit Logs</span>
+                </a>
             </li>
 
             <li class="sidebar-menu-group-title">Application</li>

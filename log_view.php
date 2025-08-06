@@ -54,8 +54,25 @@ $user_emails = $pdo->query('SELECT DISTINCT user_email FROM logs WHERE user_emai
 $actions = $pdo->query('SELECT DISTINCT action FROM logs ORDER BY action')->fetchAll(PDO::FETCH_COLUMN);
 ?>
 <?php include './partials/layouts/layoutTop.php'; ?>
-<div class="container">
-<h2>Audit Log</h2>
+
+        <div class="dashboard-main-body">
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
+                <h6 class="fw-semibold mb-0">Audit Logs</h6>
+                <ul class="d-flex align-items-center gap-2">
+                    <li class="fw-medium">
+                        <a href="index.php" class="d-flex align-items-center gap-1 hover-text-primary">
+                            <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>-</li>
+                    <li class="fw-medium">Audit Logs</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
 <form method="get" style="margin-bottom:16px;">
     <input type="text" name="search" placeholder="Cari deskripsi/user..." value="<?= htmlspecialchars($search) ?>">
     <select name="filter_action">
@@ -101,5 +118,8 @@ $actions = $pdo->query('SELECT DISTINCT action FROM logs ORDER BY action')->fetc
     </div>
 <?php endif; ?>
 </div>
-</div>
+                </div>
+            </div>
+        </div>
+
 <?php include './partials/layouts/layoutBottom.php'; ?>

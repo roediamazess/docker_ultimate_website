@@ -1,244 +1,342 @@
 <?php
 session_start();
 require_once 'db.php';
-require_once 'csrf.php';
-require_once 'log.php';
-require_once 'send_email.php';
+require_once 'access_control.php';
 
-// Proteksi akses: hanya user login dengan role Administrator
+// Cek akses
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
-if ($_SESSION['user_role'] !== 'Administrator') {
-    header('Location: dashboard.php');
-    exit;
+
+// Fungsi helper untuk logging
+function log_activity($action, $description) {
+    global $pdo;
+    $stmt = $pdo->prepare('INSERT INTO logs (user_email, action, description, created_at) VALUES (?, ?, ?, ?)');
+    $stmt->execute([$_SESSION['email'] ?? 'unknown', $action, $description, date('Y-m-d H:i:s')]);
 }
 
-// Pesan notifikasi
+// CSRF Protection
+function csrf_field() {
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return '<input type="hidden" name="csrf_token" value="' . $_SESSION['csrf_token'] . '">';
+}
+
+function csrf_verify() {
+    return isset($_POST['csrf_token']) && hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']);
+}
+
 $message = '';
 
-// CREATE USER
-date_default_timezone_set('Asia/Jakarta');
+// Create User
 if (isset($_POST['create'])) {
-    csrf_check();
-    $display_name = trim($_POST['display_name'] ?? '');
-    $full_name = trim($_POST['full_name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $tier = $_POST['tier'] ?? null;
-    $role = $_POST['role'] ?? null;
-    $start_work = $_POST['start_work'] ?? null;
-    $password_raw = $_POST['password'] ?? '';
-
-    // Validasi mandatory
-    if (!$full_name || !$email || !$password_raw) {
-        $message = 'Full Name, Email, dan Password wajib diisi!';
+    if (!csrf_verify()) {
+        $message = 'CSRF token tidak valid!';
     } else {
-        // Cek email unik
-        $stmt = $pdo->prepare('SELECT COUNT(*) FROM users WHERE email = ?');
-        $stmt->execute([$email]);
-        if ($stmt->fetchColumn() > 0) {
-            $message = 'Email sudah terdaftar!';
-        } else {
-            $password = password_hash($password_raw, PASSWORD_DEFAULT);
-            $sql = "INSERT INTO users (display_name, full_name, email, tier, role, start_work, password) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$display_name, $full_name, $email, $tier, $role, $start_work, $password]);
-            $message = 'User created!';
-            log_activity('create_user', 'User: ' . $email);
-            // Notifikasi email ke admin
-            $admin_email = 'your_admin_email@gmail.com'; // Ganti dengan email admin
-            $subject = 'User Baru Didaftarkan';
-            $body = '<b>User baru telah dibuat:</b><br>Email: ' . htmlspecialchars($email) . '<br>Nama: ' . htmlspecialchars($full_name) . '<br>Role: ' . htmlspecialchars($role);
-            send_email($admin_email, $subject, $body);
-        }
+        $stmt = $pdo->prepare('INSERT INTO users (display_name, full_name, email, tier, role, start_work, password, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+        $password_hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $stmt->execute([
+            $_POST['display_name'],
+            $_POST['full_name'],
+            $_POST['email'],
+            $_POST['tier'],
+            $_POST['role'],
+            $_POST['start_work'] ?: null,
+            $password_hash,
+            date('Y-m-d H:i:s')
+        ]);
+        $message = 'User created!';
+        log_activity('create_user', 'Email: ' . $_POST['email']);
     }
 }
 
-// SEARCH & FILTER
+// Update User
+if (isset($_POST['update'])) {
+    if (!csrf_verify()) {
+        $message = 'CSRF token tidak valid!';
+    } else {
+        $stmt = $pdo->prepare('UPDATE users SET display_name=?, full_name=?, email=?, tier=?, role=?, start_work=? WHERE id=?');
+        $stmt->execute([
+            $_POST['display_name'],
+            $_POST['full_name'],
+            $_POST['email'],
+            $_POST['tier'],
+            $_POST['role'],
+            $_POST['start_work'] ?: null,
+            $_POST['id']
+        ]);
+        $message = 'User updated!';
+        log_activity('update_user', 'User ID: ' . $_POST['id']);
+    }
+}
+
+// Delete User
+if (isset($_POST['delete'])) {
+    if (!csrf_verify()) {
+        $message = 'CSRF token tidak valid!';
+    } else {
+        $id = $_POST['id'];
+        $stmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
+        $stmt->execute([$id]);
+        $message = 'User deleted!';
+        log_activity('delete_user', 'User ID: ' . $id);
+    }
+}
+
+// Pagination dan filtering
+$page = max(1, intval($_GET['page'] ?? 1));
+$limit = 10;
+$offset = ($page - 1) * $limit;
+
 $search = trim($_GET['search'] ?? '');
 $filter_role = $_GET['filter_role'] ?? '';
 $filter_tier = $_GET['filter_tier'] ?? '';
 
-$where = [];
+$where_conditions = [];
 $params = [];
+
 if ($search) {
-    $where[] = "(display_name ILIKE :search OR full_name ILIKE :search OR email ILIKE :search)";
-    $params['search'] = "%$search%";
+    $where_conditions[] = "(full_name ILIKE ? OR email ILIKE ? OR display_name ILIKE ?)";
+    $search_term = "%$search%";
+    $params = array_merge($params, [$search_term, $search_term, $search_term]);
 }
+
 if ($filter_role) {
-    $where[] = "role = :role";
-    $params['role'] = $filter_role;
+    $where_conditions[] = "role = ?";
+    $params[] = $filter_role;
 }
+
 if ($filter_tier) {
-    $where[] = "tier = :tier";
-    $params['tier'] = $filter_tier;
+    $where_conditions[] = "tier = ?";
+    $params[] = $filter_tier;
 }
-$where_sql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
 
-// Pagination
-$page = max(1, intval($_GET['page'] ?? 1));
-$per_page = 20;
-$offset = ($page - 1) * $per_page;
+$where_clause = $where_conditions ? 'WHERE ' . implode(' AND ', $where_conditions) : '';
 
-// Total data
-$sql_count = "SELECT COUNT(*) FROM users $where_sql";
-$stmt_count = $pdo->prepare($sql_count);
-$stmt_count->execute($params);
-$total_data = $stmt_count->fetchColumn();
-$total_pages = max(1, ceil($total_data / $per_page));
+// Get total count
+$count_sql = "SELECT COUNT(*) FROM users $where_clause";
+$count_stmt = $pdo->prepare($count_sql);
+$count_stmt->execute($params);
+$total_users = $count_stmt->fetchColumn();
+$total_pages = ceil($total_users / $limit);
 
-// Data page
-$sql = "SELECT id, display_name, full_name, email, tier, role, start_work FROM users $where_sql ORDER BY id DESC LIMIT $per_page OFFSET $offset";
+// Get users with pagination
+$sql = "SELECT * FROM users $where_clause ORDER BY created_at DESC LIMIT $limit OFFSET $offset";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// UPDATE USER
-if (isset($_POST['update'])) {
-    csrf_check();
-    $id = $_POST['id'];
-    $display_name = trim($_POST['display_name'] ?? '');
-    $full_name = trim($_POST['full_name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $tier = $_POST['tier'] ?? null;
-    $role = $_POST['role'] ?? null;
-    $start_work = $_POST['start_work'] ?? null;
-    $password_raw = $_POST['password'] ?? '';
-
-    // Cek jika password diisi, update password juga
-    if ($password_raw) {
-        $password = password_hash($password_raw, PASSWORD_DEFAULT);
-        $sql = "UPDATE users SET display_name=?, full_name=?, email=?, tier=?, role=?, start_work=?, password=? WHERE id=?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$display_name, $full_name, $email, $tier, $role, $start_work, $password, $id]);
-    } else {
-        $sql = "UPDATE users SET display_name=?, full_name=?, email=?, tier=?, role=?, start_work=? WHERE id=?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$display_name, $full_name, $email, $tier, $role, $start_work, $id]);
-    }
-    $message = 'User updated!';
-    log_activity('update_user', 'User: ' . $email);
-}
-
-// DELETE USER
-if (isset($_POST['delete'])) {
-    csrf_check();
-    $id = $_POST['id'];
-    $sql = "DELETE FROM users WHERE id=?";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$id]);
-    $message = 'User deleted!';
-    log_activity('delete_user', 'User ID: ' . $id);
-}
 ?>
 
 <?php include './partials/layouts/layoutTop.php'; ?>
 
-<div class="container">
-<?php if ($message): ?>
-    <div style="color: red; font-weight: bold;"> <?= htmlspecialchars($message) ?> </div>
-<?php endif; ?>
+        <div class="dashboard-main-body">
 
-<h2>Tambah User</h2>
-<form method="post">
-    <?= csrf_field() ?>
-    Display Name: <input type="text" name="display_name"><br>
-    Full Name: <input type="text" name="full_name" required><br>
-    Email: <input type="email" name="email" required><br>
-    Tier: <select name="tier">
-        <option value="New Born">New Born</option>
-        <option value="Tier 1">Tier 1</option>
-        <option value="Tier 2">Tier 2</option>
-        <option value="Tier 3">Tier 3</option>
-    </select><br>
-    Role: <select name="role">
-        <option value="Administrator">Administrator</option>
-        <option value="Management">Management</option>
-        <option value="Admin Office">Admin Office</option>
-        <option value="User">User</option>
-        <option value="Client">Client</option>
-    </select><br>
-    Start Work: <input type="date" name="start_work"><br>
-    Password: <input type="password" name="password" required><br>
-    <button type="submit" name="create">Create</button>
-</form>
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
+                <h6 class="fw-semibold mb-0">User List</h6>
+                <ul class="d-flex align-items-center gap-2">
+                    <li class="fw-medium">
+                        <a href="index.php" class="d-flex align-items-center gap-1 hover-text-primary">
+                            <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>-</li>
+                    <li class="fw-medium">User List</li>
+                </ul>
+            </div>
 
-<h2>Daftar User</h2>
-<a href="export_user_excel.php" style="display:inline-block;margin-bottom:8px;padding:6px 16px;background:#4caf50;color:#fff;text-decoration:none;border-radius:4px;">Export Excel</a>
-<form method="get" style="margin-bottom:16px;display:inline-block;margin-left:16px;">
-    <input type="text" name="search" placeholder="Cari nama/email..." value="<?= htmlspecialchars($search) ?>">
-    <select name="filter_role">
-        <option value="">Semua Role</option>
-        <option value="Administrator" <?= $filter_role==='Administrator'?'selected':'' ?>>Administrator</option>
-        <option value="Management" <?= $filter_role==='Management'?'selected':'' ?>>Management</option>
-        <option value="Admin Office" <?= $filter_role==='Admin Office'?'selected':'' ?>>Admin Office</option>
-        <option value="User" <?= $filter_role==='User'?'selected':'' ?>>User</option>
-        <option value="Client" <?= $filter_role==='Client'?'selected':'' ?>>Client</option>
-    </select>
-    <select name="filter_tier">
-        <option value="">Semua Tier</option>
-        <option value="New Born" <?= $filter_tier==='New Born'?'selected':'' ?>>New Born</option>
-        <option value="Tier 1" <?= $filter_tier==='Tier 1'?'selected':'' ?>>Tier 1</option>
-        <option value="Tier 2" <?= $filter_tier==='Tier 2'?'selected':'' ?>>Tier 2</option>
-        <option value="Tier 3" <?= $filter_tier==='Tier 3'?'selected':'' ?>>Tier 3</option>
-    </select>
-    <button type="submit">Cari</button>
-    <a href="user_crud.php">Reset</a>
-</form>
-<div style="overflow-x:auto; max-width:100vw; margin-bottom:16px;">
-<table border="1" cellpadding="4" style="min-width:700px;">
-<tr><th>ID</th><th>Display Name</th><th>Full Name</th><th>Email</th><th>Tier</th><th>Role</th><th>Start Work</th><th>Password</th><th>Aksi</th></tr>
-<?php foreach ($users as $u): ?>
-<tr>
-    <form method="post">
-    <?= csrf_field() ?>
-    <td><?= $u['id'] ?><input type="hidden" name="id" value="<?= $u['id'] ?>"></td>
-    <td><input type="text" name="display_name" value="<?= htmlspecialchars($u['display_name']) ?>"></td>
-    <td><input type="text" name="full_name" value="<?= htmlspecialchars($u['full_name']) ?>" required></td>
-    <td><input type="email" name="email" value="<?= htmlspecialchars($u['email']) ?>" required></td>
-    <td>
-        <select name="tier">
-            <option value="New Born" <?= $u['tier']==='New Born'?'selected':'' ?>>New Born</option>
-            <option value="Tier 1" <?= $u['tier']==='Tier 1'?'selected':'' ?>>Tier 1</option>
-            <option value="Tier 2" <?= $u['tier']==='Tier 2'?'selected':'' ?>>Tier 2</option>
-            <option value="Tier 3" <?= $u['tier']==='Tier 3'?'selected':'' ?>>Tier 3</option>
-        </select>
-    </td>
-    <td>
-        <select name="role">
-            <option value="Administrator" <?= $u['role']==='Administrator'?'selected':'' ?>>Administrator</option>
-            <option value="Management" <?= $u['role']==='Management'?'selected':'' ?>>Management</option>
-            <option value="Admin Office" <?= $u['role']==='Admin Office'?'selected':'' ?>>Admin Office</option>
-            <option value="User" <?= $u['role']==='User'?'selected':'' ?>>User</option>
-            <option value="Client" <?= $u['role']==='Client'?'selected':'' ?>>Client</option>
-        </select>
-    </td>
-    <td><input type="date" name="start_work" value="<?= htmlspecialchars($u['start_work']) ?>"></td>
-    <td><input type="password" name="password" placeholder="Isi jika ingin ganti"></td>
-    <td>
-        <button type="submit" name="update">Update</button>
-        <button type="submit" name="delete" onclick="return confirm('Delete user?')">Delete</button>
-    </td>
-    </form>
-</tr>
-<?php endforeach; ?>
-</table>
-</div>
-<!-- Pagination -->
-<div style="margin:16px 0;">
-<?php if ($total_pages > 1): ?>
-    <div style="display:inline-block;">
-    <?php for ($i=1; $i<=$total_pages; $i++): ?>
-        <?php if ($i == $page): ?>
-            <span style="font-weight:bold;padding:4px 8px;">[<?= $i ?>]</span>
-        <?php else: ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page'=>$i])) ?>" style="padding:4px 8px;"> <?= $i ?> </a>
-        <?php endif; ?>
-    <?php endfor; ?>
-    </div>
-<?php endif; ?>
-</div>
-</div>
+            <div class="card">
+                <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span>Show</span>
+                            <select class="form-select form-select-sm w-auto">
+                                <option>10</option>
+                                <option>15</option>
+                                <option>20</option>
+                            </select>
+                        </div>
+                        <div class="icon-field">
+                            <input type="text" name="search" class="form-control form-control-sm w-auto" placeholder="Search" value="<?= htmlspecialchars($search) ?>">
+                            <span class="icon">
+                                <iconify-icon icon="ion:search-outline"></iconify-icon>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <select class="form-select form-select-sm w-auto" name="filter_role">
+                            <option value="">All Roles</option>
+                            <option value="Administrator" <?= $filter_role === 'Administrator' ? 'selected' : '' ?>>Administrator</option>
+                            <option value="Management" <?= $filter_role === 'Management' ? 'selected' : '' ?>>Management</option>
+                            <option value="Admin Office" <?= $filter_role === 'Admin Office' ? 'selected' : '' ?>>Admin Office</option>
+                            <option value="User" <?= $filter_role === 'User' ? 'selected' : '' ?>>User</option>
+                            <option value="Client" <?= $filter_role === 'Client' ? 'selected' : '' ?>>Client</option>
+                        </select>
+                        <a href="#" onclick="showCreateForm()" class="btn btn-sm btn-primary-600"><i class="ri-add-line"></i> Create User</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <?php if ($message): ?>
+                        <div class="alert alert-info"> <?= htmlspecialchars($message) ?> </div>
+                    <?php endif; ?>
+
+                    <!-- Create User Form (Hidden by default) -->
+                    <div id="createUserForm" style="display:none; margin-bottom:24px; padding:20px; border:1px solid #ddd; border-radius:8px; background:#f9f9f9;">
+                        <h5 class="mb-3">Add New User</h5>
+                        <form method="post" class="row g-3">
+                            <?= csrf_field() ?>
+                            <div class="col-md-6">
+                                <label class="form-label">Display Name</label>
+                                <input type="text" name="display_name" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" name="full_name" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email *</label>
+                                <input type="email" name="email" class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Tier</label>
+                                <select name="tier" class="form-select">
+                                    <option value="New Born">New Born</option>
+                                    <option value="Tier 1">Tier 1</option>
+                                    <option value="Tier 2">Tier 2</option>
+                                    <option value="Tier 3">Tier 3</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Role</label>
+                                <select name="role" class="form-select">
+                                    <option value="Administrator">Administrator</option>
+                                    <option value="Management">Management</option>
+                                    <option value="Admin Office">Admin Office</option>
+                                    <option value="User">User</option>
+                                    <option value="Client">Client</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Start Work</label>
+                                <input type="date" name="start_work" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Password *</label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" name="create" class="btn btn-primary">Add User</button>
+                                <button type="button" onclick="hideCreateForm()" class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <table class="table bordered-table mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">
+                                    <div class="form-check style-check d-flex align-items-center">
+                                        <input class="form-check-input" type="checkbox" value="" id="checkAll">
+                                        <label class="form-check-label" for="checkAll">
+                                            S.L
+                                        </label>
+                                    </div>
+                                </th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Tier</th>
+                                <th scope="col">Role</th>
+                                <th scope="col">Created Date</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($users as $index => $u): ?>
+                            <tr>
+                                <td>
+                                    <div class="form-check style-check d-flex align-items-center">
+                                        <input class="form-check-input" type="checkbox" value="<?= $u['id'] ?>" id="check<?= $u['id'] ?>">
+                                        <label class="form-check-label" for="check<?= $u['id'] ?>">
+                                            <?= str_pad($index + 1 + $offset, 2, '0', STR_PAD_LEFT) ?>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="assets/images/avatar/avatar1.png" alt="" class="flex-shrink-0 me-12 radius-8" style="width:40px;height:40px;">
+                                        <h6 class="text-md mb-0 fw-medium flex-grow-1"><?= htmlspecialchars($u['display_name'] ?: $u['full_name']) ?></h6>
+                                    </div>
+                                </td>
+                                <td><a href="mailto:<?= htmlspecialchars($u['email']) ?>" class="text-primary-600"><?= htmlspecialchars($u['email']) ?></a></td>
+                                <td><span class="bg-neutral-200 text-neutral-600 px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($u['tier']) ?></span></td>
+                                <td><span class="bg-info-focus text-info-main px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($u['role']) ?></span></td>
+                                <td><?= date('d M Y', strtotime($u['created_at'])) ?></td>
+                                <td>
+                                    <a href="javascript:void(0)" onclick="editUser(<?= $u['id'] ?>)" class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
+                                        <iconify-icon icon="lucide:edit"></iconify-icon>
+                                    </a>
+                                    <a href="javascript:void(0)" onclick="deleteUser(<?= $u['id'] ?>)" class="w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
+                                        <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
+                                    </a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+
+                    <!-- Pagination -->
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
+                        <span class="text-md text-secondary-light fw-normal">Showing <?= count($users) ?> of <?= $total_users ?> results</span>
+                        <?php if ($total_pages > 1): ?>
+                        <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
+                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                                <?php if ($i == $page): ?>
+                                    <li class="page-item">
+                                        <a class="page-link bg-primary-600 text-white rounded-8 fw-medium text-md px-9 py-6" href="#"><?= $i ?></a>
+                                    </li>
+                                <?php else: ?>
+                                    <li class="page-item">
+                                        <a class="page-link bg-neutral-200 text-secondary-light rounded-8 fw-medium text-md px-9 py-6 hover-bg-primary-600 hover-text-white" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>"><?= $i ?></a>
+                                    </li>
+                                <?php endif; ?>
+                            <?php endfor; ?>
+                        </ul>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<script>
+function showCreateForm() {
+    document.getElementById('createUserForm').style.display = 'block';
+}
+
+function hideCreateForm() {
+    document.getElementById('createUserForm').style.display = 'none';
+}
+
+function editUser(userId) {
+    // Implement edit functionality
+    alert('Edit user functionality to be implemented');
+}
+
+function deleteUser(userId) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        // Create form and submit
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.innerHTML = `
+            <?= csrf_field() ?>
+            <input type="hidden" name="id" value="${userId}">
+            <input type="hidden" name="delete" value="1">
+        `;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
 
 <?php include './partials/layouts/layoutBottom.php'; ?>
