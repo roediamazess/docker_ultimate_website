@@ -8,7 +8,7 @@ define('SMTP_PORT', 587);
 define('SMTP_USERNAME', 'pms@ppsolution.com'); // Gmail for Business
 define('SMTP_PASSWORD', 'koyf msqo qrcb qqwh'); // App Password dari Gmail for Business
 define('SMTP_FROM_EMAIL', 'pms@ppsolution.com'); // Email pengirim
-define('SMTP_FROM_NAME', 'Access Validation'); // Nama pengirim
+define('SMTP_FROM_NAME', 'PPSolution'); // Nama pengirim
 
 // Cara mendapatkan App Password Gmail:
 // 1. Buka Google Account Settings

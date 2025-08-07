@@ -4,9 +4,9 @@
     </button>
     <div>
         <a href="index.php" class="sidebar-logo">
-            <img src="assets/images/logo.png" alt="site logo" class="light-logo">
-            <img src="assets/images/logo-light.png" alt="site logo" class="dark-logo">
-            <img src="assets/images/logo-icon.png" alt="site logo" class="logo-icon">
+            <img src="assets/images/company/logo.png" alt="PPSolution Logo" class="light-logo">
+            <img src="assets/images/company/logo.png" alt="PPSolution Logo" class="dark-logo">
+            <img src="assets/images/company/logo.png" alt="PPSolution Logo" class="logo-icon">
         </a>
     </div>
     

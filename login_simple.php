@@ -285,7 +285,7 @@ if (isset($_POST['login'])) {
         <div class="login-card">
             <div class="login-header">
                 <div class="login-logo">
-                    <iconify-icon icon="solar:user-outline" style="font-size: 40px; color: white;"></iconify-icon>
+                    <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 60px; width: auto; filter: brightness(0) invert(1);">
                 </div>
                 <h1 class="login-title">Welcome Back! 👋</h1>
                 <div class="time-greeting" id="timeGreeting">

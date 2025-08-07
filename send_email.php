@@ -37,7 +37,7 @@ function sendPasswordResetEmail($email, $reset_token, $user_name) {
         
         // Content
         $mail->isHTML(true);
-        $mail->Subject = 'Reset Password - Ultimate Website';
+        $mail->Subject = 'Reset Password - PPSolution';
         
         // Handle both web and CLI environments
         $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
@@ -50,14 +50,14 @@ function sendPasswordResetEmail($email, $reset_token, $user_name) {
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
             <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; color: white; border-radius: 10px 10px 0 0;'>
                 <h1 style='margin: 0; font-size: 28px;'>🔐 Reset Password</h1>
-                <p style='margin: 10px 0 0 0; font-size: 16px;'>Ultimate Website</p>
+                <p style='margin: 10px 0 0 0; font-size: 16px;'>PPSolution</p>
             </div>
             
             <div style='background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;'>
                 <h2 style='color: #333; margin-bottom: 20px;'>Halo {$user_name}!</h2>
                 
                 <p style='color: #666; line-height: 1.6; margin-bottom: 20px;'>
-                    Kami menerima permintaan untuk mereset password akun Anda di Ultimate Website.
+                    Kami menerima permintaan untuk mereset password akun Anda di PPSolution.
                 </p>
                 
                 <p style='color: #666; line-height: 1.6; margin-bottom: 30px;'>
@@ -90,7 +90,7 @@ function sendPasswordResetEmail($email, $reset_token, $user_name) {
                 <hr style='border: none; border-top: 1px solid #dee2e6; margin: 30px 0;'>
                 
                 <p style='color: #999; font-size: 14px; text-align: center; margin: 0;'>
-                    Email ini dikirim dari sistem Ultimate Website<br>
+                    Email ini dikirim dari sistem PPSolution<br>
                     Jika ada pertanyaan, silakan hubungi administrator
                 </p>
             </div>

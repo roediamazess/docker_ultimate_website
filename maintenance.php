@@ -10,7 +10,7 @@
         <div class="container container--xl">
             <div class="d-flex align-items-center justify-content-between py-24">
                 <a href="index.php" class="">
-                    <img src="assets/images/logo.png" alt="">
+                    <img src="assets/images/company/logo.png" alt="PPSolution Logo">
                 </a>
                 <a href="index.php" class="btn btn-outline-primary-600 text-sm"> Go To Home </a>
             </div>

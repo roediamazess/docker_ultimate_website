@@ -231,7 +231,7 @@ if ($user) {
 <body>
     <div class="reset-container">
         <div class="logo">
-            <i class="ri-lock-password-line"></i>
+            <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 60px; width: auto;">
         </div>
         
         <h1 class="title">Reset Password</h1>
