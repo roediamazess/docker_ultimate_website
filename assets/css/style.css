@@ -10389,12 +10389,6 @@ h6, .h6 {
   border-color: var(--danger-50) !important;
 }
 
-.btn-outline-danger-50:active, .btn-outline-danger-50:focus {
-  background-color: var(--danger-800) !important;
-  color: #fff !important;
-  border-color: var(--danger-800) !important;
-}
-
 .btn-outline-danger-100 {
   background-color: transparent !important;
   color: var(--danger-100) !important;
@@ -14860,7 +14854,7 @@ td.fc-header-center {
   border-block-end: 1px solid var(--neutral-200);
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .sidebar-logo img {
@@ -15094,3 +15088,20 @@ td.fc-header-center {
 }
 
 /* === footer css end === */
+
+/* Custom styles for clean logo display */
+.login-logo img {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.reset-container .logo img {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}

@@ -2,11 +2,11 @@
     <button type="button" class="sidebar-close-btn">
         <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
     </button>
-    <div style="text-align: center; padding: 20px 0;">
+    <div>
         <a href="index.php" class="sidebar-logo">
-            <img src="assets/images/company/logo.png" alt="PPSolution Logo" class="light-logo" style="max-width: 80%; height: auto;">
-            <img src="assets/images/company/logo.png" alt="PPSolution Logo" class="dark-logo" style="max-width: 80%; height: auto;">
-            <img src="assets/images/company/logo.png" alt="PPSolution Logo" class="logo-icon" style="max-width: 80%; height: auto;">
+            <img src="assets/images/company/logo.png" alt="PPSolution Logo" class="light-logo">
+            <img src="assets/images/company/logo.png" alt="PPSolution Logo" class="dark-logo">
+            <img src="assets/images/company/logo.png" alt="PPSolution Logo" class="logo-icon">
         </a>
     </div>
     
