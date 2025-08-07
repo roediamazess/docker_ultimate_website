@@ -1,8 +1,8 @@
 /* Login Background Images - Dynamic Time-based Backgrounds */
 
-/* Morning Background - Sunrise/Sunrise Landscape */
+/* Morning Background - Early Morning/Sunrise Landscape (03:00-09:59) */
 .morning {
-    background-image: url('https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+    background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -16,7 +16,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.3) 0%, rgba(255, 152, 0, 0.3) 100%);
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.4) 0%, rgba(255, 152, 0, 0.4) 100%);
     animation: morningGlow 8s ease-in-out infinite;
 }
 
@@ -25,7 +25,7 @@
     50% { opacity: 0.6; }
 }
 
-/* Afternoon Background - Bright Day Landscape */
+/* Afternoon Background - Bright Day Landscape (10:00-14:59) */
 .afternoon {
     background-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80');
     background-size: cover;
@@ -50,7 +50,7 @@
     50% { opacity: 0.4; }
 }
 
-/* Evening Background - Sunset Landscape */
+/* Evening Background - Sunset Landscape (15:00-17:59) */
 .evening {
     background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
     background-size: cover;
@@ -75,9 +75,9 @@
     50% { opacity: 0.7; }
 }
 
-/* Night Background - Night Sky/Stars */
+/* Night Background - Night Sky/Stars (18:00-02:59) */
 .night {
-    background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+    background-image: url('https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

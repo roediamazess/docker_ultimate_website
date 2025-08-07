@@ -1,4 +1,7 @@
 <?php
+// Set timezone ke Asia/Jakarta
+date_default_timezone_set('Asia/Jakarta');
+
 session_start();
 require_once 'db.php';
 
@@ -30,24 +33,9 @@ if (isset($_POST['login'])) {
     }
 }
 
-// Get current time for dynamic background
-$hour = date('H');
-$timeOfDay = '';
-$bgClass = '';
-
-if ($hour >= 5 && $hour < 12) {
-    $timeOfDay = 'Pagi';
-    $bgClass = 'morning';
-} elseif ($hour >= 12 && $hour < 15) {
-    $timeOfDay = 'Siang';
-    $bgClass = 'afternoon';
-} elseif ($hour >= 15 && $hour < 18) {
-    $timeOfDay = 'Sore';
-    $bgClass = 'evening';
-} else {
-    $timeOfDay = 'Malam';
-    $bgClass = 'night';
-}
+            // Default values - akan diupdate oleh JavaScript
+            $timeOfDay = 'Gaes!';
+            $bgClass = 'morning';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -232,6 +220,56 @@ if ($hour >= 5 && $hour < 12) {
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
         }
     </style>
+    
+    <script>
+        // Function untuk mengupdate waktu berdasarkan waktu lokal PC
+        function updateTimeBasedContent() {
+            const now = new Date();
+            const hour = now.getHours();
+            const backgroundElement = document.querySelector('.background-animation');
+            const timeOfDayElement = document.getElementById('timeOfDay');
+            
+            let timeOfDay = '';
+            let bgClass = '';
+            
+            if (hour >= 3 && hour < 10) {
+                timeOfDay = 'Pagi Gaes!';
+                bgClass = 'morning';
+            } else if (hour >= 10 && hour < 15) {
+                timeOfDay = 'Siang Gaes!';
+                bgClass = 'afternoon';
+            } else if (hour >= 15 && hour < 18) {
+                timeOfDay = 'Sore Gaes!';
+                bgClass = 'evening';
+            } else {
+                timeOfDay = 'Malam Gaes!';
+                bgClass = 'night';
+            }
+            
+            // Update greeting text
+            if (timeOfDayElement) {
+                timeOfDayElement.textContent = timeOfDay;
+            }
+            
+            // Update background
+            if (backgroundElement) {
+                // Remove all time-based classes
+                backgroundElement.classList.remove('morning', 'afternoon', 'evening', 'night');
+                // Add new class
+                backgroundElement.classList.add(bgClass);
+            }
+            
+            console.log(`Waktu lokal: ${hour}:${now.getMinutes()} - ${timeOfDay} (${bgClass})`);
+        }
+        
+        // Update saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTimeBasedContent();
+            
+            // Update setiap menit untuk memastikan akurasi
+            setInterval(updateTimeBasedContent, 60000);
+        });
+    </script>
 </head>
 <body>
     <div class="login-container">
@@ -245,9 +283,8 @@ if ($hour >= 5 && $hour < 12) {
                     <iconify-icon icon="solar:user-outline" style="font-size: 40px; color: white;"></iconify-icon>
                 </div>
                 <h1 class="login-title">Welcome Back! 👋</h1>
-                <div class="time-greeting">
-                    <iconify-icon icon="solar:clock-circle-outline" style="margin-right: 8px;"></iconify-icon>
-                    Selamat <?= $timeOfDay ?>! 🌅
+                <div class="time-greeting" id="timeGreeting">
+                    Selamat <span id="timeOfDay">Gaes!</span>
                 </div>
             </div>
 

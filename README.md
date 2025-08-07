@@ -89,10 +89,10 @@ User:
 ```
 
 ### **Background Times**
-- **Morning (5:00-11:59)**: Sunrise landscape
-- **Afternoon (12:00-14:59)**: Bright forest
+- **Morning (03:00-09:59)**: Early morning sunrise landscape
+- **Afternoon (10:00-14:59)**: Bright day forest landscape
 - **Evening (15:00-17:59)**: Sunset landscape
-- **Night (18:00-4:59)**: Night sky
+- **Night (18:00-02:59)**: Night sky with stars
 
 ## 🔧 **Configuration**
 
@@ -200,7 +200,13 @@ Replace background images in `assets/css/login-backgrounds.css`:
 
 ## 🔄 **Updates**
 
-### **Version 2.0 - Current**
+### **Version 2.1 - Current**
+- Local time integration untuk universal device support
+- Clean UI refinement dengan greeting tanpa icon
+- Cross-timezone compatibility
+- Real-time time updates
+
+### **Version 2.0 - Previous**
 - Complete login system overhaul
 - Dynamic background landscapes
 - Fixed form positioning
@@ -222,4 +228,4 @@ This project is proprietary software. All rights reserved.
 
 **Last Updated**: January 2025
 **Status**: Production Ready ✅
-**Version**: 2.0 
+**Version**: 2.1 
