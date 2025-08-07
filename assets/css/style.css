@@ -14852,13 +14852,18 @@ td.fc-header-center {
   padding: 0.875rem 1rem;
   border-inline-end: 1px solid var(--neutral-200);
   border-block-end: 1px solid var(--neutral-200);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  width: 100% !important;
 }
 
 .sidebar-logo img {
   max-height: 3.4375rem;
+  display: block !important;
+  margin: 0 auto !important;
+  text-align: center !important;
 }
 
 .sidebar-logo img.dark-logo {
@@ -15090,18 +15095,39 @@ td.fc-header-center {
 /* === footer css end === */
 
 /* Custom styles for clean logo display */
-.login-logo img {
+.login-logo img,
+.login-logo img *,
+.login-logo * img {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
   margin: 0 !important;
+  outline: none !important;
 }
 
-.reset-container .logo img {
+.reset-container .logo img,
+.reset-container .logo img *,
+.reset-container * img,
+.logo img,
+.logo img * {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
   margin: 0 !important;
+  outline: none !important;
+}
+
+/* Force transparent background for all login/reset images */
+.login-logo,
+.reset-container .logo,
+.logo {
+  background: transparent !important;
+}
+
+.login-logo *,
+.reset-container .logo *,
+.logo * {
+  background: transparent !important;
 }

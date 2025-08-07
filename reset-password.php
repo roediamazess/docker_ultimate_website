@@ -230,8 +230,8 @@ if ($user) {
 </head>
 <body>
     <div class="reset-container">
-        <div class="logo" style="text-align: center; margin-bottom: 30px;">
-            <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 60px; width: auto;">
+        <div class="logo" style="text-align: center; margin-bottom: 30px; background: transparent !important; border: none !important; box-shadow: none !important;">
+            <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 60px; width: auto; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important;">
         </div>
         
         <h1 class="title">Reset Password</h1>
