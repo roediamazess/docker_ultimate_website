@@ -80,6 +80,11 @@ if ($user) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <style>
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -231,7 +236,7 @@ if ($user) {
 <body>
     <div class="reset-container">
         <div class="logo" style="text-align: center; margin-bottom: 30px; background: transparent !important; border: none !important; box-shadow: none !important;">
-            <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 60px; width: auto; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important;">
+            <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 120px; width: auto; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; cursor: pointer;" onmouseover="this.style.animation='spin 2s linear infinite'" onmouseout="this.style.animation='none'; this.style.transform='rotate(0deg)'">
         </div>
         
         <h1 class="title">Reset Password</h1>

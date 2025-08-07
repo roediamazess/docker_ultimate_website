@@ -85,6 +85,11 @@ $bgClass = 'morning';
     <link href="assets/css/login-backgrounds.css" rel="stylesheet">
     <script src="https://unpkg.com/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
     <style>
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -353,7 +358,7 @@ $bgClass = 'morning';
         <div class="login-card">
             <div class="login-header">
                 <div class="login-logo" style="background: transparent !important; border: none !important; box-shadow: none !important;">
-                    <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 60px; width: auto; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important;">
+                    <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 120px; width: auto; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; cursor: pointer;" onmouseover="this.style.animation='spin 2s linear infinite'" onmouseout="this.style.animation='none'; this.style.transform='rotate(0deg)'">
                 </div>
                 <h1 class="login-title">Reset Password 🔐</h1>
                 <div class="time-greeting" id="timeGreeting">

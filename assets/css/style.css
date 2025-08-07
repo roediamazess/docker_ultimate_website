@@ -14848,10 +14848,9 @@ td.fc-header-center {
 }
 
 .sidebar-logo {
-  height: 4.5rem;
-  padding: 0.875rem 1rem;
+  height: 7rem;
+  padding: 0.75rem 1rem 0 1rem !important;
   border-inline-end: 1px solid var(--neutral-200);
-  border-block-end: 1px solid var(--neutral-200);
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -14860,7 +14859,8 @@ td.fc-header-center {
 }
 
 .sidebar-logo img {
-  max-height: 3.4375rem;
+  max-height: 6.875rem !important;
+  height: 6.875rem !important;
   display: block !important;
   margin: 0 auto !important;
   text-align: center !important;
@@ -15130,4 +15130,60 @@ td.fc-header-center {
 .reset-container .logo *,
 .logo * {
   background: transparent !important;
+}
+
+/* Smooth rotation effect for logos */
+.sidebar-logo img,
+.login-logo img,
+.reset-container .logo img,
+.logo img {
+  transition: transform 2s linear !important;
+  cursor: pointer !important;
+}
+
+/* Override untuk logo sidebar yang lebih besar */
+.sidebar-logo img {
+  max-height: 6.875rem !important;
+  height: 6.875rem !important;
+  width: auto !important;
+  max-width: 100% !important;
+  object-fit: contain !important;
+  aspect-ratio: auto !important;
+}
+
+/* Responsive untuk sidebar kecil */
+@media (max-width: 1200px) {
+  .sidebar-logo img {
+    max-height: 4rem !important;
+    height: 4rem !important;
+    width: auto !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Responsive untuk sidebar sangat kecil */
+@media (max-width: 768px) {
+  .sidebar-logo img {
+    max-height: 3rem !important;
+    height: 3rem !important;
+    width: auto !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Continuous rotation animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sidebar-logo img:hover,
+.login-logo img:hover,
+.reset-container .logo img:hover,
+.logo img:hover {
+  animation: spin 2s linear infinite !important;
 }

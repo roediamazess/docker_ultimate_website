@@ -4,9 +4,7 @@
     </button>
     <div style="display: flex; justify-content: center; align-items: center; width: 100%; padding: 20px 0;">
         <a href="index.php" class="sidebar-logo" style="display: flex; justify-content: center; align-items: center; width: 100%;">
-            <img src="assets/images/company/logo.png" alt="PPSolution Logo" class="light-logo" style="display: block; margin: 0 auto; max-width: 80%;">
-            <img src="assets/images/company/logo.png" alt="PPSolution Logo" class="dark-logo" style="display: block; margin: 0 auto; max-width: 80%;">
-            <img src="assets/images/company/logo.png" alt="PPSolution Logo" class="logo-icon" style="display: block; margin: 0 auto; max-width: 80%;">
+            <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="display: block; margin: 0 auto; max-width: 100%; height: 200px; cursor: pointer;" onmouseover="this.style.animation='spin 2s linear infinite'" onmouseout="this.style.animation='none'; this.style.transform='rotate(0deg)'">
         </a>
     </div>
     
