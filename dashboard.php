@@ -1,12 +1,10 @@
 <?php
 session_start();
 require_once 'db.php';
+require_once 'user_utils.php';
 
 // Proteksi akses: hanya user login yang bisa mengakses dashboard
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit;
-}
+require_login();
 
 // Statistik utama
 $user_count = $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();

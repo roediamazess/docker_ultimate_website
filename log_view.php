@@ -1,12 +1,10 @@
 <?php
 session_start();
 require_once 'db.php';
+require_once 'user_utils.php';
 
-// Proteksi akses: hanya admin/management
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['Administrator', 'Management'])) {
-    header('Location: login.php');
-    exit;
-}
+// Proteksi akses: hanya Administrator dan Management yang bisa melihat log
+require_roles(['Administrator', 'Management']);
 
 // Filter
 $search = trim($_GET['search'] ?? '');

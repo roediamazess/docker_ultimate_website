@@ -1,10 +1,40 @@
-<?php $script = '<script>
+<?php 
+session_start();
+require_once 'db.php';
+require_once 'user_utils.php';
+
+// Cek akses menggunakan utility function
+require_login();
+
+$script = '<script>
                         $(".delete-btn").on("click", function() {
                             $(this).closest(".user-grid-card").addClass("d-none")
                         });
-                </script>';?>
+                </script>';
 
-<?php include './partials/layouts/layoutTop.php' ?>
+// Get users from database
+$search = trim($_GET['search'] ?? '');
+$where_conditions = [];
+$params = [];
+
+if ($search) {
+    $where_conditions[] = "(display_name ILIKE :search OR full_name ILIKE :search OR email ILIKE :search)";
+    $params['search'] = "%$search%";
+}
+
+$where_clause = '';
+if (!empty($where_conditions)) {
+    $where_clause = 'WHERE ' . implode(' AND ', $where_conditions);
+}
+
+// Get users
+$sql = "SELECT * FROM users $where_clause ORDER BY created_at DESC";
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+include './partials/layouts/layoutTop.php' 
+?>
 
         <div class="dashboard-main-body">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
@@ -49,22 +79,23 @@
                 </div>
                 <div class="card-body p-24">
                     <div class="row gy-4">
-                        <div class="col-xxl-3 col-md-6 user-grid-card   ">
+                        <?php foreach ($users as $user): ?>
+                        <div class="col-xxl-3 col-md-6 user-grid-card">
                             <div class="position-relative border radius-16 overflow-hidden">
                                 <img src="assets/images/user-grid/user-grid-bg1.png" alt="" class="w-100 object-fit-cover">
 
                                 <div class="dropdown position-absolute top-0 end-0 me-16 mt-16">
                                     <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="bg-white-gradient-light w-32-px h-32-px radius-8 border border-light-white d-flex justify-content-center align-items-center text-white">
-                                        <iconify-icon icon="entypo:dots-three-vertical" class="icon "></iconify-icon>
+                                        <iconify-icon icon="entypo:dots-three-vertical" class="icon"></iconify-icon>
                                     </button>
                                     <ul class="dropdown-menu p-12 border bg-base shadow">
                                         <li>
-                                            <a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-10" href="#">
+                                            <a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-10" href="user_crud.php?edit=<?= $user['id'] ?>">
                                                 Edit
                                             </a>
                                         </li>
                                         <li>
-                                            <button type="button" class="delete-btn dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-danger-100 text-hover-danger-600 d-flex align-items-center gap-10">
+                                            <button type="button" class="delete-btn dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-danger-100 text-hover-danger-600 d-flex align-items-center gap-10" onclick="deleteUser(<?= $user['id'] ?>)">
                                                 Delete
                                             </button>
                                         </li>
@@ -72,511 +103,30 @@
                                 </div>
 
                                 <div class="ps-16 pb-16 pe-16 text-center mt--50">
-                                    <img src="assets/images/user-grid/user-grid-img1.png" alt="" class="border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover">
-                                    <h6 class="text-lg mb-0 mt-4">Jacob Jones</h6>
-                                    <span class="text-secondary-light mb-16">ifrandom@gmail.com</span>
+                                    <div class="w-100-px h-100-px bg-primary rounded-circle d-flex justify-content-center align-items-center border border-white border-width-2-px mx-auto">
+                                        <iconify-icon icon="solar:user-outline" class="text-white text-3xl"></iconify-icon>
+                                    </div>
+                                    <h6 class="text-lg mb-0 mt-4"><?= htmlspecialchars($user['display_name']) ?></h6>
+                                    <span class="text-secondary-light mb-16"><?= htmlspecialchars($user['email']) ?></span>
 
                                     <div class="center-border position-relative bg-danger-gradient-light radius-8 p-12 d-flex align-items-center gap-4">
                                         <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">Design</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Department</span>
+                                            <h6 class="text-md mb-0"><?= htmlspecialchars($user['role']) ?></h6>
+                                            <span class="text-secondary-light text-sm mb-0">Role</span>
                                         </div>
                                         <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">UI UX Designer</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Designation</span>
+                                            <h6 class="text-md mb-0"><?= htmlspecialchars($user['tier']) ?></h6>
+                                            <span class="text-secondary-light text-sm mb-0">Tier</span>
                                         </div>
                                     </div>
-                                    <a href="view-profile.php" class="bg-primary-50 text-primary-600 bg-hover-primary-600 hover-text-white p-10 text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center justify-content-center mt-16 fw-medium gap-2 w-100">
+                                    <a href="view-profile.php?id=<?= $user['id'] ?>" class="bg-primary-50 text-primary-600 bg-hover-primary-600 hover-text-white p-10 text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center justify-content-center mt-16 fw-medium gap-2 w-100">
                                         View Profile
                                         <iconify-icon icon="solar:alt-arrow-right-linear" class="icon text-xl line-height-1"></iconify-icon>
                                     </a>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xxl-3 col-md-6 user-grid-card   ">
-                            <div class="position-relative border radius-16 overflow-hidden">
-                                <img src="assets/images/user-grid/user-grid-bg2.png" alt="" class="w-100 object-fit-cover">
-
-                                <div class="dropdown position-absolute top-0 end-0 me-16 mt-16">
-                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="bg-white-gradient-light w-32-px h-32-px radius-8 border border-light-white d-flex justify-content-center align-items-center text-white">
-                                        <iconify-icon icon="entypo:dots-three-vertical" class="icon "></iconify-icon>
-                                    </button>
-                                    <ul class="dropdown-menu p-12 border bg-base shadow">
-                                        <li>
-                                            <a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-10" href="#">
-                                                Edit
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <button type="button" class="delete-btn dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-danger-100 text-hover-danger-600 d-flex align-items-center gap-10">
-                                                Delete
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="ps-16 pb-16 pe-16 text-center mt--50">
-                                    <img src="assets/images/user-grid/user-grid-img2.png" alt="" class="border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover">
-                                    <h6 class="text-lg mb-0 mt-4">Darrell Steward</h6>
-                                    <span class="text-secondary-light mb-16">ifrandom@gmail.com</span>
-
-                                    <div class="center-border position-relative bg-danger-gradient-light radius-8 p-12 d-flex align-items-center gap-4">
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">Design</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Department</span>
-                                        </div>
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">UI UX Designer</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Designation</span>
-                                        </div>
-                                    </div>
-                                    <a href="view-profile.php" class="bg-primary-50 text-primary-600 bg-hover-primary-600 hover-text-white p-10 text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center justify-content-center mt-16 fw-medium gap-2 w-100">
-                                        View Profile
-                                        <iconify-icon icon="solar:alt-arrow-right-linear" class="icon text-xl line-height-1"></iconify-icon>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xxl-3 col-md-6 user-grid-card   ">
-                            <div class="position-relative border radius-16 overflow-hidden">
-                                <img src="assets/images/user-grid/user-grid-bg3.png" alt="" class="w-100 object-fit-cover">
-
-                                <div class="dropdown position-absolute top-0 end-0 me-16 mt-16">
-                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="bg-white-gradient-light w-32-px h-32-px radius-8 border border-light-white d-flex justify-content-center align-items-center text-white">
-                                        <iconify-icon icon="entypo:dots-three-vertical" class="icon "></iconify-icon>
-                                    </button>
-                                    <ul class="dropdown-menu p-12 border bg-base shadow">
-                                        <li>
-                                            <a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-10" href="#">
-                                                Edit
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <button type="button" class="delete-btn dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-danger-100 text-hover-danger-600 d-flex align-items-center gap-10">
-                                                Delete
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="ps-16 pb-16 pe-16 text-center mt--50">
-                                    <img src="assets/images/user-grid/user-grid-img3.png" alt="" class="border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover">
-                                    <h6 class="text-lg mb-0 mt-4">Jerome Bell</h6>
-                                    <span class="text-secondary-light mb-16">ifrandom@gmail.com</span>
-
-                                    <div class="center-border position-relative bg-danger-gradient-light radius-8 p-12 d-flex align-items-center gap-4">
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">Design</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Department</span>
-                                        </div>
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">UI UX Designer</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Designation</span>
-                                        </div>
-                                    </div>
-                                    <a href="view-profile.php" class="bg-primary-50 text-primary-600 bg-hover-primary-600 hover-text-white p-10 text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center justify-content-center mt-16 fw-medium gap-2 w-100">
-                                        View Profile
-                                        <iconify-icon icon="solar:alt-arrow-right-linear" class="icon text-xl line-height-1"></iconify-icon>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xxl-3 col-md-6 user-grid-card   ">
-                            <div class="position-relative border radius-16 overflow-hidden">
-                                <img src="assets/images/user-grid/user-grid-bg4.png" alt="" class="w-100 object-fit-cover">
-
-                                <div class="dropdown position-absolute top-0 end-0 me-16 mt-16">
-                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="bg-white-gradient-light w-32-px h-32-px radius-8 border border-light-white d-flex justify-content-center align-items-center text-white">
-                                        <iconify-icon icon="entypo:dots-three-vertical" class="icon "></iconify-icon>
-                                    </button>
-                                    <ul class="dropdown-menu p-12 border bg-base shadow">
-                                        <li>
-                                            <a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-10" href="#">
-                                                Edit
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <button type="button" class="delete-btn dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-danger-100 text-hover-danger-600 d-flex align-items-center gap-10">
-                                                Delete
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="ps-16 pb-16 pe-16 text-center mt--50">
-                                    <img src="assets/images/user-grid/user-grid-img4.png" alt="" class="border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover">
-                                    <h6 class="text-lg mb-0 mt-4">Eleanor Pena</h6>
-                                    <span class="text-secondary-light mb-16">ifrandom@gmail.com</span>
-
-                                    <div class="center-border position-relative bg-danger-gradient-light radius-8 p-12 d-flex align-items-center gap-4">
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">Design</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Department</span>
-                                        </div>
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">UI UX Designer</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Designation</span>
-                                        </div>
-                                    </div>
-                                    <a href="view-profile.php" class="bg-primary-50 text-primary-600 bg-hover-primary-600 hover-text-white p-10 text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center justify-content-center mt-16 fw-medium gap-2 w-100">
-                                        View Profile
-                                        <iconify-icon icon="solar:alt-arrow-right-linear" class="icon text-xl line-height-1"></iconify-icon>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xxl-3 col-md-6 user-grid-card   ">
-                            <div class="position-relative border radius-16 overflow-hidden">
-                                <img src="assets/images/user-grid/user-grid-bg5.png" alt="" class="w-100 object-fit-cover">
-
-                                <div class="dropdown position-absolute top-0 end-0 me-16 mt-16">
-                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="bg-white-gradient-light w-32-px h-32-px radius-8 border border-light-white d-flex justify-content-center align-items-center text-white">
-                                        <iconify-icon icon="entypo:dots-three-vertical" class="icon "></iconify-icon>
-                                    </button>
-                                    <ul class="dropdown-menu p-12 border bg-base shadow">
-                                        <li>
-                                            <a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-10" href="#">
-                                                Edit
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <button type="button" class="delete-btn dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-danger-100 text-hover-danger-600 d-flex align-items-center gap-10">
-                                                Delete
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="ps-16 pb-16 pe-16 text-center mt--50">
-                                    <img src="assets/images/user-grid/user-grid-img5.png" alt="" class="border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover">
-                                    <h6 class="text-lg mb-0 mt-4">Ralph Edwards</h6>
-                                    <span class="text-secondary-light mb-16">ifrandom@gmail.com</span>
-
-                                    <div class="center-border position-relative bg-danger-gradient-light radius-8 p-12 d-flex align-items-center gap-4">
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">Design</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Department</span>
-                                        </div>
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">UI UX Designer</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Designation</span>
-                                        </div>
-                                    </div>
-                                    <a href="view-profile.php" class="bg-primary-50 text-primary-600 bg-hover-primary-600 hover-text-white p-10 text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center justify-content-center mt-16 fw-medium gap-2 w-100">
-                                        View Profile
-                                        <iconify-icon icon="solar:alt-arrow-right-linear" class="icon text-xl line-height-1"></iconify-icon>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xxl-3 col-md-6 user-grid-card   ">
-                            <div class="position-relative border radius-16 overflow-hidden">
-                                <img src="assets/images/user-grid/user-grid-bg6.png" alt="" class="w-100 object-fit-cover">
-
-                                <div class="dropdown position-absolute top-0 end-0 me-16 mt-16">
-                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="bg-white-gradient-light w-32-px h-32-px radius-8 border border-light-white d-flex justify-content-center align-items-center text-white">
-                                        <iconify-icon icon="entypo:dots-three-vertical" class="icon "></iconify-icon>
-                                    </button>
-                                    <ul class="dropdown-menu p-12 border bg-base shadow">
-                                        <li>
-                                            <a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-10" href="#">
-                                                Edit
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <button type="button" class="delete-btn dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-danger-100 text-hover-danger-600 d-flex align-items-center gap-10">
-                                                Delete
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="ps-16 pb-16 pe-16 text-center mt--50">
-                                    <img src="assets/images/user-grid/user-grid-img6.png" alt="" class="border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover">
-                                    <h6 class="text-lg mb-0 mt-4">Annette Black</h6>
-                                    <span class="text-secondary-light mb-16">ifrandom@gmail.com</span>
-
-                                    <div class="center-border position-relative bg-danger-gradient-light radius-8 p-12 d-flex align-items-center gap-4">
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">Design</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Department</span>
-                                        </div>
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">UI UX Designer</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Designation</span>
-                                        </div>
-                                    </div>
-                                    <a href="view-profile.php" class="bg-primary-50 text-primary-600 bg-hover-primary-600 hover-text-white p-10 text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center justify-content-center mt-16 fw-medium gap-2 w-100">
-                                        View Profile
-                                        <iconify-icon icon="solar:alt-arrow-right-linear" class="icon text-xl line-height-1"></iconify-icon>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xxl-3 col-md-6 user-grid-card   ">
-                            <div class="position-relative border radius-16 overflow-hidden">
-                                <img src="assets/images/user-grid/user-grid-bg7.png" alt="" class="w-100 object-fit-cover">
-
-                                <div class="dropdown position-absolute top-0 end-0 me-16 mt-16">
-                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="bg-white-gradient-light w-32-px h-32-px radius-8 border border-light-white d-flex justify-content-center align-items-center text-white">
-                                        <iconify-icon icon="entypo:dots-three-vertical" class="icon "></iconify-icon>
-                                    </button>
-                                    <ul class="dropdown-menu p-12 border bg-base shadow">
-                                        <li>
-                                            <a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-10" href="#">
-                                                Edit
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <button type="button" class="delete-btn dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-danger-100 text-hover-danger-600 d-flex align-items-center gap-10">
-                                                Delete
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="ps-16 pb-16 pe-16 text-center mt--50">
-                                    <img src="assets/images/user-grid/user-grid-img7.png" alt="" class="border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover">
-                                    <h6 class="text-lg mb-0 mt-4">Robert Fox</h6>
-                                    <span class="text-secondary-light mb-16">ifrandom@gmail.com</span>
-
-                                    <div class="center-border position-relative bg-danger-gradient-light radius-8 p-12 d-flex align-items-center gap-4">
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">Design</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Department</span>
-                                        </div>
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">UI UX Designer</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Designation</span>
-                                        </div>
-                                    </div>
-                                    <a href="view-profile.php" class="bg-primary-50 text-primary-600 bg-hover-primary-600 hover-text-white p-10 text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center justify-content-center mt-16 fw-medium gap-2 w-100">
-                                        View Profile
-                                        <iconify-icon icon="solar:alt-arrow-right-linear" class="icon text-xl line-height-1"></iconify-icon>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xxl-3 col-md-6 user-grid-card   ">
-                            <div class="position-relative border radius-16 overflow-hidden">
-                                <img src="assets/images/user-grid/user-grid-bg8.png" alt="" class="w-100 object-fit-cover">
-
-                                <div class="dropdown position-absolute top-0 end-0 me-16 mt-16">
-                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="bg-white-gradient-light w-32-px h-32-px radius-8 border border-light-white d-flex justify-content-center align-items-center text-white">
-                                        <iconify-icon icon="entypo:dots-three-vertical" class="icon "></iconify-icon>
-                                    </button>
-                                    <ul class="dropdown-menu p-12 border bg-base shadow">
-                                        <li>
-                                            <a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-10" href="#">
-                                                Edit
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <button type="button" class="delete-btn dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-danger-100 text-hover-danger-600 d-flex align-items-center gap-10">
-                                                Delete
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="ps-16 pb-16 pe-16 text-center mt--50">
-                                    <img src="assets/images/user-grid/user-grid-img8.png" alt="" class="border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover">
-                                    <h6 class="text-lg mb-0 mt-4">Albert Flores</h6>
-                                    <span class="text-secondary-light mb-16">ifrandom@gmail.com</span>
-
-                                    <div class="center-border position-relative bg-danger-gradient-light radius-8 p-12 d-flex align-items-center gap-4">
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">Design</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Department</span>
-                                        </div>
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">UI UX Designer</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Designation</span>
-                                        </div>
-                                    </div>
-                                    <a href="view-profile.php" class="bg-primary-50 text-primary-600 bg-hover-primary-600 hover-text-white p-10 text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center justify-content-center mt-16 fw-medium gap-2 w-100">
-                                        View Profile
-                                        <iconify-icon icon="solar:alt-arrow-right-linear" class="icon text-xl line-height-1"></iconify-icon>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xxl-3 col-md-6 user-grid-card   ">
-                            <div class="position-relative border radius-16 overflow-hidden">
-                                <img src="assets/images/user-grid/user-grid-bg9.png" alt="" class="w-100 object-fit-cover">
-
-                                <div class="dropdown position-absolute top-0 end-0 me-16 mt-16">
-                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="bg-white-gradient-light w-32-px h-32-px radius-8 border border-light-white d-flex justify-content-center align-items-center text-white">
-                                        <iconify-icon icon="entypo:dots-three-vertical" class="icon "></iconify-icon>
-                                    </button>
-                                    <ul class="dropdown-menu p-12 border bg-base shadow">
-                                        <li>
-                                            <a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-10" href="#">
-                                                Edit
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <button type="button" class="delete-btn dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-danger-100 text-hover-danger-600 d-flex align-items-center gap-10">
-                                                Delete
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="ps-16 pb-16 pe-16 text-center mt--50">
-                                    <img src="assets/images/user-grid/user-grid-img9.png" alt="" class="border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover">
-                                    <h6 class="text-lg mb-0 mt-4">Dianne Russell</h6>
-                                    <span class="text-secondary-light mb-16">ifrandom@gmail.com</span>
-
-                                    <div class="center-border position-relative bg-danger-gradient-light radius-8 p-12 d-flex align-items-center gap-4">
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">Design</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Department</span>
-                                        </div>
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">UI UX Designer</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Designation</span>
-                                        </div>
-                                    </div>
-                                    <a href="view-profile.php" class="bg-primary-50 text-primary-600 bg-hover-primary-600 hover-text-white p-10 text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center justify-content-center mt-16 fw-medium gap-2 w-100">
-                                        View Profile
-                                        <iconify-icon icon="solar:alt-arrow-right-linear" class="icon text-xl line-height-1"></iconify-icon>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xxl-3 col-md-6 user-grid-card   ">
-                            <div class="position-relative border radius-16 overflow-hidden">
-                                <img src="assets/images/user-grid/user-grid-bg10.png" alt="" class="w-100 object-fit-cover">
-
-                                <div class="dropdown position-absolute top-0 end-0 me-16 mt-16">
-                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="bg-white-gradient-light w-32-px h-32-px radius-8 border border-light-white d-flex justify-content-center align-items-center text-white">
-                                        <iconify-icon icon="entypo:dots-three-vertical" class="icon "></iconify-icon>
-                                    </button>
-                                    <ul class="dropdown-menu p-12 border bg-base shadow">
-                                        <li>
-                                            <a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-10" href="#">
-                                                Edit
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <button type="button" class="delete-btn dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-danger-100 text-hover-danger-600 d-flex align-items-center gap-10">
-                                                Delete
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="ps-16 pb-16 pe-16 text-center mt--50">
-                                    <img src="assets/images/user-grid/user-grid-img10.png" alt="" class="border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover">
-                                    <h6 class="text-lg mb-0 mt-4">Esther Howard</h6>
-                                    <span class="text-secondary-light mb-16">ifrandom@gmail.com</span>
-
-                                    <div class="center-border position-relative bg-danger-gradient-light radius-8 p-12 d-flex align-items-center gap-4">
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">Design</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Department</span>
-                                        </div>
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">UI UX Designer</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Designation</span>
-                                        </div>
-                                    </div>
-                                    <a href="view-profile.php" class="bg-primary-50 text-primary-600 bg-hover-primary-600 hover-text-white p-10 text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center justify-content-center mt-16 fw-medium gap-2 w-100">
-                                        View Profile
-                                        <iconify-icon icon="solar:alt-arrow-right-linear" class="icon text-xl line-height-1"></iconify-icon>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xxl-3 col-md-6 user-grid-card   ">
-                            <div class="position-relative border radius-16 overflow-hidden">
-                                <img src="assets/images/user-grid/user-grid-bg11.png" alt="" class="w-100 object-fit-cover">
-
-                                <div class="dropdown position-absolute top-0 end-0 me-16 mt-16">
-                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="bg-white-gradient-light w-32-px h-32-px radius-8 border border-light-white d-flex justify-content-center align-items-center text-white">
-                                        <iconify-icon icon="entypo:dots-three-vertical" class="icon "></iconify-icon>
-                                    </button>
-                                    <ul class="dropdown-menu p-12 border bg-base shadow">
-                                        <li>
-                                            <a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-10" href="#">
-                                                Edit
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <button type="button" class="delete-btn dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-danger-100 text-hover-danger-600 d-flex align-items-center gap-10">
-                                                Delete
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="ps-16 pb-16 pe-16 text-center mt--50">
-                                    <img src="assets/images/user-grid/user-grid-img11.png" alt="" class="border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover">
-                                    <h6 class="text-lg mb-0 mt-4">Marvin McKinney</h6>
-                                    <span class="text-secondary-light mb-16">ifrandom@gmail.com</span>
-
-                                    <div class="center-border position-relative bg-danger-gradient-light radius-8 p-12 d-flex align-items-center gap-4">
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">Design</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Department</span>
-                                        </div>
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">UI UX Designer</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Designation</span>
-                                        </div>
-                                    </div>
-                                    <a href="view-profile.php" class="bg-primary-50 text-primary-600 bg-hover-primary-600 hover-text-white p-10 text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center justify-content-center mt-16 fw-medium gap-2 w-100">
-                                        View Profile
-                                        <iconify-icon icon="solar:alt-arrow-right-linear" class="icon text-xl line-height-1"></iconify-icon>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xxl-3 col-md-6 user-grid-card   ">
-                            <div class="position-relative border radius-16 overflow-hidden">
-                                <img src="assets/images/user-grid/user-grid-bg12.png" alt="" class="w-100 object-fit-cover">
-
-                                <div class="dropdown position-absolute top-0 end-0 me-16 mt-16">
-                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="bg-white-gradient-light w-32-px h-32-px radius-8 border border-light-white d-flex justify-content-center align-items-center text-white">
-                                        <iconify-icon icon="entypo:dots-three-vertical" class="icon "></iconify-icon>
-                                    </button>
-                                    <ul class="dropdown-menu p-12 border bg-base shadow">
-                                        <li>
-                                            <a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-10" href="#">
-                                                Edit
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <button type="button" class="delete-btn dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-danger-100 text-hover-danger-600 d-flex align-items-center gap-10">
-                                                Delete
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="ps-16 pb-16 pe-16 text-center mt--50">
-                                    <img src="assets/images/user-grid/user-grid-img12.png" alt="" class="border br-white border-width-2-px w-100-px h-100-px rounded-circle object-fit-cover">
-                                    <h6 class="text-lg mb-0 mt-4">Guy Hawkins</h6>
-                                    <span class="text-secondary-light mb-16">ifrandom@gmail.com</span>
-
-                                    <div class="center-border position-relative bg-danger-gradient-light radius-8 p-12 d-flex align-items-center gap-4">
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">Design</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Department</span>
-                                        </div>
-                                        <div class="text-center w-50">
-                                            <h6 class="text-md mb-0">UI UX Designer</h6>
-                                            <span class="text-secondary-light text-sm mb-0">Designation</span>
-                                        </div>
-                                    </div>
-                                    <a href="view-profile.php" class="bg-primary-50 text-primary-600 bg-hover-primary-600 hover-text-white p-10 text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center justify-content-center mt-16 fw-medium gap-2 w-100">
-                                        View Profile
-                                        <iconify-icon icon="solar:alt-arrow-right-linear" class="icon text-xl line-height-1"></iconify-icon>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-24">
                         <span>Showing 1 to 10 of 12 entries</span>

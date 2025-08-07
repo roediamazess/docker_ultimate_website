@@ -2,18 +2,14 @@
 session_start();
 require_once 'db.php';
 require_once 'access_control.php';
+require_once 'user_utils.php';
 
-// Cek akses
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit;
-}
+// Cek akses menggunakan utility function
+require_login();
 
-// Fungsi helper untuk logging
+// Fungsi helper untuk logging - menggunakan utility function
 function log_activity($action, $description) {
-    global $pdo;
-    $stmt = $pdo->prepare('INSERT INTO logs (user_email, action, description, created_at) VALUES (?, ?, ?, ?)');
-    $stmt->execute([$_SESSION['email'] ?? 'unknown', $action, $description, date('Y-m-d H:i:s')]);
+    log_user_activity($action, $description);
 }
 
 // CSRF Protection

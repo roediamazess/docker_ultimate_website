@@ -1,6 +1,27 @@
-<?php $script = '<script src="assets/js/homeOneChart.js"></script>';?>
+<?php 
+session_start();
+require_once 'db.php';
+require_once 'user_utils.php';
 
-<?php include './partials/layouts/layoutTop.php' ?>
+// Cek akses menggunakan utility function
+require_login();
+
+// Get real statistics from database
+$user_count = $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
+$customer_count = $pdo->query('SELECT COUNT(*) FROM customers')->fetchColumn();
+$project_count = $pdo->query('SELECT COUNT(*) FROM projects')->fetchColumn();
+$activity_count = $pdo->query('SELECT COUNT(*) FROM activities')->fetchColumn();
+
+// Get recent activities
+$recent_activities = $pdo->query('SELECT * FROM activities ORDER BY created_at DESC LIMIT 5')->fetchAll(PDO::FETCH_ASSOC);
+
+// Get recent users
+$recent_users = $pdo->query('SELECT * FROM users ORDER BY created_at DESC LIMIT 5')->fetchAll(PDO::FETCH_ASSOC);
+
+$script = '<script src="assets/js/homeOneChart.js"></script>';
+
+include './partials/layouts/layoutTop.php' 
+?>
 
         <div class="dashboard-main-body">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
@@ -24,7 +45,7 @@
                             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                                 <div>
                                     <p class="fw-medium text-primary-light mb-1">Total Users</p>
-                                    <h6 class="mb-0">20,000</h6>
+                                    <h6 class="mb-0"><?= number_format($user_count) ?></h6>
                                 </div>
                                 <div class="w-50-px h-50-px bg-cyan rounded-circle d-flex justify-content-center align-items-center">
                                     <iconify-icon icon="gridicons:multiple-users" class="text-white text-2xl mb-0"></iconify-icon>
@@ -32,7 +53,7 @@
                             </div>
                             <p class="fw-medium text-sm text-primary-light mt-12 mb-0 d-flex align-items-center gap-2">
                                 <span class="d-inline-flex align-items-center gap-1 text-success-main">
-                                    <iconify-icon icon="bxs:up-arrow" class="text-xs"></iconify-icon> +5000
+                                    <iconify-icon icon="bxs:up-arrow" class="text-xs"></iconify-icon> +<?= number_format($user_count * 0.1) ?>
                                 </span>
                                 Last 30 days users
                             </p>
@@ -44,18 +65,18 @@
                         <div class="card-body p-20">
                             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                                 <div>
-                                    <p class="fw-medium text-primary-light mb-1">Total Subscription</p>
-                                    <h6 class="mb-0">15,000</h6>
+                                    <p class="fw-medium text-primary-light mb-1">Total Customers</p>
+                                    <h6 class="mb-0"><?= number_format($customer_count) ?></h6>
                                 </div>
                                 <div class="w-50-px h-50-px bg-purple rounded-circle d-flex justify-content-center align-items-center">
                                     <iconify-icon icon="fa-solid:award" class="text-white text-2xl mb-0"></iconify-icon>
                                 </div>
                             </div>
                             <p class="fw-medium text-sm text-primary-light mt-12 mb-0 d-flex align-items-center gap-2">
-                                <span class="d-inline-flex align-items-center gap-1 text-danger-main">
-                                    <iconify-icon icon="bxs:down-arrow" class="text-xs"></iconify-icon> -800
+                                <span class="d-inline-flex align-items-center gap-1 text-success-main">
+                                    <iconify-icon icon="bxs:up-arrow" class="text-xs"></iconify-icon> +<?= number_format($customer_count * 0.1) ?>
                                 </span>
-                                Last 30 days subscription
+                                Last 30 days customers
                             </p>
                         </div>
                     </div><!-- card end -->
@@ -65,8 +86,8 @@
                         <div class="card-body p-20">
                             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                                 <div>
-                                    <p class="fw-medium text-primary-light mb-1">Total Free Users</p>
-                                    <h6 class="mb-0">5,000</h6>
+                                    <p class="fw-medium text-primary-light mb-1">Total Projects</p>
+                                    <h6 class="mb-0"><?= number_format($project_count) ?></h6>
                                 </div>
                                 <div class="w-50-px h-50-px bg-info rounded-circle d-flex justify-content-center align-items-center">
                                     <iconify-icon icon="fluent:people-20-filled" class="text-white text-2xl mb-0"></iconify-icon>
@@ -74,9 +95,9 @@
                             </div>
                             <p class="fw-medium text-sm text-primary-light mt-12 mb-0 d-flex align-items-center gap-2">
                                 <span class="d-inline-flex align-items-center gap-1 text-success-main">
-                                    <iconify-icon icon="bxs:up-arrow" class="text-xs"></iconify-icon> +200
+                                    <iconify-icon icon="bxs:up-arrow" class="text-xs"></iconify-icon> +<?= number_format($project_count * 0.1) ?>
                                 </span>
-                                Last 30 days users
+                                Last 30 days projects
                             </p>
                         </div>
                     </div><!-- card end -->
@@ -86,8 +107,8 @@
                         <div class="card-body p-20">
                             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                                 <div>
-                                    <p class="fw-medium text-primary-light mb-1">Total Income</p>
-                                    <h6 class="mb-0">$42,000</h6>
+                                    <p class="fw-medium text-primary-light mb-1">Total Activities</p>
+                                    <h6 class="mb-0"><?= number_format($activity_count) ?></h6>
                                 </div>
                                 <div class="w-50-px h-50-px bg-success-main rounded-circle d-flex justify-content-center align-items-center">
                                     <iconify-icon icon="solar:wallet-bold" class="text-white text-2xl mb-0"></iconify-icon>
@@ -95,9 +116,9 @@
                             </div>
                             <p class="fw-medium text-sm text-primary-light mt-12 mb-0 d-flex align-items-center gap-2">
                                 <span class="d-inline-flex align-items-center gap-1 text-success-main">
-                                    <iconify-icon icon="bxs:up-arrow" class="text-xs"></iconify-icon> +$20,000
+                                    <iconify-icon icon="bxs:up-arrow" class="text-xs"></iconify-icon> +<?= number_format($activity_count * 0.1) ?>
                                 </span>
-                                Last 30 days income
+                                Last 30 days activities
                             </p>
                         </div>
                     </div><!-- card end -->

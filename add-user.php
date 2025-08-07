@@ -1,4 +1,12 @@
-<?php $script = '<script>
+<?php 
+session_start();
+require_once 'db.php';
+require_once 'user_utils.php';
+
+// Cek akses menggunakan utility function
+require_login();
+
+$script = '<script>
     // ================== Image Upload Js Start ===========================
     function readURL(input) {
         if (input.files && input.files[0]) {
@@ -15,9 +23,10 @@
         readURL(this);
     });
     // ================== Image Upload Js End ===========================
-    </script>';?>
+    </script>';
 
-<?php include './partials/layouts/layoutTop.php' ?>
+include './partials/layouts/layoutTop.php' 
+?>
 
         <div class="dashboard-main-body">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
@@ -58,44 +67,53 @@
                                     </div>
                                     <!-- Upload Image End -->
 
-                                    <form action="#">
+                                    <form action="user_crud.php" method="post">
                                         <div class="mb-20">
-                                            <label for="name" class="form-label fw-semibold text-primary-light text-sm mb-8">Full Name <span class="text-danger-600">*</span></label>
-                                            <input type="text" class="form-control radius-8" id="name" placeholder="Enter Full Name">
+                                            <label for="display_name" class="form-label fw-semibold text-primary-light text-sm mb-8">Display Name <span class="text-danger-600">*</span></label>
+                                            <input type="text" class="form-control radius-8" id="display_name" name="display_name" placeholder="Enter Display Name" required>
+                                        </div>
+                                        <div class="mb-20">
+                                            <label for="full_name" class="form-label fw-semibold text-primary-light text-sm mb-8">Full Name <span class="text-danger-600">*</span></label>
+                                            <input type="text" class="form-control radius-8" id="full_name" name="full_name" placeholder="Enter Full Name" required>
                                         </div>
                                         <div class="mb-20">
                                             <label for="email" class="form-label fw-semibold text-primary-light text-sm mb-8">Email <span class="text-danger-600">*</span></label>
-                                            <input type="email" class="form-control radius-8" id="email" placeholder="Enter email address">
+                                            <input type="email" class="form-control radius-8" id="email" name="email" placeholder="Enter email address" required>
                                         </div>
                                         <div class="mb-20">
-                                            <label for="number" class="form-label fw-semibold text-primary-light text-sm mb-8">Phone</label>
-                                            <input type="email" class="form-control radius-8" id="number" placeholder="Enter phone number">
+                                            <label for="password" class="form-label fw-semibold text-primary-light text-sm mb-8">Password <span class="text-danger-600">*</span></label>
+                                            <input type="password" class="form-control radius-8" id="password" name="password" placeholder="Enter password" required>
                                         </div>
                                         <div class="mb-20">
-                                            <label for="depart" class="form-label fw-semibold text-primary-light text-sm mb-8">Department <span class="text-danger-600">*</span> </label>
-                                            <select class="form-control radius-8 form-select" id="depart">
-                                                <option>Enter Event Title </option>
-                                                <option>Enter Event Title One </option>
-                                                <option>Enter Event Title Two</option>
+                                            <label for="tier" class="form-label fw-semibold text-primary-light text-sm mb-8">Tier <span class="text-danger-600">*</span> </label>
+                                            <select class="form-control radius-8 form-select" id="tier" name="tier" required>
+                                                <option value="">Select Tier</option>
+                                                <option value="New Born">New Born</option>
+                                                <option value="Tier 1">Tier 1</option>
+                                                <option value="Tier 2">Tier 2</option>
+                                                <option value="Tier 3">Tier 3</option>
                                             </select>
                                         </div>
                                         <div class="mb-20">
-                                            <label for="desig" class="form-label fw-semibold text-primary-light text-sm mb-8">Designation <span class="text-danger-600">*</span> </label>
-                                            <select class="form-control radius-8 form-select" id="desig">
-                                                <option>Enter Designation Title </option>
-                                                <option>Enter Designation Title One </option>
-                                                <option>Enter Designation Title Two</option>
+                                            <label for="role" class="form-label fw-semibold text-primary-light text-sm mb-8">Role <span class="text-danger-600">*</span> </label>
+                                            <select class="form-control radius-8 form-select" id="role" name="role" required>
+                                                <option value="">Select Role</option>
+                                                <option value="Administrator">Administrator</option>
+                                                <option value="Management">Management</option>
+                                                <option value="Admin Office">Admin Office</option>
+                                                <option value="User">User</option>
+                                                <option value="Client">Client</option>
                                             </select>
                                         </div>
                                         <div class="mb-20">
-                                            <label for="desc" class="form-label fw-semibold text-primary-light text-sm mb-8">Description</label>
-                                            <textarea name="#0" class="form-control radius-8" id="desc" placeholder="Write description..."></textarea>
+                                            <label for="start_work" class="form-label fw-semibold text-primary-light text-sm mb-8">Start Work Date</label>
+                                            <input type="date" class="form-control radius-8" id="start_work" name="start_work">
                                         </div>
                                         <div class="d-flex align-items-center justify-content-center gap-3">
-                                            <button type="button" class="border border-danger-600 bg-hover-danger-200 text-danger-600 text-md px-56 py-11 radius-8">
+                                            <a href="users-list.php" class="border border-danger-600 bg-hover-danger-200 text-danger-600 text-md px-56 py-11 radius-8">
                                                 Cancel
-                                            </button>
-                                            <button type="submit" class="btn btn-primary border border-primary-600 text-md px-56 py-12 radius-8">
+                                            </a>
+                                            <button type="submit" name="create" class="btn btn-primary border border-primary-600 text-md px-56 py-12 radius-8">
                                                 Save
                                             </button>
                                         </div>

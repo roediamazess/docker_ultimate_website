@@ -1,4 +1,25 @@
-<?php $script ='<script>
+<?php 
+session_start();
+require_once 'db.php';
+require_once 'user_utils.php';
+
+// Cek akses menggunakan utility function
+require_login();
+
+// Get user ID from URL parameter or use current user
+$user_id = $_GET['id'] ?? $_SESSION['user_id'];
+
+// Get user data
+$stmt = $pdo->prepare('SELECT * FROM users WHERE id = ?');
+$stmt->execute([$user_id]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$user) {
+    header('Location: users-list.php');
+    exit;
+}
+
+$script ='<script>
     // ======================== Upload Image Start =====================
     function readURL(input) {
         if (input.files && input.files[0]) {
@@ -31,9 +52,10 @@
     // Call the function
     initializePasswordToggle(".toggle-password");
     // ========================= Password Show Hide Js End ===========================
-    </script>';?>
+    </script>';
 
-<?php include './partials/layouts/layoutTop.php' ?>
+include './partials/layouts/layoutTop.php' 
+?>
 
         <div class="dashboard-main-body">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
@@ -56,40 +78,42 @@
                         <img src="assets/images/user-grid/user-grid-bg1.png" alt="" class="w-100 object-fit-cover">
                         <div class="pb-24 ms-16 mb-24 me-16  mt--100">
                             <div class="text-center border border-top-0 border-start-0 border-end-0">
-                                <img src="assets/images/user-grid/user-grid-img14.png" alt="" class="border br-white border-width-2-px w-200-px h-200-px rounded-circle object-fit-cover">
-                                <h6 class="mb-0 mt-16">Jacob Jones</h6>
-                                <span class="text-secondary-light mb-16">ifrandom@gmail.com</span>
+                                <div class="w-200-px h-200-px bg-primary rounded-circle d-flex justify-content-center align-items-center border border-white border-width-2-px mx-auto">
+                                    <iconify-icon icon="solar:user-outline" class="text-white text-6xl"></iconify-icon>
+                                </div>
+                                <h6 class="mb-0 mt-16"><?= htmlspecialchars($user['display_name']) ?></h6>
+                                <span class="text-secondary-light mb-16"><?= htmlspecialchars($user['email']) ?></span>
                             </div>
                             <div class="mt-24">
                                 <h6 class="text-xl mb-16">Personal Info</h6>
                                 <ul>
                                     <li class="d-flex align-items-center gap-1 mb-12">
                                         <span class="w-30 text-md fw-semibold text-primary-light">Full Name</span>
-                                        <span class="w-70 text-secondary-light fw-medium">: Will Jonto</span>
+                                        <span class="w-70 text-secondary-light fw-medium">: <?= htmlspecialchars($user['full_name']) ?></span>
                                     </li>
                                     <li class="d-flex align-items-center gap-1 mb-12">
                                         <span class="w-30 text-md fw-semibold text-primary-light"> Email</span>
-                                        <span class="w-70 text-secondary-light fw-medium">: willjontoax@gmail.com</span>
+                                        <span class="w-70 text-secondary-light fw-medium">: <?= htmlspecialchars($user['email']) ?></span>
                                     </li>
                                     <li class="d-flex align-items-center gap-1 mb-12">
-                                        <span class="w-30 text-md fw-semibold text-primary-light"> Phone Number</span>
-                                        <span class="w-70 text-secondary-light fw-medium">: (1) 2536 2561 2365</span>
+                                        <span class="w-30 text-md fw-semibold text-primary-light"> Role</span>
+                                        <span class="w-70 text-secondary-light fw-medium">: <?= htmlspecialchars($user['role']) ?></span>
                                     </li>
                                     <li class="d-flex align-items-center gap-1 mb-12">
-                                        <span class="w-30 text-md fw-semibold text-primary-light"> Department</span>
-                                        <span class="w-70 text-secondary-light fw-medium">: Design</span>
+                                        <span class="w-30 text-md fw-semibold text-primary-light"> Tier</span>
+                                        <span class="w-70 text-secondary-light fw-medium">: <?= htmlspecialchars($user['tier']) ?></span>
                                     </li>
                                     <li class="d-flex align-items-center gap-1 mb-12">
-                                        <span class="w-30 text-md fw-semibold text-primary-light"> Designation</span>
-                                        <span class="w-70 text-secondary-light fw-medium">: UI UX Designer</span>
+                                        <span class="w-30 text-md fw-semibold text-primary-light"> Start Work</span>
+                                        <span class="w-70 text-secondary-light fw-medium">: <?= $user['start_work'] ? date('d M Y', strtotime($user['start_work'])) : 'Not set' ?></span>
                                     </li>
                                     <li class="d-flex align-items-center gap-1 mb-12">
-                                        <span class="w-30 text-md fw-semibold text-primary-light"> Languages</span>
-                                        <span class="w-70 text-secondary-light fw-medium">: English</span>
+                                        <span class="w-30 text-md fw-semibold text-primary-light"> Created</span>
+                                        <span class="w-70 text-secondary-light fw-medium">: <?= date('d M Y', strtotime($user['created_at'])) ?></span>
                                     </li>
                                     <li class="d-flex align-items-center gap-1">
-                                        <span class="w-30 text-md fw-semibold text-primary-light"> Bio</span>
-                                        <span class="w-70 text-secondary-light fw-medium">: Lorem Ipsum is simply dummy text of the printing and typesetting industry.</span>
+                                        <span class="w-30 text-md fw-semibold text-primary-light"> Status</span>
+                                        <span class="w-70 text-secondary-light fw-medium">: <span class="bg-success-focus text-success-600 border border-success-main px-8 py-2 radius-4 fw-medium text-xs">Active</span></span>
                                     </li>
                                 </ul>
                             </div>

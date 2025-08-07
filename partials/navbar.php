@@ -1,3 +1,9 @@
+<?php
+// Session check untuk navbar
+if (!isset($_SESSION)) {
+    session_start();
+}
+?>
 <div class="navbar-header">
             <div class="row align-items-center justify-content-between">
                 <div class="col-auto">
@@ -306,13 +312,22 @@
 
                         <div class="dropdown">
                             <button class="d-flex justify-content-center align-items-center rounded-circle" type="button" data-bs-toggle="dropdown">
+                                <?php if (isset($_SESSION['user_id'])): ?>
+                                <div class="w-40-px h-40-px bg-primary rounded-circle d-flex justify-content-center align-items-center">
+                                    <iconify-icon icon="solar:user-outline" class="text-white text-lg"></iconify-icon>
+                                </div>
+                                <?php else: ?>
                                 <img src="assets/images/user.png" alt="image" class="w-40-px h-40-px object-fit-cover rounded-circle">
+                                <?php endif; ?>
                             </button>
                             <div class="dropdown-menu to-top dropdown-menu-sm">
+                                <?php if (isset($_SESSION['user_id'])): ?>
                                 <div class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
                                     <div>
-                                        <h6 class="text-lg text-primary-light fw-semibold mb-2">Shaidul Islam</h6>
-                                        <span class="text-secondary-light fw-medium text-sm">Admin</span>
+                                        <h6 class="text-lg text-primary-light fw-semibold mb-2"><?= htmlspecialchars($_SESSION['user_display_name'] ?? 'User') ?></h6>
+                                        <span class="text-secondary-light fw-medium text-sm"><?= htmlspecialchars($_SESSION['user_email'] ?? '') ?></span>
+                                        <br>
+                                        <span class="text-secondary-light fw-medium text-xs"><?= htmlspecialchars($_SESSION['user_role'] ?? 'User') ?></span>
                                     </div>
                                     <button type="button" class="hover-text-danger">
                                         <iconify-icon icon="radix-icons:cross-1" class="icon text-xl"></iconify-icon>
@@ -320,26 +335,35 @@
                                 </div>
                                 <ul class="to-top-list">
                                     <li>
-                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="view-profile.php">
+                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="view-profile.php?id=<?= $_SESSION['user_id'] ?? '' ?>">
                                             <iconify-icon icon="solar:user-linear" class="icon text-xl"></iconify-icon> My Profile
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="email.php">
-                                            <iconify-icon icon="tabler:message-check" class="icon text-xl"></iconify-icon> Inbox
+                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="log_view.php">
+                                            <iconify-icon icon="solar:document-text-linear" class="icon text-xl"></iconify-icon> Activity Log
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="company.php">
-                                            <iconify-icon icon="icon-park-outline:setting-two" class="icon text-xl"></iconify-icon> Setting
+                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="users-list.php">
+                                            <iconify-icon icon="solar:users-group-rounded-linear" class="icon text-xl"></iconify-icon> User Management
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3" href="javascript:void(0)">
-                                            <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon> Log Out
+                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3" href="logout.php">
+                                            <iconify-icon icon="solar:logout-2-outline" class="icon text-xl"></iconify-icon> Log Out
                                         </a>
                                     </li>
                                 </ul>
+                                <?php else: ?>
+                                <ul class="to-top-list">
+                                    <li>
+                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="login.php">
+                                            <iconify-icon icon="solar:login-2-outline" class="icon text-xl"></iconify-icon> Login
+                                        </a>
+                                    </li>
+                                </ul>
+                                <?php endif; ?>
                             </div>
                         </div><!-- Profile dropdown end -->
                     </div>
