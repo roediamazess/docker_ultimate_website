@@ -230,7 +230,7 @@ if ($user) {
 </head>
 <body>
     <div class="reset-container">
-        <div class="logo">
+        <div class="logo" style="text-align: center; margin-bottom: 30px;">
             <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 60px; width: auto;">
         </div>
         

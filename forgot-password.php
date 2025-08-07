@@ -353,7 +353,7 @@ $bgClass = 'morning';
         <div class="login-card">
             <div class="login-header">
                 <div class="login-logo">
-                    <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 60px; width: auto; filter: brightness(0) invert(1);">
+                    <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 60px; width: auto;">
                 </div>
                 <h1 class="login-title">Reset Password 🔐</h1>
                 <div class="time-greeting" id="timeGreeting">
