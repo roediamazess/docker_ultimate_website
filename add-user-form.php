@@ -1,48 +1,66 @@
 <?php
-// Set timezone ke Asia/Jakarta
-date_default_timezone_set('Asia/Jakarta');
-
+// add-user-form.php - Form untuk tambah user baru
 session_start();
 require_once 'db.php';
 
 $error = '';
 $success = '';
 
-if (isset($_POST['login'])) {
+if (isset($_POST['add_user'])) {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
+    $display_name = $_POST['display_name'] ?? '';
+    $full_name = $_POST['full_name'] ?? '';
+    $role = $_POST['role'] ?? '';
+    $tier = $_POST['tier'] ?? '';
     
-    $sql = "SELECT * FROM users WHERE email = ?";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$email]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($user && password_verify($password, $user['password'])) {
-        // Login sukses
-        session_regenerate_id(true);
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_email'] = $user['email'];
-        $_SESSION['user_role'] = $user['role'];
-        $_SESSION['user_display_name'] = $user['display_name'];
-        
-        $success = 'Login berhasil! Redirecting...';
-        header('Location: index.php');
-        exit;
+    // Validasi
+    if (empty($email) || empty($password) || empty($display_name) || empty($full_name) || empty($role) || empty($tier)) {
+        $error = 'Semua field harus diisi!';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Format email tidak valid!';
+    } elseif (strlen($password) < 6) {
+        $error = 'Password minimal 6 karakter!';
+    } elseif ($password !== $confirm_password) {
+        $error = 'Konfirmasi password tidak cocok!';
     } else {
-        $error = 'Email atau password salah!';
+        // Cek apakah email sudah ada
+        $check_sql = "SELECT id FROM users WHERE email = ?";
+        $check_stmt = $pdo->prepare($check_sql);
+        $check_stmt->execute([$email]);
+        
+        if ($check_stmt->fetch()) {
+            $error = 'Email sudah terdaftar!';
+        } else {
+            // Hash password
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            
+            // Insert user baru
+            $insert_sql = "INSERT INTO users (email, password, display_name, full_name, role, tier, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())";
+            $insert_stmt = $pdo->prepare($insert_sql);
+            
+            if ($insert_stmt->execute([$email, $hashed_password, $display_name, $full_name, $role, $tier])) {
+                $success = 'User berhasil ditambahkan!';
+                // Reset form
+                $email = $display_name = $full_name = $role = $tier = '';
+            } else {
+                $error = 'Gagal menambahkan user!';
+            }
+        }
     }
 }
 
-            // Default values - akan diupdate oleh JavaScript
-            $timeOfDay = 'Gaes!';
-            $bgClass = 'morning';
+// Default values untuk background
+$timeOfDay = 'Gaes!';
+$bgClass = 'morning';
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Ultimate Website</title>
+    <title>Add User - Ultimate Website</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link href="assets/css/login-backgrounds.css" rel="stylesheet">
@@ -90,13 +108,15 @@ if (isset($_POST['login'])) {
             padding: 48px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 420px;
+            max-width: 500px;
             width: 90%;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 10;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .login-header {
@@ -123,12 +143,6 @@ if (isset($_POST['login'])) {
             margin-bottom: 8px;
         }
 
-        .login-subtitle {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 0;
-        }
-
         .time-greeting {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -142,16 +156,8 @@ if (isset($_POST['login'])) {
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             position: relative;
-        }
-
-        .form-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 8px;
-            display: block;
         }
 
         .form-input {
@@ -171,18 +177,21 @@ if (isset($_POST['login'])) {
             background: white;
         }
 
-        .input-icon {
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 20px;
-            width: 20px;
+        .form-select {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background: white;
         }
 
         .login-btn {
@@ -201,6 +210,26 @@ if (isset($_POST['login'])) {
         .login-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .back-btn {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 16px;
+        }
+
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
         }
 
         .error-message {
@@ -263,8 +292,6 @@ if (isset($_POST['login'])) {
                 // Add new class
                 backgroundElement.classList.add(bgClass);
             }
-            
-            console.log(`Waktu lokal: ${hour}:${now.getMinutes()} - ${timeOfDay} (${bgClass})`);
         }
         
         // Update saat halaman dimuat
@@ -285,9 +312,9 @@ if (isset($_POST['login'])) {
         <div class="login-card">
             <div class="login-header">
                 <div class="login-logo">
-                    <iconify-icon icon="solar:user-outline" style="font-size: 40px; color: white;"></iconify-icon>
+                    <iconify-icon icon="solar:user-plus-outline" style="font-size: 40px; color: white;"></iconify-icon>
                 </div>
-                <h1 class="login-title">Welcome Back! 👋</h1>
+                <h1 class="login-title">Add New User 👤</h1>
                 <div class="time-greeting" id="timeGreeting">
                     Selamat <span id="timeOfDay">Gaes!</span>
                 </div>
@@ -309,25 +336,55 @@ if (isset($_POST['login'])) {
 
             <form method="post">
                 <div class="form-group">
-                    <input type="email" name="email" class="form-input" placeholder="Email" required autocomplete="username">
-                    <iconify-icon icon="solar:letter-outline" class="input-icon"></iconify-icon>
+                    <input type="email" name="email" class="form-input" placeholder="Email" required value="<?= htmlspecialchars($email ?? '') ?>">
                 </div>
 
                 <div class="form-group">
-                    <input type="password" name="password" class="form-input" placeholder="Password" required autocomplete="current-password">
-                    <iconify-icon icon="solar:lock-outline" class="input-icon"></iconify-icon>
+                    <input type="text" name="display_name" class="form-input" placeholder="Display Name" required value="<?= htmlspecialchars($display_name ?? '') ?>">
                 </div>
 
-                <button type="submit" name="login" class="login-btn">
-                    Masuk Sekarang
+                <div class="form-group">
+                    <input type="text" name="full_name" class="form-input" placeholder="Full Name" required value="<?= htmlspecialchars($full_name ?? '') ?>">
+                </div>
+
+                <div class="form-group">
+                    <select name="role" class="form-select" required>
+                        <option value="">Select Role</option>
+                        <option value="Administrator" <?= ($role ?? '') === 'Administrator' ? 'selected' : '' ?>>Administrator</option>
+                        <option value="Management" <?= ($role ?? '') === 'Management' ? 'selected' : '' ?>>Management</option>
+                        <option value="Admin Office" <?= ($role ?? '') === 'Admin Office' ? 'selected' : '' ?>>Admin Office</option>
+                        <option value="User" <?= ($role ?? '') === 'User' ? 'selected' : '' ?>>User</option>
+                        <option value="Client" <?= ($role ?? '') === 'Client' ? 'selected' : '' ?>>Client</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <select name="tier" class="form-select" required>
+                        <option value="">Select Tier</option>
+                        <option value="New Born" <?= ($tier ?? '') === 'New Born' ? 'selected' : '' ?>>New Born</option>
+                        <option value="Tier 1" <?= ($tier ?? '') === 'Tier 1' ? 'selected' : '' ?>>Tier 1</option>
+                        <option value="Tier 2" <?= ($tier ?? '') === 'Tier 2' ? 'selected' : '' ?>>Tier 2</option>
+                        <option value="Tier 3" <?= ($tier ?? '') === 'Tier 3' ? 'selected' : '' ?>>Tier 3</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" name="password" class="form-input" placeholder="Password" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" name="confirm_password" class="form-input" placeholder="Confirm Password" required>
+                </div>
+
+                <button type="submit" name="add_user" class="login-btn">
+                    Add User
                 </button>
             </form>
 
-            <div style="margin-top: 32px; text-align: center;">
-                <p style="color: #666; font-size: 14px;">
-                    <a href="forgot-password.php" style="color: #667eea; text-decoration: none;">Forgot Password? Click here</a>
-                </p>
-            </div>
+            <button onclick="window.location.href='login_simple.php'" class="back-btn">
+                <iconify-icon icon="solar:arrow-left-outline" style="margin-right: 8px;"></iconify-icon>
+                Back to Login
+            </button>
         </div>
     </div>
 </body>
