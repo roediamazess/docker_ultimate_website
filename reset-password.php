@@ -239,8 +239,8 @@ if ($user) {
             <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 120px; width: auto; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; cursor: pointer;" onmouseover="this.style.animation='spin 2s linear infinite'" onmouseout="this.style.animation='none'; this.style.transform='rotate(0deg)'">
         </div>
         
-        <h1 class="title">Reset Password</h1>
-        <p class="subtitle">Set password baru untuk akun Anda</p>
+        <h1 class="title">Atur Ulang Password</h1>
+        <p class="subtitle">Atur password baru untuk akun Anda</p>
 
         <?php if ($error): ?>
             <div class="alert alert-danger">
@@ -258,19 +258,19 @@ if ($user) {
 
         <?php if ($user && !$error && !$success): ?>
             <div class="user-info">
-                <strong>Reset Password untuk:</strong><br>
+                <strong>Atur Ulang Password untuk:</strong><br>
                 <i class="ri-user-line"></i> <?php echo htmlspecialchars($user['display_name']); ?><br>
                 <i class="ri-mail-line"></i> <?php echo htmlspecialchars($user['email']); ?>
             </div>
 
             <div class="device-timezone" id="deviceTimezone">
-                <i class="ri-time-line"></i> Detecting your timezone...
+                <i class="ri-time-line"></i> Mendeteksi zona waktu Anda...
             </div>
 
             <div class="timezone-info">
                 <strong>Token berlaku hingga:</strong><br>
-                <span id="localTime">Loading...</span><br>
-                <small>Berdasarkan timezone device Anda</small>
+                <span id="localTime">Memuat...</span><br>
+                <small>Berdasarkan zona waktu perangkat Anda</small>
             </div>
 
             <form method="POST">
@@ -285,7 +285,7 @@ if ($user) {
                 </div>
                 
                 <button type="submit" name="reset_password" class="btn-reset">
-                    <i class="ri-lock-unlock-line"></i> Reset Password
+                    <i class="ri-lock-unlock-line"></i> Atur Ulang Password
                 </button>
             </form>
         <?php endif; ?>
@@ -321,7 +321,7 @@ if ($user) {
                     
                     // Update display
                     document.getElementById('deviceTimezone').innerHTML = 
-                        `<i class="ri-time-line"></i> <strong>Device Timezone:</strong> ${deviceTimezone}`;
+                        `<i class="ri-time-line"></i> <strong>Zona Waktu Perangkat:</strong> ${deviceTimezone}`;
                     
                     document.getElementById('localTime').textContent = localTimeString;
                     
@@ -340,8 +340,8 @@ if ($user) {
             } catch (error) {
                 console.error('Error detecting timezone:', error);
                 document.getElementById('deviceTimezone').innerHTML = 
-                    '<i class="ri-error-warning-line"></i> Tidak bisa detect timezone device';
-                document.getElementById('localTime').textContent = 'Error detecting timezone';
+                    '<i class="ri-error-warning-line"></i> Tidak bisa mendeteksi zona waktu perangkat';
+                document.getElementById('localTime').textContent = 'Error mendeteksi zona waktu';
             }
         }
 
