@@ -360,7 +360,7 @@ $bgClass = 'morning';
                 <div class="login-logo" style="background: transparent !important; border: none !important; box-shadow: none !important;">
                     <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 120px; width: auto; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; cursor: pointer;" onmouseover="this.style.animation='spin 2s linear infinite'" onmouseout="this.style.animation='none'; this.style.transform='rotate(0deg)'">
                 </div>
-                <h1 class="login-title">Lupa Password 🔐</h1>
+                <h1 class="login-title">Forgot Password 🔐</h1>
                 <div class="time-greeting" id="timeGreeting">
                     Selamat <span id="timeOfDay">Gaes!</span>
                     </div>
@@ -382,7 +382,7 @@ $bgClass = 'morning';
 
             <form method="post">
                 <div class="form-group">
-                    <input type="email" name="email" class="form-input" placeholder="Masukkan Email" required autocomplete="email">
+                    <input type="email" name="email" class="form-input" placeholder="Email" required autocomplete="email">
                     <iconify-icon icon="solar:letter-outline" class="input-icon"></iconify-icon>
                 </div>
 

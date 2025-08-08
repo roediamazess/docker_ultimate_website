@@ -292,7 +292,7 @@ if (isset($_POST['login'])) {
                 <div class="login-logo" style="background: transparent !important; border: none !important; box-shadow: none !important;">
                     <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 120px; width: auto; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; cursor: pointer;" onmouseover="this.style.animation='spin 2s linear infinite'" onmouseout="this.style.animation='none'; this.style.transform='rotate(0deg)'">
                 </div>
-                <h1 class="login-title">Selamat Datang Kembali! 👋</h1>
+                <h1 class="login-title">Welcome Back! 👋</h1>
                 <div class="time-greeting" id="timeGreeting">
                     Selamat <span id="timeOfDay">Gaes!</span>
                 </div>
@@ -314,12 +314,12 @@ if (isset($_POST['login'])) {
 
             <form method="post">
                 <div class="form-group">
-                    <input type="email" name="email" class="form-input" placeholder="Masukkan Email" required autocomplete="username">
+                    <input type="email" name="email" class="form-input" placeholder="Email" required autocomplete="username">
                     <iconify-icon icon="solar:letter-outline" class="input-icon"></iconify-icon>
                 </div>
 
                 <div class="form-group">
-                    <input type="password" name="password" class="form-input" placeholder="Masukkan Password" required autocomplete="current-password">
+                    <input type="password" name="password" class="form-input" placeholder="Password" required autocomplete="current-password">
                     <iconify-icon icon="solar:lock-outline" class="input-icon"></iconify-icon>
                 </div>
 
@@ -330,7 +330,7 @@ if (isset($_POST['login'])) {
 
             <div style="margin-top: 32px; text-align: center;">
                 <p style="color: #666; font-size: 14px;">
-                    <a href="forgot-password.php" style="color: #667eea; text-decoration: none;">Lupa Password? Klik di sini</a>
+                    <a href="forgot-password.php" style="color: #667eea; text-decoration: none;">Forgot Password? Click here</a>
                 </p>
             </div>
         </div>
