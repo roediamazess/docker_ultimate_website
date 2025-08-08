@@ -25,7 +25,7 @@ $script = '<script>
     // ================== Image Upload Js End ===========================
     </script>';
 
-include './partials/layouts/layoutTop.php' 
+include './partials/layouts/layoutHorizontal.php' 
 ?>
 
         <div class="dashboard-main-body">

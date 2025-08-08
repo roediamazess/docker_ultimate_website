@@ -135,7 +135,7 @@ $stmt->execute($params);
 $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<?php include './partials/layouts/layoutTop.php'; ?>
+<?php include './partials/layouts/layoutHorizontal.php'; ?>
 
         <div class="dashboard-main-body">
 

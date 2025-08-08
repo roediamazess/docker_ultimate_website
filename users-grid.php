@@ -33,7 +33,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-include './partials/layouts/layoutTop.php' 
+include './partials/layouts/layoutHorizontal.php' 
 ?>
 
         <div class="dashboard-main-body">

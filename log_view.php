@@ -51,7 +51,7 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $user_emails = $pdo->query('SELECT DISTINCT user_email FROM logs WHERE user_email IS NOT NULL ORDER BY user_email')->fetchAll(PDO::FETCH_COLUMN);
 $actions = $pdo->query('SELECT DISTINCT action FROM logs ORDER BY action')->fetchAll(PDO::FETCH_COLUMN);
 ?>
-<?php include './partials/layouts/layoutTop.php'; ?>
+<?php include './partials/layouts/layoutHorizontal.php'; ?>
 
         <div class="dashboard-main-body">
 

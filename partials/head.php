@@ -33,4 +33,6 @@
     <link rel="stylesheet" href="assets/css/lib/audioplayer.css">
     <!-- main css -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <!-- horizontal layout css -->
+    <link rel="stylesheet" href="assets/css/horizontal-layout.css">
 </head>

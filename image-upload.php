@@ -102,7 +102,7 @@
     // ================================================ Upload image & show it\'s name js end ================================================
 </script>';?>
 
-<?php include './partials/layouts/layoutTop.php' ?>
+<?php include './partials/layouts/layoutHorizontal.php' ?>
 
         <div class="dashboard-main-body">
 

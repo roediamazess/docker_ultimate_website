@@ -29,7 +29,7 @@
 </script>
 EOD;?>
 
-<?php include './partials/layouts/layoutTop.php' ?>
+<?php include './partials/layouts/layoutHorizontal.php' ?>
 
         <div class="dashboard-main-body">
 

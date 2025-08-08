@@ -20,7 +20,7 @@ $recent_users = $pdo->query('SELECT * FROM users ORDER BY created_at DESC LIMIT 
 
 $script = '<script src="assets/js/homeOneChart.js"></script>';
 
-include './partials/layouts/layoutTop.php' 
+include './partials/layouts/layoutHorizontal.php' 
 ?>
 
         <div class="dashboard-main-body">
@@ -706,4 +706,4 @@ include './partials/layouts/layoutTop.php'
             </div>
         </div>
 
-<?php include './partials/layouts/layoutBottom.php' ?>
+<?php include './partials/layouts/layoutBottom.php'; ?>

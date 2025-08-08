@@ -282,7 +282,7 @@ $(window).scroll(function() {
 // ================================ Aminated Radial Progress Bar End ================================ 
 </script>';?>
 
-<?php include './partials/layouts/layoutTop.php' ?>
+<?php include './partials/layouts/layoutHorizontal.php' ?>
 
 <div class="dashboard-main-body">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">

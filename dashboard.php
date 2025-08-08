@@ -63,7 +63,7 @@ $project_done_this_month = $pdo->query("SELECT COUNT(*) FROM projects WHERE stat
     </style>
 </head>
 <body>
-<?php include './partials/layouts/layoutTop.php'; ?>
+<?php include './partials/layouts/layoutHorizontal.php'; ?>
 <h2>Dashboard</h2>
 <div>
     <div class="stat-box"><span class="drill-link" onclick="location.href='user_crud.php'">User<br><b><?= $user_count ?></b></span></div>

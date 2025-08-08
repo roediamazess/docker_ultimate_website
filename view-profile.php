@@ -54,7 +54,7 @@ $script ='<script>
     // ========================= Password Show Hide Js End ===========================
     </script>';
 
-include './partials/layouts/layoutTop.php' 
+include './partials/layouts/layoutHorizontal.php' 
 ?>
 
         <div class="dashboard-main-body">

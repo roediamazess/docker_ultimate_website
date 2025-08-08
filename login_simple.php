@@ -358,8 +358,8 @@ if (isset($_POST['login'])) {
         <!-- Login Card -->
         <div class="login-card">
             <div class="login-header">
-                <div class="login-logo" style="background: transparent !important; border: none !important; box-shadow: none !important;">
-                    <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 120px; width: auto; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; cursor: pointer;" onmouseover="this.style.animation='spin 2s linear infinite'" onmouseout="this.style.animation='none'; this.style.transform='rotate(0deg)'">
+                <div class="login-logo" style="background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 auto 48px !important;">
+                    <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 120px; width: auto; max-width: 200px; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; cursor: pointer; display: block;" onmouseover="this.style.animation='spin 2s linear infinite'" onmouseout="this.style.animation='none'; this.style.transform='rotate(0deg)'">
                 </div>
                 <h1 class="login-title">Welcome Back! 👋</h1>
                 <div class="time-greeting" id="timeGreeting">
