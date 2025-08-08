@@ -324,7 +324,7 @@ if (isset($_POST['login'])) {
                 </div>
 
                 <button type="submit" name="login" class="login-btn">
-                    Masuk Sekarang
+                    Login
                 </button>
             </form>
 

@@ -387,13 +387,13 @@ $bgClass = 'morning';
                 </div>
 
                 <button type="submit" name="reset_password" class="login-btn">
-                    Kirim Link Reset
+                    Send Reset Link
                 </button>
             </form>
 
             <button onclick="window.location.href='login_simple.php'" class="back-btn">
                 <iconify-icon icon="solar:arrow-left-outline" style="margin-right: 8px;"></iconify-icon>
-                Kembali ke Login
+                Back to Login
             </button>
         </div>
     </div>
