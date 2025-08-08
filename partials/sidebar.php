@@ -263,68 +263,9 @@
                 </a>
             </li>
             <li>
-                <a href="pricing.php">
-                    <iconify-icon icon="hugeicons:money-send-square" class="menu-icon"></iconify-icon>
-                    <span>Pricing</span>
-                </a>
-            </li>
-            <li class="dropdown">
-                <a href="javascript:void(0)">
-                    <i class="ri-news-line text-xl me-6 d-flex w-auto"></i>
-                    <span>Blog</span>
-                </a>
-                <ul class="sidebar-submenu">
-                    <li>
-                        <a href="blog.php"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Blog</a>
-                    </li>
-                    <li>
-                        <a href="blog-details.php"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Blog Details</a>
-                    </li>
-                    <li>
-                        <a href="add-blog.php"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add Blog</a>
-                    </li>
-                </ul>
-            </li>
-            <li>
                 <a href="testimonials.php">
                     <i class="ri-star-line text-xl me-6 d-flex w-auto"></i>
                     <span>Testimonial</span>
-                </a>
-            </li>
-            <li>
-                <a href="faq.php">
-                    <iconify-icon icon="mage:message-question-mark-round" class="menu-icon"></iconify-icon>
-                    <span>FAQs</span>
-                </a>
-            </li>
-            <li>
-                <a href="error.php">
-                    <iconify-icon icon="streamline:straight-face" class="menu-icon"></iconify-icon>
-                    <span>404</span>
-                </a>
-            </li>
-            <li>
-                <a href="terms-condition.php">
-                    <iconify-icon icon="octicon:info-24" class="menu-icon"></iconify-icon>
-                    <span>Terms & Conditions</span>
-                </a>
-            </li>
-            <li>
-                <a href="coming-soon.php">
-                    <i class="ri-rocket-line text-xl me-6 d-flex w-auto"></i>
-                    <span>Coming Soon</span>
-                </a>
-            </li>
-            <li>
-                <a href="maintenance.php">
-                    <i class="ri-hammer-line text-xl me-6 d-flex w-auto"></i>
-                    <span>Maintenance</span>
-                </a>
-            </li>
-            <li>
-                <a href="blank-page.php">
-                    <i class="ri-checkbox-multiple-blank-line text-xl me-6 d-flex w-auto"></i>
-                    <span>Blank Page</span>
                 </a>
             </li>
             <li class="dropdown">
