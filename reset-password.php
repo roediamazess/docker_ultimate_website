@@ -79,6 +79,8 @@ if ($user) {
     <title>Reset Password - Ultimate Website</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="assets/css/login-backgrounds.css" rel="stylesheet">
+    <script src="https://unpkg.com/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
     <style>
         @keyframes spin {
             from { transform: rotate(0deg); }
@@ -93,260 +95,244 @@ if ($user) {
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            overflow: hidden;
+            height: 100vh;
         }
 
         .reset-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .background-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 500px;
+            height: 100%;
+            z-index: -1;
+            transition: all 1s ease-in-out;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .reset-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 420px;
+            width: 90%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .reset-header {
             text-align: center;
+            margin-bottom: 32px;
         }
 
-        .logo {
-            font-size: 2.5rem;
-            color: #667eea;
-            margin-bottom: 20px;
+        .reset-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
         }
 
-        .title {
-            font-size: 1.8rem;
+        .reset-title {
+            font-size: 28px;
             font-weight: 700;
-            color: #333;
-            margin-bottom: 10px;
+            color: #1a1a1a;
+            margin-bottom: 8px;
         }
 
-        .subtitle {
+        .reset-subtitle {
+            font-size: 16px;
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 0;
         }
 
         .form-group {
-            margin-bottom: 20px;
-            text-align: left;
+            margin-bottom: 24px;
+            position: relative;
         }
 
         .form-label {
+            font-size: 14px;
             font-weight: 600;
-            color: #333;
+            color: #1a1a1a;
             margin-bottom: 8px;
             display: block;
         }
 
-        .form-control {
+        .form-input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 16px 20px;
             border: 2px solid #e1e5e9;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
         }
 
-        .form-control:focus {
+        .form-input:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background: white;
         }
 
-        .btn-reset {
+        .input-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 20px;
+            width: 20px;
+        }
+
+        .reset-btn {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .btn-reset:hover {
+        .reset-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
 
-        .alert {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .alert-danger {
-            background: #ffe6e6;
-            color: #d63031;
-            border: 1px solid #fab1a0;
-        }
-
-        .alert-success {
-            background: #e6ffe6;
-            color: #00b894;
-            border: 1px solid #a0fab1;
-        }
-
-        .user-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .timezone-info {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            text-align: left;
-        }
-
-        .back-link {
-            margin-top: 20px;
-        }
-
-        .back-link a {
+        .back-btn {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
             color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 16px;
         }
 
-        .back-link a:hover {
-            text-decoration: underline;
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
         }
 
-        .device-timezone {
-            background: #fff3cd;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+        .error-message {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
             font-size: 14px;
-            border: 1px solid #ffeaa7;
+            margin-bottom: 24px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            margin-bottom: 24px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
         }
     </style>
 </head>
 <body>
     <div class="reset-container">
-        <div class="logo" style="text-align: center; margin-bottom: 30px; background: transparent !important; border: none !important; box-shadow: none !important;">
-            <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 120px; width: auto; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; cursor: pointer;" onmouseover="this.style.animation='spin 2s linear infinite'" onmouseout="this.style.animation='none'; this.style.transform='rotate(0deg)'">
-        </div>
+        <!-- Dynamic Background -->
+        <div class="background-animation morning"></div>
         
-        <h1 class="title">Reset Password</h1>
-        <p class="subtitle">Set new password for your account</p>
+        <!-- Reset Card -->
+        <div class="reset-card">
+            <div class="reset-header">
+                <div class="reset-logo" style="background: transparent !important; border: none !important; box-shadow: none !important;">
+                    <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 120px; width: auto; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; cursor: pointer;" onmouseover="this.style.animation='spin 2s linear infinite'" onmouseout="this.style.animation='none'; this.style.transform='rotate(0deg)'">
+                </div>
+                <h1 class="reset-title">Reset Password 🔐</h1>
+                <p class="reset-subtitle">Set new password for your account</p>
+            </div>
 
         <?php if ($error): ?>
-            <div class="alert alert-danger">
-                <i class="ri-error-warning-line"></i>
-                <?php echo $error; ?>
+            <div class="error-message">
+                <iconify-icon icon="solar:danger-triangle-outline" style="margin-right: 8px;"></iconify-icon>
+                <?php echo htmlspecialchars($error); ?>
             </div>
         <?php endif; ?>
 
         <?php if ($success): ?>
-            <div class="alert alert-success">
-                <i class="ri-check-line"></i>
+            <div class="success-message">
+                <iconify-icon icon="solar:check-circle-outline" style="margin-right: 8px;"></iconify-icon>
                 <?php echo $success; ?>
             </div>
         <?php endif; ?>
 
         <?php if ($user && !$error && !$success): ?>
-            <div class="user-info">
+            <div style="background: rgba(102, 126, 234, 0.1); border: 1px solid #667eea; border-radius: 8px; padding: 12px; margin-bottom: 24px; text-align: center;">
                 <strong>Reset Password for:</strong><br>
-                <i class="ri-user-line"></i> <?php echo htmlspecialchars($user['display_name']); ?><br>
-                <i class="ri-mail-line"></i> <?php echo htmlspecialchars($user['email']); ?>
-            </div>
-
-            <div class="device-timezone" id="deviceTimezone">
-                <i class="ri-time-line"></i> Detecting your timezone...
-            </div>
-
-            <div class="timezone-info">
-                <strong>Token valid until:</strong><br>
-                <span id="localTime">Loading...</span><br>
-                <small>Based on your device timezone</small>
+                <iconify-icon icon="solar:user-outline" style="margin-right: 4px;"></iconify-icon> <?php echo htmlspecialchars($user['display_name']); ?><br>
+                <iconify-icon icon="solar:letter-outline" style="margin-right: 4px;"></iconify-icon> <?php echo htmlspecialchars($user['email']); ?>
             </div>
 
             <form method="POST">
                 <div class="form-group">
-                    <label class="form-label">Password Baru</label>
-                    <input type="password" name="password" class="form-control" placeholder="Masukkan password baru" required>
+                    <input type="password" name="password" class="form-input" placeholder="New Password" required>
+                    <iconify-icon icon="solar:lock-outline" class="input-icon"></iconify-icon>
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">Konfirmasi Password</label>
-                    <input type="password" name="confirm_password" class="form-control" placeholder="Konfirmasi password baru" required>
+                    <input type="password" name="confirm_password" class="form-input" placeholder="Confirmation Password" required>
+                    <iconify-icon icon="solar:lock-outline" class="input-icon"></iconify-icon>
                 </div>
                 
-                <button type="submit" name="reset_password" class="btn-reset">
-                    <i class="ri-lock-unlock-line"></i> Reset Password
+                <button type="submit" name="reset_password" class="reset-btn">
+                    Reset Password
                 </button>
             </form>
         <?php endif; ?>
 
-        <div class="back-link">
-            <a href="login_simple.php">
-                <i class="ri-arrow-left-line"></i> Kembali ke Login
-            </a>
+            <button onclick="window.location.href='login_simple.php'" class="back-btn">
+                <iconify-icon icon="solar:arrow-left-outline" style="margin-right: 8px;"></iconify-icon>
+                Back to Login
+            </button>
         </div>
     </div>
 
-    <script>
-        // Detect device timezone and show local time
-        function detectAndShowTimezone() {
-            try {
-                // Get device timezone
-                const deviceTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                const deviceOffset = new Date().getTimezoneOffset();
-                
-                // Convert UTC time to device local time
-                const utcTime = '<?php echo $user ? $user['reset_expires'] : ''; ?>';
-                if (utcTime) {
-                    const localDate = new Date(utcTime + 'Z'); // Add Z to treat as UTC
-                    const localTimeString = localDate.toLocaleString('id-ID', {
-                        timeZone: deviceTimezone,
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                    });
-                    
-                    // Update display
-                    document.getElementById('deviceTimezone').innerHTML = 
-                        `<i class="ri-time-line"></i> <strong>Device Timezone:</strong> ${deviceTimezone}`;
-                    
-                    document.getElementById('localTime').textContent = localTimeString;
-                    
-                    // Check if token is expired in device timezone
-                    const now = new Date();
-                    const tokenExpiry = new Date(utcTime + 'Z');
-                    
-                    if (tokenExpiry <= now) {
-                        document.getElementById('localTime').innerHTML = 
-                            `<span style="color: #d63031; font-weight: bold;">${localTimeString} (EXPIRED)</span>`;
-                    } else {
-                        document.getElementById('localTime').innerHTML = 
-                            `<span style="color: #00b894; font-weight: bold;">${localTimeString} (VALID)</span>`;
-                    }
-                }
-            } catch (error) {
-                console.error('Error detecting timezone:', error);
-                document.getElementById('deviceTimezone').innerHTML = 
-                    '<i class="ri-error-warning-line"></i> Cannot detect device timezone';
-                document.getElementById('localTime').textContent = 'Error detecting timezone';
-            }
-        }
 
-        // Run on page load
-        document.addEventListener('DOMContentLoaded', detectAndShowTimezone);
-    </script>
 </body>
 </html> 
