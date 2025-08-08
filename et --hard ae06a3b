@@ -1,0 +1,5 @@
+[33m8d224eb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Integrate Maxton template design - Update dashboard with modern UI components, charts, and responsive layout
+[33mae06a3b[m feat(maxton): integrasi aset vertical-menu (CSS/JS) + halaman demo ApexCharts (maxton-demo.php)
+[33mf9950b5[m[33m ([m[1;33mtag: [m[1;33mv1.1.0[m[33m)[m chore(release): catat perubahan v1.1.0 pada CHANGELOG
+[33mdb7093c[m feat(toggle): tingkatkan animasi dan tema toggle dark/light\n\n- Tambah elemen awan (light) & bintang (dark)\n- Bulan dengan kawah + ring, glow malam di track\n- Transisi lebih smooth, perbaiki z-index\n- Lebarkan toggle (90px) dan sesuaikan posisi knob\n- Tambah file demo & dokumentasi perbaikan
+[33mdd9f2a9[m Version 2.4: Logo Responsive Design & Spacing Optimization - Added responsive logo design for different screen sizes - Optimized logo spacing with proper padding - Removed bottom border for cleaner appearance - Added CSS overrides with !important for consistency - Improved user experience with balanced visual design
