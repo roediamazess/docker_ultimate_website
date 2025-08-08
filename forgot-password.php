@@ -40,7 +40,7 @@ if (isset($_POST['reset_password'])) {
             $error = 'Format email tidak valid!';
         } else {
             // Cek apakah email ada di database
-            $sql = "SELECT id, email, display_name FROM users WHERE email = ? AND status = 'active'";
+            $sql = "SELECT id, email, display_name FROM users WHERE email = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);

@@ -25,7 +25,7 @@ if (isset($_POST['login'])) {
         if ($attempts >= 5) {
             $error = 'Terlalu banyak percobaan login. Silakan coba lagi dalam 15 menit.';
         } else {
-            $sql = "SELECT * FROM users WHERE email = ? AND status = 'active'";
+            $sql = "SELECT * FROM users WHERE email = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
