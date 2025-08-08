@@ -113,7 +113,9 @@
     position: absolute;
     top: 100%;
     left: 0;
-    min-width: 220px;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -124,7 +126,7 @@
     transform: translateY(-10px);
     transition: all 0.3s ease;
     z-index: 1001;
-    padding: 8px 0;
+    padding: 6px 0;
     margin-top: 0; /* Remove gap between nav and dropdown */
 }
 
@@ -134,13 +136,16 @@
 
 .dropdown-menu a {
     display: block;
-    padding: 12px 20px;
+    padding: 8px 12px;
     color: #374151;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 13px;
     transition: all 0.3s ease;
-    border-radius: 8px;
-    margin: 0 8px;
+    border-radius: 6px;
+    margin: 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .dropdown-menu a:hover {
@@ -295,7 +300,9 @@
     position: absolute;
     top: 100%;
     right: 0;
-    min-width: 200px;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -306,7 +313,7 @@
     transform: translateY(-10px);
     transition: all 0.3s ease;
     z-index: 1001;
-    padding: 8px 0;
+    padding: 6px 0;
     margin-top: 0; /* Remove gap */
 }
 
@@ -322,13 +329,16 @@
 
 .user-menu .dropdown-menu a {
     display: block;
-    padding: 12px 20px;
+    padding: 8px 12px;
     color: #374151;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 13px;
     transition: all 0.3s ease;
-    border-radius: 8px;
-    margin: 0 8px;
+    border-radius: 6px;
+    margin: 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .user-menu .dropdown-menu a:hover {
