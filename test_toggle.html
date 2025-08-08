@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Toggle Button</title>
+    <style>
+        /* Modern Theme Toggle Button with Smooth Transitions */
+        .modern-theme-toggle {
+            position: relative !important;
+            cursor: pointer !important;
+            border: none !important;
+            outline: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: auto !important;
+            height: auto !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.3s ease !important;
+            min-width: 70px !important;
+            min-height: 35px !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            z-index: 1000 !important;
+        }
+
+        .toggle-track {
+            position: relative !important;
+            width: 70px !important;
+            height: 35px !important;
+            background: linear-gradient(135deg, #87CEEB 0%, #B0E0E6 100%) !important;
+            border-radius: 17.5px !important;
+            padding: 3px !important;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+            overflow: hidden !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .toggle-thumb {
+            position: relative !important;
+            width: 29px !important;
+            height: 29px !important;
+            background: #ffffff !important;
+            border-radius: 50% !important;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+            z-index: 10 !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .sun-disc {
+            position: absolute !important;
+            width: 20px !important;
+            height: 20px !important;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%) !important;
+            border-radius: 50% !important;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            opacity: 1 !important;
+            transform: scale(1) !important;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5) !important;
+            z-index: 5 !important;
+            visibility: visible !important;
+            display: block !important;
+        }
+
+        .moon-disc {
+            position: absolute !important;
+            width: 20px !important;
+            height: 20px !important;
+            background: linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%) !important;
+            border-radius: 50% !important;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            opacity: 0 !important;
+            transform: scale(0.8) !important;
+            box-shadow: 0 0 10px rgba(229, 231, 235, 0.5) !important;
+            z-index: 5 !important;
+            visibility: visible !important;
+            display: block !important;
+        }
+
+        /* Dark mode styles */
+        [data-theme="dark"] .toggle-track {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+        }
+
+        [data-theme="dark"] .toggle-thumb {
+            transform: translateX(35px) !important;
+            background: #374151 !important;
+        }
+
+        [data-theme="dark"] .sun-disc {
+            opacity: 0 !important;
+            transform: scale(0.8) !important;
+        }
+
+        [data-theme="dark"] .moon-disc {
+            opacity: 1 !important;
+            transform: scale(1) !important;
+        }
+
+        /* Hover effects */
+        .modern-theme-toggle:hover .toggle-track {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .modern-theme-toggle:active .toggle-track {
+            transform: translateY(0) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        /* Focus styles for accessibility */
+        .modern-theme-toggle:focus {
+            outline: 2px solid #667eea !important;
+            outline-offset: 2px !important;
+            border-radius: 17px !important;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h2>Test Toggle Button</h2>
+        <p>Current theme: <span id="current-theme">light</span></p>
+        
+        <button type="button" data-theme-toggle class="modern-theme-toggle">
+            <div class="toggle-track">
+                <div class="toggle-thumb">
+                    <div class="sun-disc"></div>
+                    <div class="moon-disc"></div>
+                </div>
+            </div>
+        </button>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const button = document.querySelector("[data-theme-toggle]");
+        const themeSpan = document.getElementById("current-theme");
+        let currentTheme = localStorage.getItem("theme") || "light";
+
+        function updateTheme(theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+            themeSpan.textContent = theme;
+            localStorage.setItem("theme", theme);
+        }
+
+        if (button) {
+            updateTheme(currentTheme);
+
+            button.addEventListener("click", () => {
+                const newTheme = currentTheme === "dark" ? "light" : "dark";
+                currentTheme = newTheme;
+                updateTheme(newTheme);
+            });
+        }
+    </script>
+</body>
+</html> 

@@ -67,7 +67,9 @@ function calculateSettingAsThemeString({ localStorageTheme }) {
 function updateButton({ buttonEl, isDark }) {
   const newCta = isDark ? "dark" : "light";
   buttonEl.setAttribute("aria-label", newCta);
-  buttonEl.innerText = newCta;
+  
+  // Update theme attribute on html element for CSS styling
+  document.documentElement.setAttribute("data-theme", newCta);
 }
 
 /**

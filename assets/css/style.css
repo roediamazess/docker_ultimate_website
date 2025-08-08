@@ -3241,8 +3241,177 @@ th {
   background: linear-gradient(262deg, #EBFAFF 4.01%, #C0F0FF 99.29%);
 }
 
-.bg-gradient-end-1 {
-  background: linear-gradient(to right, #FFFFFF, #EFF4FF);
+/* Modern Theme Toggle Button with Smooth Transitions */
+.modern-theme-toggle {
+  position: relative !important;
+  cursor: pointer !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.3s ease !important;
+  min-width: 70px !important;
+  min-height: 35px !important;
+}
+
+.toggle-track {
+  position: relative !important;
+  width: 70px !important;
+  height: 35px !important;
+  background: linear-gradient(135deg, #FFD700 0%, #87CEEB 50%, #B0E0E6 100%) !important;
+  border-radius: 17.5px !important;
+  padding: 3px !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+  overflow: hidden !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Toggle Thumb */
+.toggle-thumb {
+  position: relative !important;
+  width: 29px !important;
+  height: 29px !important;
+  background: #ffffff !important;
+  border-radius: 50% !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  z-index: 10 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Sun Disc - Enhanced with smooth animations */
+.sun-disc {
+  position: absolute !important;
+  width: 18px !important;
+  height: 18px !important;
+  background: radial-gradient(circle at 30% 30%, #FFD700 0%, #FFA500 50%, #FF8C00 100%) !important;
+  border-radius: 50% !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  opacity: 1 !important;
+  transform: scale(1) rotate(0deg) !important;
+  box-shadow: 
+    0 0 15px rgba(255, 215, 0, 0.6),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  z-index: 15 !important;
+  visibility: visible !important;
+  display: block !important;
+  top: 50% !important;
+  left: 50% !important;
+  margin-top: -9px !important;
+  margin-left: -9px !important;
+}
+
+/* Moon Disc - Enhanced with smooth animations */
+.moon-disc {
+  position: absolute !important;
+  width: 18px !important;
+  height: 18px !important;
+  background: radial-gradient(circle at 70% 30%, #E5E7EB 0%, #D1D5DB 50%, #9CA3AF 100%) !important;
+  border-radius: 50% !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  opacity: 0 !important;
+  transform: scale(0.6) rotate(180deg) !important;
+  box-shadow: 
+    0 0 15px rgba(229, 231, 235, 0.4),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.2),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  z-index: 15 !important;
+  visibility: visible !important;
+  display: block !important;
+  top: 50% !important;
+  left: 50% !important;
+  margin-top: -9px !important;
+  margin-left: -9px !important;
+}
+
+/* Dark mode styles - Enhanced with smooth transitions */
+[data-theme="dark"] .toggle-track {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3730a3 100%) !important;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.4),
+    inset 0 1px 3px rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .toggle-thumb {
+  transform: translateX(35px) !important;
+  background: #374151 !important;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .sun-disc {
+  opacity: 0 !important;
+  transform: scale(0.6) rotate(-180deg) !important;
+  box-shadow: 
+    0 0 5px rgba(255, 215, 0, 0.2),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .moon-disc {
+  opacity: 1 !important;
+  transform: scale(1) rotate(0deg) !important;
+  box-shadow: 
+    0 0 20px rgba(229, 231, 235, 0.6),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Hover effects - Enhanced */
+.modern-theme-toggle:hover .toggle-track {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+
+.modern-theme-toggle:hover .toggle-thumb {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.modern-theme-toggle:hover .sun-disc {
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.8),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  transform: scale(1.1) rotate(10deg) !important;
+}
+
+.modern-theme-toggle:hover .moon-disc {
+  box-shadow: 
+    0 0 25px rgba(229, 231, 235, 0.7),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  transform: scale(1.1) rotate(-10deg) !important;
+}
+
+/* Active state - Enhanced */
+.modern-theme-toggle:active .toggle-track {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
+.modern-theme-toggle:active .toggle-thumb {
+  transform: scale(0.95) !important;
+}
+
+/* Focus state - Enhanced */
+.modern-theme-toggle:focus {
+  outline: 2px solid rgba(59, 130, 246, 0.5) !important;
+  outline-offset: 2px !important;
+  border-radius: 20px !important;
 }
 
 .bg-gradient-end-2 {
@@ -4536,10 +4705,6 @@ html[data-theme=dark] .bg-light-pink {
 
 .ms-56 {
   margin-inline-start: var(--size-56) !important;
-}
-
-.ms-60 {
-  margin-inline-start: var(--size-60) !important;
 }
 
 .ms-64 {
@@ -7778,10 +7943,6 @@ h6, .h6 {
 
 .group-item:hover .group-hover\:text-danger-50 {
   color: var(--danger-50) !important;
-}
-
-.group-item:hover .group-hover\:text-danger-100 {
-  color: var(--danger-100) !important;
 }
 
 .group-item:hover .group-hover\:text-danger-200 {
@@ -14687,27 +14848,564 @@ td.fc-header-center {
   color: var(--black);
 }
 
+/* Modern Theme Toggle Button with Smooth Transitions */
+.modern-theme-toggle {
+  position: relative !important;
+  cursor: pointer !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.3s ease !important;
+  min-width: 70px !important;
+  min-height: 35px !important;
+}
+
+.toggle-track {
+  position: relative !important;
+  width: 70px !important;
+  height: 35px !important;
+  background: linear-gradient(135deg, #FFD700 0%, #87CEEB 50%, #B0E0E6 100%) !important;
+  border-radius: 17.5px !important;
+  padding: 3px !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+  overflow: hidden !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Toggle Thumb */
+.toggle-thumb {
+  position: relative !important;
+  width: 29px !important;
+  height: 29px !important;
+  background: #ffffff !important;
+  border-radius: 50% !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  z-index: 10 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Sun Disc - Enhanced with smooth animations */
+.sun-disc {
+  position: absolute !important;
+  width: 18px !important;
+  height: 18px !important;
+  background: radial-gradient(circle at 30% 30%, #FFD700 0%, #FFA500 50%, #FF8C00 100%) !important;
+  border-radius: 50% !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  opacity: 1 !important;
+  transform: scale(1) rotate(0deg) !important;
+  box-shadow: 
+    0 0 15px rgba(255, 215, 0, 0.6),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  z-index: 15 !important;
+  visibility: visible !important;
+  display: block !important;
+  top: 50% !important;
+  left: 50% !important;
+  margin-top: -9px !important;
+  margin-left: -9px !important;
+}
+
+/* Moon Disc - Enhanced with smooth animations */
+.moon-disc {
+  position: absolute !important;
+  width: 18px !important;
+  height: 18px !important;
+  background: radial-gradient(circle at 70% 30%, #E5E7EB 0%, #D1D5DB 50%, #9CA3AF 100%) !important;
+  border-radius: 50% !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  opacity: 0 !important;
+  transform: scale(0.6) rotate(180deg) !important;
+  box-shadow: 
+    0 0 15px rgba(229, 231, 235, 0.4),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.2),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  z-index: 15 !important;
+  visibility: visible !important;
+  display: block !important;
+  top: 50% !important;
+  left: 50% !important;
+  margin-top: -9px !important;
+  margin-left: -9px !important;
+}
+
+/* Dark mode styles - Enhanced with smooth transitions */
+[data-theme="dark"] .toggle-track {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3730a3 100%) !important;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.4),
+    inset 0 1px 3px rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .toggle-thumb {
+  transform: translateX(35px) !important;
+  background: #374151 !important;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .sun-disc {
+  opacity: 0 !important;
+  transform: scale(0.6) rotate(-180deg) !important;
+  box-shadow: 
+    0 0 5px rgba(255, 215, 0, 0.2),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .moon-disc {
+  opacity: 1 !important;
+  transform: scale(1) rotate(0deg) !important;
+  box-shadow: 
+    0 0 20px rgba(229, 231, 235, 0.6),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Hover effects - Enhanced */
+.modern-theme-toggle:hover .toggle-track {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+
+.modern-theme-toggle:hover .toggle-thumb {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.modern-theme-toggle:hover .sun-disc {
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.8),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  transform: scale(1.1) rotate(10deg) !important;
+}
+
+.modern-theme-toggle:hover .moon-disc {
+  box-shadow: 
+    0 0 25px rgba(229, 231, 235, 0.7),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  transform: scale(1.1) rotate(-10deg) !important;
+}
+
+/* Active state - Enhanced */
+.modern-theme-toggle:active .toggle-track {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
+.modern-theme-toggle:active .toggle-thumb {
+  transform: scale(0.95) !important;
+}
+
+/* Focus state - Enhanced */
+.modern-theme-toggle:focus {
+  outline: 2px solid rgba(59, 130, 246, 0.5) !important;
+  outline-offset: 2px !important;
+  border-radius: 20px !important;
+}
+
+/* Ensure toggle button fits well in navbar */
+.navbar-header .modern-theme-toggle {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Override any existing styles */
+.modern-theme-toggle {
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  position: relative !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Remove any existing button styles that might interfere */
+.modern-theme-toggle[data-theme-toggle] {
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  font-size: inherit !important;
+}
+
+/* Override any existing button styles */
+button.modern-theme-toggle {
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  font-size: inherit !important;
+}
+
+/* Force override any existing theme toggle styles */
 [data-theme-toggle] {
-  font-size: 0;
-  position: relative;
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  font-size: inherit !important;
+  position: relative !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-[data-theme-toggle]::after {
-  position: absolute;
-  content: "\f1bf";
-  font-family: remixicon;
-  font-style: normal;
-  font-size: 1.25rem;
-  color: var(--text-primary-light);
+/* Override any existing button with data-theme-toggle */
+button[data-theme-toggle] {
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  font-size: inherit !important;
+  position: relative !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-[data-theme-toggle][aria-label=dark]::after {
-  content: "\ef6f";
-  color: #fff;
+/* Modern Theme Toggle Button with Smooth Transitions */
+.modern-theme-toggle {
+  position: relative !important;
+  cursor: pointer !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.3s ease !important;
+  min-width: 70px !important;
+  min-height: 35px !important;
 }
 
-.positioned-icon {
-  inset-inline-start: 16px;
+.toggle-track {
+  position: relative !important;
+  width: 70px !important;
+  height: 35px !important;
+  background: linear-gradient(135deg, #FFD700 0%, #87CEEB 50%, #B0E0E6 100%) !important;
+  border-radius: 17.5px !important;
+  padding: 3px !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+  overflow: hidden !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Toggle Thumb */
+.toggle-thumb {
+  position: relative !important;
+  width: 29px !important;
+  height: 29px !important;
+  background: #ffffff !important;
+  border-radius: 50% !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  z-index: 10 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Sun Disc - Enhanced with smooth animations */
+.sun-disc {
+  position: absolute !important;
+  width: 18px !important;
+  height: 18px !important;
+  background: radial-gradient(circle at 30% 30%, #FFD700 0%, #FFA500 50%, #FF8C00 100%) !important;
+  border-radius: 50% !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  opacity: 1 !important;
+  transform: scale(1) rotate(0deg) !important;
+  box-shadow: 
+    0 0 15px rgba(255, 215, 0, 0.6),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  z-index: 15 !important;
+  visibility: visible !important;
+  display: block !important;
+  top: 50% !important;
+  left: 50% !important;
+  margin-top: -9px !important;
+  margin-left: -9px !important;
+}
+
+/* Moon Disc - Enhanced with smooth animations */
+.moon-disc {
+  position: absolute !important;
+  width: 18px !important;
+  height: 18px !important;
+  background: radial-gradient(circle at 70% 30%, #E5E7EB 0%, #D1D5DB 50%, #9CA3AF 100%) !important;
+  border-radius: 50% !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  opacity: 0 !important;
+  transform: scale(0.6) rotate(180deg) !important;
+  box-shadow: 
+    0 0 15px rgba(229, 231, 235, 0.4),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.2),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  z-index: 15 !important;
+  visibility: visible !important;
+  display: block !important;
+  top: 50% !important;
+  left: 50% !important;
+  margin-top: -9px !important;
+  margin-left: -9px !important;
+}
+
+/* Dark mode styles - Enhanced with smooth transitions */
+[data-theme="dark"] .toggle-track {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3730a3 100%) !important;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.4),
+    inset 0 1px 3px rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .toggle-thumb {
+  transform: translateX(35px) !important;
+  background: #374151 !important;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .sun-disc {
+  opacity: 0 !important;
+  transform: scale(0.6) rotate(-180deg) !important;
+  box-shadow: 
+    0 0 5px rgba(255, 215, 0, 0.2),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .moon-disc {
+  opacity: 1 !important;
+  transform: scale(1) rotate(0deg) !important;
+  box-shadow: 
+    0 0 20px rgba(229, 231, 235, 0.6),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Hover effects - Enhanced */
+.modern-theme-toggle:hover .toggle-track {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+
+.modern-theme-toggle:hover .toggle-thumb {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.modern-theme-toggle:hover .sun-disc {
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.8),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  transform: scale(1.1) rotate(10deg) !important;
+}
+
+.modern-theme-toggle:hover .moon-disc {
+  box-shadow: 
+    0 0 25px rgba(229, 231, 235, 0.7),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  transform: scale(1.1) rotate(-10deg) !important;
+}
+
+/* Active state - Enhanced */
+.modern-theme-toggle:active .toggle-track {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
+.modern-theme-toggle:active .toggle-thumb {
+  transform: scale(0.95) !important;
+}
+
+/* Focus state - Enhanced */
+.modern-theme-toggle:focus {
+  outline: 2px solid rgba(59, 130, 246, 0.5) !important;
+  outline-offset: 2px !important;
+  border-radius: 20px !important;
+}
+
+/* Dark theme adjustments for navbar */
+[data-theme="dark"] .navbar-header {
+  background-color: var(--dark-bg);
+}
+
+/* Force show the new toggle button */
+.modern-theme-toggle {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
+  z-index: 1000 !important;
+  position: relative !important;
+  width: 70px !important;
+  height: 35px !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Hide any old toggle button styles */
+button[data-theme-toggle]:not(.modern-theme-toggle) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+/* Override any existing button styles in navbar */
+.navbar-header button[data-theme-toggle] {
+  width: 70px !important;
+  height: 35px !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 1000 !important;
+}
+
+/* Ensure toggle track is visible in navbar */
+.navbar-header .toggle-track {
+  width: 70px !important;
+  height: 35px !important;
+  background: linear-gradient(135deg, #FFD700 0%, #87CEEB 50%, #B0E0E6 100%) !important;
+  border-radius: 17.5px !important;
+  padding: 3px !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+  overflow: hidden !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+}
+
+/* Ensure toggle thumb is visible in navbar */
+.navbar-header .toggle-thumb {
+  width: 29px !important;
+  height: 29px !important;
+  background: #ffffff !important;
+  border-radius: 50% !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  z-index: 10 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+}
+
+/* Ensure sun and moon discs are visible in navbar */
+.navbar-header .sun-disc {
+  width: 18px !important;
+  height: 18px !important;
+  background: radial-gradient(circle at 30% 30%, #FFD700 0%, #FFA500 50%, #FF8C00 100%) !important;
+  border-radius: 50% !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  opacity: 1 !important;
+  transform: scale(1) rotate(0deg) !important;
+  box-shadow: 
+    0 0 15px rgba(255, 215, 0, 0.6),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  z-index: 15 !important;
+  visibility: visible !important;
+  display: block !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  margin-top: -9px !important;
+  margin-left: -9px !important;
+}
+
+.navbar-header .moon-disc {
+  width: 18px !important;
+  height: 18px !important;
+  background: radial-gradient(circle at 70% 30%, #E5E7EB 0%, #D1D5DB 50%, #9CA3AF 100%) !important;
+  border-radius: 50% !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  opacity: 0 !important;
+  transform: scale(0.6) rotate(180deg) !important;
+  box-shadow: 
+    0 0 15px rgba(229, 231, 235, 0.4),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.2),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1) !important;
+  z-index: 15 !important;
+  visibility: visible !important;
+  display: block !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  margin-top: -9px !important;
+  margin-left: -9px !important;
 }
 
 /* === navbar css end === */
@@ -15186,4 +15884,213 @@ td.fc-header-center {
 .reset-container .logo img:hover,
 .logo img:hover {
   animation: spin 2s linear infinite !important;
+}
+
+/* --- Theme Toggle: Night (Moon) Enhancements --- */
+/* Override dengan spesifisitas lebih tinggi & ditaruh di akhir file */
+
+/* Glow halus di sisi kanan track saat dark mode, menyerupai contoh */
+[data-theme="dark"] .modern-theme-toggle .toggle-track::after {
+  content: "";
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 86px;
+  height: 86px;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 50%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.06) 35%, rgba(255,255,255,0) 60%);
+}
+
+/* Track malam lebih pekat, gradasi ke ungu gelap */
+[data-theme="dark"] .modern-theme-toggle .toggle-track {
+  background: linear-gradient(135deg, #0b1b49 0%, #14235f 45%, #272a6b 100%) !important;
+}
+
+/* Bulan dengan kawah dan ring seperti contoh gambar */
+.modern-theme-toggle .moon-disc {
+  position: absolute !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+  background:
+    /* kawah besar */
+    radial-gradient(circle at 32% 38%, rgba(0,0,0,0.10) 0 6px, transparent 7px),
+    /* kawah sedang */
+    radial-gradient(circle at 66% 58%, rgba(0,0,0,0.08) 0 4px, transparent 5px),
+    /* kawah kecil */
+    radial-gradient(circle at 55% 73%, rgba(0,0,0,0.07) 0 3px, transparent 4px),
+    radial-gradient(circle at 42% 64%, rgba(0,0,0,0.06) 0 2px, transparent 3px),
+    /* base warna bulan */
+    radial-gradient(circle at 70% 30%, #eef0f4 0%, #e3e7ec 55%, #cbd5e1 100%) !important;
+  box-shadow:
+    inset 2px 2px 4px rgba(255,255,255,0.35),
+    inset -2px -2px 4px rgba(0,0,0,0.10) !important;
+}
+
+.modern-theme-toggle .moon-disc::after {
+  content: "";
+  position: absolute;
+  inset: -2px; /* ring tipis di luar bulan */
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 2px rgba(123, 97, 255, 0.35),
+    0 0 14px rgba(210, 214, 222, 0.45);
+}
+
+/* Saat dark mode, tampilkan bulan lebih besar dan jelas di sisi kanan knob */
+[data-theme="dark"] .modern-theme-toggle .toggle-thumb {
+  transform: translateX(35px) !important;
+  background: #2c2f3d !important;
+}
+
+[data-theme="dark"] .modern-theme-toggle .sun-disc {
+  opacity: 0 !important;
+  transform: scale(0.6) !important;
+}
+
+[data-theme="dark"] .modern-theme-toggle .moon-disc {
+  opacity: 1 !important;
+  transform: scale(1.15) !important; /* sedikit lebih besar seperti contoh */
+}
+
+/* Awan sembunyi saat dark, bintang tampil */
+[data-theme="dark"] .modern-theme-toggle .cloud-1,
+[data-theme="dark"] .modern-theme-toggle .cloud-2,
+[data-theme="dark"] .modern-theme-toggle .cloud-3 {
+  opacity: 0 !important;
+}
+
+[data-theme="dark"] .modern-theme-toggle .star-1,
+[data-theme="dark"] .modern-theme-toggle .star-2,
+[data-theme="dark"] .modern-theme-toggle .star-3,
+[data-theme="dark"] .modern-theme-toggle .star-4,
+[data-theme="dark"] .modern-theme-toggle .star-5 {
+  opacity: 1 !important;
+}
+
+/* Sedikit melebarkan toggle dan menyesuaikan posisi knob */
+.modern-theme-toggle .toggle-track {
+  width: 90px !important;
+}
+
+.modern-theme-toggle {
+  min-width: 90px !important;
+}
+
+/* Knob geser lebih jauh saat dark mode karena track lebih lebar */
+[data-theme="dark"] .modern-theme-toggle .toggle-thumb {
+  transform: translateX(55px) !important;
+}
+
+/* Cloud Elements for Light Mode */
+.cloud-1, .cloud-2, .cloud-3 {
+  position: absolute !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 50px !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  opacity: 1 !important;
+  z-index: 5 !important;
+}
+
+.cloud-1 {
+  width: 12px !important;
+  height: 8px !important;
+  top: 8px !important;
+  right: 12px !important;
+}
+
+.cloud-2 {
+  width: 8px !important;
+  height: 6px !important;
+  top: 12px !important;
+  right: 8px !important;
+}
+
+.cloud-3 {
+  width: 10px !important;
+  height: 7px !important;
+  top: 18px !important;
+  right: 16px !important;
+}
+
+/* Star Elements for Dark Mode */
+.star-1, .star-2, .star-3, .star-4, .star-5 {
+  position: absolute !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border-radius: 50% !important;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  opacity: 0 !important;
+  z-index: 5 !important;
+}
+
+.star-1 {
+  width: 2px !important;
+  height: 2px !important;
+  top: 8px !important;
+  left: 12px !important;
+}
+
+.star-2 {
+  width: 1.5px !important;
+  height: 1.5px !important;
+  top: 15px !important;
+  left: 8px !important;
+}
+
+.star-3 {
+  width: 2px !important;
+  height: 2px !important;
+  top: 22px !important;
+  left: 14px !important;
+}
+
+.star-4 {
+  width: 1px !important;
+  height: 1px !important;
+  top: 12px !important;
+  left: 18px !important;
+}
+
+.star-5 {
+  width: 1.5px !important;
+  height: 1.5px !important;
+  top: 18px !important;
+  left: 6px !important;
+}
+
+/* Show/hide clouds and stars based on theme */
+[data-theme="dark"] .cloud-1,
+[data-theme="dark"] .cloud-2,
+[data-theme="dark"] .cloud-3 {
+  opacity: 0 !important;
+  transform: scale(0.8) !important;
+}
+
+[data-theme="dark"] .star-1,
+[data-theme="dark"] .star-2,
+[data-theme="dark"] .star-3,
+[data-theme="dark"] .star-4,
+[data-theme="dark"] .star-5 {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
+
+/* Hover effects for clouds and stars */
+.modern-theme-toggle:hover .cloud-1,
+.modern-theme-toggle:hover .cloud-2,
+.modern-theme-toggle:hover .cloud-3 {
+  transform: scale(1.1) !important;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3) !important;
+}
+
+.modern-theme-toggle:hover .star-1,
+.modern-theme-toggle:hover .star-2,
+.modern-theme-toggle:hover .star-3,
+.modern-theme-toggle:hover .star-4,
+.modern-theme-toggle:hover .star-5 {
+  transform: scale(1.2) !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6) !important;
 }
