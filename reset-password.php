@@ -126,10 +126,10 @@ if ($user) {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 24px;
-            padding: 48px;
+            padding: 32px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 420px;
+            max-width: 400px;
             width: 90%;
             position: absolute;
             top: 50%;
@@ -140,7 +140,7 @@ if ($user) {
 
         .reset-header {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 20px;
         }
 
         .reset-logo {
@@ -159,18 +159,22 @@ if ($user) {
             font-size: 28px;
             font-weight: 700;
             color: #1a1a1a;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .reset-subtitle {
             font-size: 16px;
             color: #666;
-            margin-bottom: 0;
+            margin-bottom: 20px;
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             position: relative;
+        }
+
+        .form-group:last-of-type {
+            margin-bottom: 20px;
         }
 
         .form-label {
@@ -189,6 +193,10 @@ if ($user) {
             font-size: 16px;
             transition: all 0.3s ease;
             background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-input[type="password"] {
+            padding-right: 50px;
         }
 
         .form-input:focus {
@@ -210,6 +218,35 @@ if ($user) {
             justify-content: center;
             height: 20px;
             width: 20px;
+            pointer-events: none;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 20px;
+            width: 20px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #667eea;
+        }
+
+        .password-toggle:focus {
+            outline: none;
+            color: #667eea;
         }
 
         .reset-btn {
@@ -241,7 +278,7 @@ if ($user) {
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 16px;
+            margin-top: 20px;
         }
 
         .back-btn:hover {
@@ -256,7 +293,7 @@ if ($user) {
             padding: 12px 16px;
             border-radius: 12px;
             font-size: 14px;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             text-align: center;
             box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
         }
@@ -267,7 +304,7 @@ if ($user) {
             padding: 12px 16px;
             border-radius: 12px;
             font-size: 14px;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             text-align: center;
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
         }
@@ -303,7 +340,7 @@ if ($user) {
         <?php endif; ?>
 
         <?php if ($user && !$error && !$success): ?>
-            <div style="background: rgba(102, 126, 234, 0.1); border: 1px solid #667eea; border-radius: 8px; padding: 12px; margin-bottom: 24px; text-align: center;">
+            <div style="background: rgba(102, 126, 234, 0.1); border: 1px solid #667eea; border-radius: 8px; padding: 12px; margin-bottom: 20px; text-align: center;">
                 <strong>Reset Password for:</strong><br>
                 <iconify-icon icon="solar:user-outline" style="margin-right: 4px;"></iconify-icon> <?php echo htmlspecialchars($user['display_name']); ?><br>
                 <iconify-icon icon="solar:letter-outline" style="margin-right: 4px;"></iconify-icon> <?php echo htmlspecialchars($user['email']); ?>
@@ -311,13 +348,17 @@ if ($user) {
 
             <form method="POST">
                 <div class="form-group">
-                    <input type="password" name="password" class="form-input" placeholder="New Password" required>
-                    <iconify-icon icon="solar:lock-outline" class="input-icon"></iconify-icon>
+                    <input type="password" name="password" id="password" class="form-input" placeholder="New Password" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('password')" aria-label="Toggle password visibility">
+                        <iconify-icon icon="solar:eye-outline" id="password-icon"></iconify-icon>
+                    </button>
                 </div>
                 
                 <div class="form-group">
-                    <input type="password" name="confirm_password" class="form-input" placeholder="Confirmation Password" required>
-                    <iconify-icon icon="solar:lock-outline" class="input-icon"></iconify-icon>
+                    <input type="password" name="confirm_password" id="confirm_password" class="form-input" placeholder="Confirmation Password" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('confirm_password')" aria-label="Toggle confirm password visibility">
+                        <iconify-icon icon="solar:eye-outline" id="confirm-password-icon"></iconify-icon>
+                    </button>
                 </div>
                 
                 <button type="submit" name="reset_password" class="reset-btn">
@@ -333,6 +374,20 @@ if ($user) {
         </div>
     </div>
 
-
+    <script>
+        // Toggle password visibility
+        function togglePassword(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            const passwordIcon = document.getElementById(inputId === 'password' ? 'password-icon' : 'confirm-password-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.setAttribute('icon', 'solar:eye-closed-outline');
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.setAttribute('icon', 'solar:eye-outline');
+            }
+        }
+    </script>
 </body>
 </html> 

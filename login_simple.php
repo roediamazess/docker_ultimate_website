@@ -113,10 +113,10 @@ if (isset($_POST['login'])) {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 24px;
-            padding: 48px;
+            padding: 32px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 420px;
+            max-width: 400px;
             width: 90%;
             position: absolute;
             top: 50%;
@@ -127,7 +127,7 @@ if (isset($_POST['login'])) {
 
         .login-header {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 20px;
         }
 
         .login-logo {
@@ -146,7 +146,7 @@ if (isset($_POST['login'])) {
             font-size: 28px;
             font-weight: 700;
             color: #1a1a1a;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .login-subtitle {
@@ -163,12 +163,12 @@ if (isset($_POST['login'])) {
             font-size: 14px;
             font-weight: 600;
             display: inline-block;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             position: relative;
         }
 
@@ -190,6 +190,10 @@ if (isset($_POST['login'])) {
             background: rgba(255, 255, 255, 0.8);
         }
 
+        .form-input[type="password"] {
+            padding-right: 50px;
+        }
+
         .form-input:focus {
             outline: none;
             border-color: #667eea;
@@ -209,6 +213,35 @@ if (isset($_POST['login'])) {
             justify-content: center;
             height: 20px;
             width: 20px;
+            pointer-events: none;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 20px;
+            width: 20px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #667eea;
+        }
+
+        .password-toggle:focus {
+            outline: none;
+            color: #667eea;
         }
 
         .login-btn {
@@ -235,7 +268,7 @@ if (isset($_POST['login'])) {
             padding: 12px 16px;
             border-radius: 12px;
             font-size: 14px;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             text-align: center;
             box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
         }
@@ -246,7 +279,7 @@ if (isset($_POST['login'])) {
             padding: 12px 16px;
             border-radius: 12px;
             font-size: 14px;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             text-align: center;
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
         }
@@ -300,6 +333,20 @@ if (isset($_POST['login'])) {
             // Update setiap menit untuk memastikan akurasi
             setInterval(updateTimeBasedContent, 60000);
         });
+
+        // Toggle password visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.getElementById('password-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.setAttribute('icon', 'solar:eye-closed-outline');
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.setAttribute('icon', 'solar:eye-outline');
+            }
+        }
     </script>
 </head>
 <body>
@@ -340,8 +387,10 @@ if (isset($_POST['login'])) {
                 </div>
 
                 <div class="form-group">
-                    <input type="password" name="password" class="form-input" placeholder="Password" required autocomplete="current-password">
-                    <iconify-icon icon="solar:lock-outline" class="input-icon"></iconify-icon>
+                    <input type="password" name="password" id="password" class="form-input" placeholder="Password" required autocomplete="current-password">
+                    <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="Toggle password visibility">
+                        <iconify-icon icon="solar:eye-outline" id="password-icon"></iconify-icon>
+                    </button>
                 </div>
 
                 <button type="submit" name="login" class="login-btn">
@@ -349,7 +398,7 @@ if (isset($_POST['login'])) {
                 </button>
             </form>
 
-            <div style="margin-top: 32px; text-align: center;">
+            <div style="margin-top: 20px; text-align: center;">
                 <p style="color: #666; font-size: 14px;">
                     <a href="forgot-password.php" style="color: #667eea; text-decoration: none;">Forgot Password? Click here</a>
                 </p>

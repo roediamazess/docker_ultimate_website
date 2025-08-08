@@ -144,10 +144,10 @@ $bgClass = 'morning';
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 24px;
-            padding: 48px;
+            padding: 32px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 420px;
+            max-width: 400px;
             width: 90%;
             position: absolute;
             top: 50%;
@@ -158,7 +158,7 @@ $bgClass = 'morning';
 
         .login-header {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 20px;
         }
 
         .login-logo {
@@ -177,7 +177,7 @@ $bgClass = 'morning';
             font-size: 28px;
             font-weight: 700;
             color: #1a1a1a;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .login-subtitle {
@@ -194,12 +194,12 @@ $bgClass = 'morning';
             font-size: 14px;
             font-weight: 600;
             display: inline-block;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             position: relative;
         }
 
@@ -263,7 +263,7 @@ $bgClass = 'morning';
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 16px;
+            margin-top: 20px;
         }
 
         .back-btn:hover {
@@ -278,7 +278,7 @@ $bgClass = 'morning';
             padding: 12px 16px;
             border-radius: 12px;
             font-size: 14px;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             text-align: center;
             box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
         }
@@ -289,7 +289,7 @@ $bgClass = 'morning';
             padding: 12px 16px;
             border-radius: 12px;
             font-size: 14px;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             text-align: center;
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
         }
