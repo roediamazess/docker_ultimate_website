@@ -185,25 +185,47 @@
 
             <!-- Right Side Actions -->
             <div class="nav-actions">
-                <!-- Simple Theme Toggle -->
-                <button type="button" id="themeToggle">
-                    <span id="themeIcon">☀️</span>
-                </button>
-
                 <!-- User Menu -->
                 <div class="user-menu dropdown" data-debug="user-menu" data-bs-auto-close="false">
                     <button class="user-button" type="button" data-debug="user-button" data-bs-toggle="none">
                         <div class="user-avatar">
-                            <iconify-icon icon="solar:user-outline" class="avatar-icon"></iconify-icon>
+                            <?php
+                            // Get user profile photo
+                            $user_id = $_SESSION['user_id'] ?? null;
+                            $profile_photo = null;
+                            if ($user_id) {
+                                $stmt = $pdo->prepare("SELECT profile_photo FROM users WHERE id = ?");
+                                $stmt->execute([$user_id]);
+                                $user_data = $stmt->fetch();
+                                $profile_photo = $user_data['profile_photo'] ?? null;
+                            }
+                            ?>
+                            <?php if ($profile_photo && file_exists($profile_photo)): ?>
+                                <img src="<?= htmlspecialchars($profile_photo) ?>" 
+                                     alt="Profile Photo" 
+                                     class="avatar-image"
+                                     style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                            <?php else: ?>
+                                <iconify-icon icon="solar:user-outline" class="avatar-icon"></iconify-icon>
+                            <?php endif; ?>
                         </div>
                         <span class="user-name"><?= htmlspecialchars($_SESSION['user_display_name'] ?? 'User') ?></span>
                         <iconify-icon icon="solar:alt-arrow-down-outline" class="dropdown-arrow"></iconify-icon>
                     </button>
                     <ul class="dropdown-menu" data-debug="user-dropdown-menu">
-                        <li><a href="view-profile.php">Profile</a></li>
-                        <li><a href="settings.php">Settings</a></li>
+                        <li><a href="view-profile.php">
+                            <iconify-icon icon="solar:user-outline" class="me-2"></iconify-icon>
+                            Profile
+                        </a></li>
+                        <li><a href="settings.php">
+                            <iconify-icon icon="solar:settings-outline" class="me-2"></iconify-icon>
+                            Settings
+                        </a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a href="logout.php">Logout</a></li>
+                        <li><a href="logout.php">
+                            <iconify-icon icon="solar:logout-2-outline" class="me-2"></iconify-icon>
+                            Logout
+                        </a></li>
                     </ul>
                 </div>
             </div>

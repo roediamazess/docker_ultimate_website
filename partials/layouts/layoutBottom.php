@@ -4,7 +4,22 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 PPSolution. All rights reserved.</p>
+            <div class="row align-items-center justify-content-between">
+                <div class="col-md-4">
+                    <!-- Left side - empty for balance -->
+                </div>
+                <div class="col-md-4 d-flex justify-content-center">
+                    <!-- Theme Toggle in Center -->
+                    <button id="themeToggle" class="btn btn-outline-secondary btn-sm" style="border-radius: 20px; padding: 8px 16px;">
+                        <span id="themeIcon">🌙</span>
+                        <span class="ms-1">Theme</span>
+                    </button>
+                </div>
+                <div class="col-md-4 text-end">
+                    <!-- Copyright on Right -->
+                    <p class="mb-0">&copy; 2024 PPSolution. All rights reserved.</p>
+                </div>
+            </div>
         </div>
     </footer>
 

@@ -1,294 +1,481 @@
-<?php 
+<?php
 session_start();
 require_once 'db.php';
-require_once 'user_utils.php';
+require_once 'access_control.php';
 
-// Cek akses menggunakan utility function
+// Cek login
 require_login();
 
-// Get user ID from URL parameter or use current user
-$user_id = $_GET['id'] ?? $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'] ?? null;
+$message = '';
+$error = '';
+
+// Handle photo upload
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_photo'])) {
+    if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
+        $file = $_FILES['profile_photo'];
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        $max_size = 5 * 1024 * 1024; // 5MB
+        
+        if (!in_array($file['type'], $allowed_types)) {
+            $error = 'Hanya file JPG, PNG, atau GIF yang diperbolehkan.';
+        } elseif ($file['size'] > $max_size) {
+            $error = 'Ukuran file maksimal 5MB.';
+        } else {
+            $upload_dir = 'uploads/profile_photos/';
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0755, true);
+            }
+            
+            $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $filename = 'user_' . $user_id . '_' . time() . '.' . $file_extension;
+            $filepath = $upload_dir . $filename;
+            
+            if (move_uploaded_file($file['tmp_name'], $filepath)) {
+                // Update database with photo path
+                $stmt = $pdo->prepare("UPDATE users SET profile_photo = ? WHERE id = ?");
+                if ($stmt->execute([$filepath, $user_id])) {
+                    $message = 'Foto profil berhasil diupload!';
+                } else {
+                    $error = 'Gagal menyimpan data foto ke database.';
+                }
+            } else {
+                $error = 'Gagal mengupload file.';
+            }
+        }
+    } else {
+        $error = 'Pilih file foto terlebih dahulu.';
+    }
+}
+
+// Handle profile update
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
+    $display_name = trim($_POST['display_name'] ?? '');
+    $full_name = trim($_POST['full_name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $tier = $_POST['tier'] ?? null;
+    $role = $_POST['role'] ?? null;
+    $start_work = $_POST['start_work'] ?? null;
+    $current_password = $_POST['current_password'] ?? '';
+    $new_password = $_POST['new_password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
+    
+    // Validate required fields
+    if (empty($full_name) || empty($email)) {
+        $error = 'Nama lengkap dan email wajib diisi.';
+    } else {
+        // Check if email already exists for other users
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+        $stmt->execute([$email, $user_id]);
+        if ($stmt->fetch()) {
+            $error = 'Email sudah digunakan oleh user lain.';
+        } else {
+            // Update basic info (excluding display_name - only admin can change it)
+            $stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, tier = ?, role = ?, start_work = ? WHERE id = ?");
+            if ($stmt->execute([$full_name, $email, $tier, $role, $start_work, $user_id])) {
+                $message = 'Profil berhasil diupdate!';
+                
+                // Update session data (keep existing display_name)
+                $_SESSION['user_email'] = $email;
+            } else {
+                $error = 'Gagal mengupdate profil.';
+            }
+        }
+    }
+    
+    // Handle password change
+    if (!empty($current_password) && !empty($new_password)) {
+        if ($new_password !== $confirm_password) {
+            $error = 'Password baru dan konfirmasi password tidak cocok.';
+        } else {
+            // Verify current password
+            $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
+            $stmt->execute([$user_id]);
+            $user = $stmt->fetch();
+            
+            if ($user && password_verify($current_password, $user['password'])) {
+                $new_password_hash = password_hash($new_password, PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+                if ($stmt->execute([$new_password_hash, $user_id])) {
+                    $message .= ' Password berhasil diubah!';
+                } else {
+                    $error = 'Gagal mengubah password.';
+                }
+            } else {
+                $error = 'Password saat ini salah.';
+            }
+        }
+    }
+}
 
 // Get user data
-$stmt = $pdo->prepare('SELECT * FROM users WHERE id = ?');
+$stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user) {
-    header('Location: users-list.php');
+    header('Location: logout.php');
     exit;
 }
 
-$script ='<script>
-    // ======================== Upload Image Start =====================
-    function readURL(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                $("#imagePreview").css("background-image", "url(" + e.target.result + ")");
-                $("#imagePreview").hide();
-                $("#imagePreview").fadeIn(650);
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-    $("#imageUpload").change(function() {
-        readURL(this);
-    });
-    // ======================== Upload Image End =====================
+// Get tier options
+$tier_options = ['New Born', 'Tier 1', 'Tier 2', 'Tier 3'];
+$role_options = ['Administrator', 'Management', 'Admin Office', 'User', 'Client'];
 
-    // ================== Password Show Hide Js Start ==========
-    function initializePasswordToggle(toggleSelector) {
-        $(toggleSelector).on("click", function() {
-            $(this).toggleClass("ri-eye-off-line");
-            var input = $($(this).attr("data-toggle"));
-            if (input.attr("type") === "password") {
-                input.attr("type", "text");
-            } else {
-                input.attr("type", "password");
-            }
-        });
-    }
-    // Call the function
-    initializePasswordToggle(".toggle-password");
-    // ========================= Password Show Hide Js End ===========================
-    </script>';
-
-include './partials/layouts/layoutHorizontal.php' 
+include './partials/head.php';
 ?>
 
-        <div class="dashboard-main-body">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-                <h6 class="fw-semibold mb-0">View Profile</h6>
-                <ul class="d-flex align-items-center gap-2">
-                    <li class="fw-medium">
-                        <a href="index.php" class="d-flex align-items-center gap-1 hover-text-primary">
-                            <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-                            Dashboard
-                        </a>
-                    </li>
-                    <li>-</li>
-                    <li class="fw-medium">View Profile</li>
-                </ul>
-            </div>
+<body>
+    <?php include './partials/layouts/layoutHorizontal.php'; ?>
 
-            <div class="row gy-4">
-                <div class="col-lg-4">
-                    <div class="user-grid-card position-relative border radius-16 overflow-hidden bg-base h-100">
-                        <img src="assets/images/user-grid/user-grid-bg1.png" alt="" class="w-100 object-fit-cover">
-                        <div class="pb-24 ms-16 mb-24 me-16  mt--100">
-                            <div class="text-center border border-top-0 border-start-0 border-end-0">
-                                <div class="w-200-px h-200-px bg-primary rounded-circle d-flex justify-content-center align-items-center border border-white border-width-2-px mx-auto">
-                                    <iconify-icon icon="solar:user-outline" class="text-white text-6xl"></iconify-icon>
-                                </div>
-                                <h6 class="mb-0 mt-16"><?= htmlspecialchars($user['display_name']) ?></h6>
-                                <span class="text-secondary-light mb-16"><?= htmlspecialchars($user['email']) ?></span>
-                            </div>
-                            <div class="mt-24">
-                                <h6 class="text-xl mb-16">Personal Info</h6>
-                                <ul>
-                                    <li class="d-flex align-items-center gap-1 mb-12">
-                                        <span class="w-30 text-md fw-semibold text-primary-light">Full Name</span>
-                                        <span class="w-70 text-secondary-light fw-medium">: <?= htmlspecialchars($user['full_name']) ?></span>
-                                    </li>
-                                    <li class="d-flex align-items-center gap-1 mb-12">
-                                        <span class="w-30 text-md fw-semibold text-primary-light"> Email</span>
-                                        <span class="w-70 text-secondary-light fw-medium">: <?= htmlspecialchars($user['email']) ?></span>
-                                    </li>
-                                    <li class="d-flex align-items-center gap-1 mb-12">
-                                        <span class="w-30 text-md fw-semibold text-primary-light"> Role</span>
-                                        <span class="w-70 text-secondary-light fw-medium">: <?= htmlspecialchars($user['role']) ?></span>
-                                    </li>
-                                    <li class="d-flex align-items-center gap-1 mb-12">
-                                        <span class="w-30 text-md fw-semibold text-primary-light"> Tier</span>
-                                        <span class="w-70 text-secondary-light fw-medium">: <?= htmlspecialchars($user['tier']) ?></span>
-                                    </li>
-                                    <li class="d-flex align-items-center gap-1 mb-12">
-                                        <span class="w-30 text-md fw-semibold text-primary-light"> Start Work</span>
-                                        <span class="w-70 text-secondary-light fw-medium">: <?= $user['start_work'] ? date('d M Y', strtotime($user['start_work'])) : 'Not set' ?></span>
-                                    </li>
-                                    <li class="d-flex align-items-center gap-1 mb-12">
-                                        <span class="w-30 text-md fw-semibold text-primary-light"> Created</span>
-                                        <span class="w-70 text-secondary-light fw-medium">: <?= date('d M Y', strtotime($user['created_at'])) ?></span>
-                                    </li>
-                                    <li class="d-flex align-items-center gap-1">
-                                        <span class="w-30 text-md fw-semibold text-primary-light"> Status</span>
-                                        <span class="w-70 text-secondary-light fw-medium">: <span class="bg-success-focus text-success-600 border border-success-main px-8 py-2 radius-4 fw-medium text-xs">Active</span></span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Profile Settings</h4>
+                        <p class="card-subtitle">Kelola informasi profil dan foto Anda</p>
                     </div>
-                </div>
-                <div class="col-lg-8">
-                    <div class="card h-100">
-                        <div class="card-body p-24">
-                            <ul class="nav border-gradient-tab nav-pills mb-20 d-inline-flex" id="pills-tab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link d-flex align-items-center px-24 active" id="pills-edit-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-edit-profile" type="button" role="tab" aria-controls="pills-edit-profile" aria-selected="true">
-                                        Edit Profile
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link d-flex align-items-center px-24" id="pills-change-passwork-tab" data-bs-toggle="pill" data-bs-target="#pills-change-passwork" type="button" role="tab" aria-controls="pills-change-passwork" aria-selected="false" tabindex="-1">
-                                        Change Password
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link d-flex align-items-center px-24" id="pills-notification-tab" data-bs-toggle="pill" data-bs-target="#pills-notification" type="button" role="tab" aria-controls="pills-notification" aria-selected="false" tabindex="-1">
-                                        Notification Settings
-                                    </button>
-                                </li>
-                            </ul>
+                    <div class="card-body">
+                        <?php if ($message): ?>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <?= htmlspecialchars($message) ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($error): ?>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <?= htmlspecialchars($error) ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        <?php endif; ?>
 
-                            <div class="tab-content" id="pills-tabContent">
-                                <div class="tab-pane fade show active" id="pills-edit-profile" role="tabpanel" aria-labelledby="pills-edit-profile-tab" tabindex="0">
-                                    <h6 class="text-md text-primary-light mb-16">Profile Image</h6>
-                                    <!-- Upload Image Start -->
-                                    <div class="mb-24 mt-16">
-                                        <div class="avatar-upload">
-                                            <div class="avatar-edit position-absolute bottom-0 end-0 me-24 mt-16 z-1 cursor-pointer">
-                                                <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" hidden>
-                                                <label for="imageUpload" class="w-32-px h-32-px d-flex justify-content-center align-items-center bg-primary-50 text-primary-600 border border-primary-600 bg-hover-primary-100 text-lg rounded-circle">
-                                                    <iconify-icon icon="solar:camera-outline" class="icon"></iconify-icon>
-                                                </label>
+                        <div class="row">
+                            <!-- Profile Photo Section -->
+                            <div class="col-md-4">
+                                <div class="text-center mb-4">
+                                    <div class="profile-photo-container">
+                                        <?php if (!empty($user['profile_photo']) && file_exists($user['profile_photo'])): ?>
+                                            <img src="<?= htmlspecialchars($user['profile_photo']) ?>" 
+                                                 alt="Profile Photo" 
+                                                 class="profile-photo img-fluid rounded-circle mb-3"
+                                                 style="width: 150px; height: 150px; object-fit: cover;">
+                                        <?php else: ?>
+                                            <div class="profile-photo-placeholder mb-3">
+                                                <i class="fas fa-user fa-4x text-muted"></i>
                                             </div>
-                                            <div class="avatar-preview">
-                                                <div id="imagePreview">
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <?php endif; ?>
                                     </div>
-                                    <!-- Upload Image End -->
-                                    <form action="#">
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <div class="mb-20">
-                                                    <label for="name" class="form-label fw-semibold text-primary-light text-sm mb-8">Full Name <span class="text-danger-600">*</span></label>
-                                                    <input type="text" class="form-control radius-8" id="name" placeholder="Enter Full Name">
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="mb-20">
-                                                    <label for="email" class="form-label fw-semibold text-primary-light text-sm mb-8">Email <span class="text-danger-600">*</span></label>
-                                                    <input type="email" class="form-control radius-8" id="email" placeholder="Enter email address">
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="mb-20">
-                                                    <label for="number" class="form-label fw-semibold text-primary-light text-sm mb-8">Phone</label>
-                                                    <input type="email" class="form-control radius-8" id="number" placeholder="Enter phone number">
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="mb-20">
-                                                    <label for="depart" class="form-label fw-semibold text-primary-light text-sm mb-8">Department <span class="text-danger-600">*</span> </label>
-                                                    <select class="form-control radius-8 form-select" id="depart">
-                                                        <option>Enter Event Title </option>
-                                                        <option>Enter Event Title One </option>
-                                                        <option>Enter Event Title Two</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="mb-20">
-                                                    <label for="desig" class="form-label fw-semibold text-primary-light text-sm mb-8">Designation <span class="text-danger-600">*</span> </label>
-                                                    <select class="form-control radius-8 form-select" id="desig">
-                                                        <option>Enter Designation Title </option>
-                                                        <option>Enter Designation Title One </option>
-                                                        <option>Enter Designation Title Two</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="mb-20">
-                                                    <label for="Language" class="form-label fw-semibold text-primary-light text-sm mb-8">Language <span class="text-danger-600">*</span> </label>
-                                                    <select class="form-control radius-8 form-select" id="Language">
-                                                        <option> English</option>
-                                                        <option> Bangla </option>
-                                                        <option> Hindi</option>
-                                                        <option> Arabic</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <div class="mb-20">
-                                                    <label for="desc" class="form-label fw-semibold text-primary-light text-sm mb-8">Description</label>
-                                                    <textarea name="#0" class="form-control radius-8" id="desc" placeholder="Write description..."></textarea>
-                                                </div>
+                                    
+                                    <!-- Photo Upload Form -->
+                                    <form method="POST" enctype="multipart/form-data" class="mb-3">
+                                        <div class="mb-3">
+                                            <label for="profile_photo" class="form-label">Upload Foto Profil</label>
+                                            <input type="file" 
+                                                   class="form-control" 
+                                                   id="profile_photo" 
+                                                   name="profile_photo" 
+                                                   accept="image/*"
+                                                   required>
+                                            <div class="form-text">
+                                                Format: JPG, PNG, GIF. Maksimal 5MB.
                                             </div>
                                         </div>
-                                        <div class="d-flex align-items-center justify-content-center gap-3">
-                                            <button type="button" class="border border-danger-600 bg-hover-danger-200 text-danger-600 text-md px-56 py-11 radius-8">
-                                                Cancel
-                                            </button>
-                                            <button type="button" class="btn btn-primary border border-primary-600 text-md px-56 py-12 radius-8">
-                                                Save
-                                            </button>
-                                        </div>
+                                        <button type="submit" name="upload_photo" class="btn btn-primary">
+                                            <i class="fas fa-upload me-2"></i>Upload Foto
+                                        </button>
                                     </form>
                                 </div>
+                            </div>
 
-                                <div class="tab-pane fade" id="pills-change-passwork" role="tabpanel" aria-labelledby="pills-change-passwork-tab" tabindex="0">
-                                    <div class="mb-20">
-                                        <label for="your-password" class="form-label fw-semibold text-primary-light text-sm mb-8">New Password <span class="text-danger-600">*</span></label>
-                                        <div class="position-relative">
-                                            <input type="password" class="form-control radius-8" id="your-password" placeholder="Enter New Password*">
-                                            <span class="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light" data-toggle="#your-password"></span>
+                            <!-- Profile Information Section -->
+                            <div class="col-md-8">
+                                <form method="POST">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="display_name" class="form-label">Display Name</label>
+                                            <input type="text" 
+                                                   class="form-control" 
+                                                   id="display_name" 
+                                                   name="display_name" 
+                                                   value="<?= htmlspecialchars($user['display_name'] ?? '') ?>"
+                                                   placeholder="Nama yang ditampilkan"
+                                                   readonly
+                                                   style="background-color: #f8f9fa; cursor: not-allowed;">
+                                            <div class="form-text text-muted">
+                                                <i class="fas fa-lock me-1"></i>
+                                                Display name hanya dapat diubah oleh administrator
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="full_name" class="form-label">Full Name *</label>
+                                            <input type="text" 
+                                                   class="form-control" 
+                                                   id="full_name" 
+                                                   name="full_name" 
+                                                   value="<?= htmlspecialchars($user['full_name'] ?? '') ?>"
+                                                   required>
                                         </div>
                                     </div>
-                                    <div class="mb-20">
-                                        <label for="confirm-password" class="form-label fw-semibold text-primary-light text-sm mb-8">Confirmed Password <span class="text-danger-600">*</span></label>
-                                        <div class="position-relative">
-                                            <input type="password" class="form-control radius-8" id="confirm-password" placeholder="Confirm Password*">
-                                            <span class="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light" data-toggle="#confirm-password"></span>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <div class="tab-pane fade" id="pills-notification" role="tabpanel" aria-labelledby="pills-notification-tab" tabindex="0">
-                                    <div class="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
-                                        <label for="companzNew" class="position-absolute w-100 h-100 start-0 top-0"></label>
-                                        <div class="d-flex align-items-center gap-3 justify-content-between">
-                                            <span class="form-check-label line-height-1 fw-medium text-secondary-light">Company News</span>
-                                            <input class="form-check-input" type="checkbox" role="switch" id="companzNew">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="email" class="form-label">Email *</label>
+                                            <input type="email" 
+                                                   class="form-control" 
+                                                   id="email" 
+                                                   name="email" 
+                                                   value="<?= htmlspecialchars($user['email'] ?? '') ?>"
+                                                   required>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="tier" class="form-label">Tier</label>
+                                            <select class="form-select" id="tier" name="tier">
+                                                <option value="">Pilih Tier</option>
+                                                <?php foreach ($tier_options as $tier_option): ?>
+                                                    <option value="<?= $tier_option ?>" 
+                                                            <?= ($user['tier'] === $tier_option) ? 'selected' : '' ?>>
+                                                        <?= $tier_option ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
                                         </div>
                                     </div>
-                                    <div class="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
-                                        <label for="pushNotifcation" class="position-absolute w-100 h-100 start-0 top-0"></label>
-                                        <div class="d-flex align-items-center gap-3 justify-content-between">
-                                            <span class="form-check-label line-height-1 fw-medium text-secondary-light">Push Notification</span>
-                                            <input class="form-check-input" type="checkbox" role="switch" id="pushNotifcation" checked>
-                                        </div>
-                                    </div>
-                                    <div class="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
-                                        <label for="weeklyLetters" class="position-absolute w-100 h-100 start-0 top-0"></label>
-                                        <div class="d-flex align-items-center gap-3 justify-content-between">
-                                            <span class="form-check-label line-height-1 fw-medium text-secondary-light">Weekly News Letters</span>
-                                            <input class="form-check-input" type="checkbox" role="switch" id="weeklyLetters" checked>
-                                        </div>
-                                    </div>
-                                    <div class="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
-                                        <label for="meetUp" class="position-absolute w-100 h-100 start-0 top-0"></label>
-                                        <div class="d-flex align-items-center gap-3 justify-content-between">
-                                            <span class="form-check-label line-height-1 fw-medium text-secondary-light">Meetups Near you</span>
-                                            <input class="form-check-input" type="checkbox" role="switch" id="meetUp">
-                                        </div>
-                                    </div>
-                                    <div class="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
-                                        <label for="orderNotification" class="position-absolute w-100 h-100 start-0 top-0"></label>
-                                        <div class="d-flex align-items-center gap-3 justify-content-between">
-                                            <span class="form-check-label line-height-1 fw-medium text-secondary-light">Orders Notifications</span>
-                                            <input class="form-check-input" type="checkbox" role="switch" id="orderNotification" checked>
-                                        </div>
-                                    </div>
-                                </div>
 
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="role" class="form-label">Role</label>
+                                            <select class="form-select" id="role" name="role">
+                                                <option value="">Pilih Role</option>
+                                                <?php foreach ($role_options as $role_option): ?>
+                                                    <option value="<?= $role_option ?>" 
+                                                            <?= ($user['role'] === $role_option) ? 'selected' : '' ?>>
+                                                        <?= $role_option ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="start_work" class="form-label">Start Work Date</label>
+                                            <input type="date" 
+                                                   class="form-control" 
+                                                   id="start_work" 
+                                                   name="start_work" 
+                                                   value="<?= htmlspecialchars($user['start_work'] ?? '') ?>">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="current_password" class="form-label">Current Password</label>
+                                            <input type="password" 
+                                                   class="form-control" 
+                                                   id="current_password" 
+                                                   name="current_password"
+                                                   placeholder="Password saat ini">
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <label for="new_password" class="form-label">New Password</label>
+                                            <input type="password" 
+                                                   class="form-control" 
+                                                   id="new_password" 
+                                                   name="new_password"
+                                                   placeholder="Password baru">
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                                            <input type="password" 
+                                                   class="form-control" 
+                                                   id="confirm_password" 
+                                                   name="confirm_password"
+                                                   placeholder="Konfirmasi password">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <button type="submit" name="update_profile" class="btn btn-primary">
+                                                <i class="fas fa-save me-2"></i>Update Profile
+                                            </button>
+                                            <a href="index.php" class="btn btn-secondary">
+                                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                            </a>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
+
+
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-<?php include './partials/layouts/layoutBottom.php' ?>
+    <?php include './partials/layouts/layoutBottom.php'; ?>
+
+         <style>
+     .profile-photo-container {
+         position: relative;
+         display: inline-block;
+     }
+     
+     .profile-photo {
+         border: 3px solid #e9ecef;
+         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+     }
+     
+     .profile-photo-placeholder {
+         width: 150px;
+         height: 150px;
+         border: 3px solid #e9ecef;
+         border-radius: 50%;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         background-color: #f8f9fa;
+         margin: 0 auto;
+     }
+     
+     .card {
+         border: none;
+         box-shadow: 0 0 20px rgba(0,0,0,0.1);
+         border-radius: 15px;
+     }
+     
+     .card-header {
+         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+         color: white;
+         border-radius: 15px 15px 0 0 !important;
+         border: none;
+     }
+     
+     .form-control, .form-select {
+         border-radius: 10px;
+         border: 2px solid #e9ecef;
+         transition: all 0.3s ease;
+     }
+     
+     .form-control:focus, .form-select:focus {
+         border-color: #667eea;
+         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+     }
+     
+     .btn {
+         border-radius: 10px;
+         padding: 10px 20px;
+         font-weight: 500;
+         transition: all 0.3s ease;
+     }
+     
+     .btn-primary {
+         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+         border: none;
+     }
+     
+     .btn-primary:hover {
+         transform: translateY(-2px);
+         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+     }
+     
+     .alert {
+         border-radius: 10px;
+         border: none;
+     }
+     
+     .alert-success {
+         background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+         color: white;
+     }
+     
+     .alert-danger {
+         background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+         color: white;
+     }
+     
+     /* Dark Theme Adjustments */
+     [data-theme="dark"] .card {
+         background-color: #2d3748 !important;
+         color: #e2e8f0 !important;
+     }
+     
+     [data-theme="dark"] .card-header {
+         background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
+         color: #e2e8f0 !important;
+     }
+     
+     [data-theme="dark"] .form-control,
+     [data-theme="dark"] .form-select {
+         background-color: #4a5568 !important;
+         border-color: #718096 !important;
+         color: #e2e8f0 !important;
+     }
+     
+     [data-theme="dark"] .form-control:focus,
+     [data-theme="dark"] .form-select:focus {
+         background-color: #4a5568 !important;
+         border-color: #667eea !important;
+         color: #e2e8f0 !important;
+         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+     }
+     
+     [data-theme="dark"] .form-control[readonly] {
+         background-color: #2d3748 !important;
+         color: #a0aec0 !important;
+         border-color: #4a5568 !important;
+     }
+     
+     [data-theme="dark"] .form-text {
+         color: #a0aec0 !important;
+     }
+     
+     [data-theme="dark"] .profile-photo-placeholder {
+         background-color: #4a5568 !important;
+         border-color: #718096 !important;
+         color: #a0aec0 !important;
+     }
+     
+     [data-theme="dark"] .profile-photo {
+         border-color: #718096 !important;
+     }
+     
+     [data-theme="dark"] .btn-secondary {
+         background-color: #4a5568 !important;
+         border-color: #718096 !important;
+         color: #e2e8f0 !important;
+     }
+     
+     [data-theme="dark"] .btn-secondary:hover {
+         background-color: #2d3748 !important;
+         border-color: #4a5568 !important;
+     }
+     
+     [data-theme="dark"] .alert-success {
+         background: linear-gradient(135deg, #22543d 0%, #1a4731 100%) !important;
+         color: #9ae6b4 !important;
+     }
+     
+     [data-theme="dark"] .alert-danger {
+         background: linear-gradient(135deg, #742a2a 0%, #5a1a1a 100%) !important;
+         color: #feb2b2 !important;
+     }
+     
+     [data-theme="dark"] .text-muted {
+         color: #a0aec0 !important;
+     }
+     
+     [data-theme="dark"] .form-label {
+         color: #e2e8f0 !important;
+     }
+     </style>
+</body>
+</html>

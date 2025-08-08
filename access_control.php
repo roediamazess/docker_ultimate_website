@@ -43,3 +43,27 @@ function has_access($role, $module, $action) {
     global $access_map;
     return !empty($access_map[$role][$module][$action]);
 }
+
+// Function to require login
+function require_login() {
+    if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+        header('Location: login_simple.php');
+        exit;
+    }
+}
+
+// Function to check if user is logged in
+function is_logged_in() {
+    return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+}
+
+// Function to get current user role
+function get_current_user_role() {
+    return $_SESSION['user_role'] ?? 'User';
+}
+
+// Function to check access for current user
+function check_access($module, $action) {
+    $role = get_current_user_role();
+    return has_access($role, $module, $action);
+}
