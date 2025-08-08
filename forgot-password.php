@@ -144,7 +144,7 @@ $bgClass = 'morning';
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 24px;
-            padding: 32px;
+            padding: 48px 32px 32px 32px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.2);
             max-width: 400px;
@@ -158,7 +158,7 @@ $bgClass = 'morning';
 
         .login-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 28px;
         }
 
         .login-logo {
@@ -169,7 +169,7 @@ $bgClass = 'morning';
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 16px;
+            margin: 0 auto 48px;
             box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
         }
 
@@ -177,7 +177,7 @@ $bgClass = 'morning';
             font-size: 28px;
             font-weight: 700;
             color: #1a1a1a;
-            margin-bottom: 12px;
+            margin-bottom: 20px;
         }
 
         .login-subtitle {
@@ -194,12 +194,12 @@ $bgClass = 'morning';
             font-size: 14px;
             font-weight: 600;
             display: inline-block;
-            margin-bottom: 20px;
+            margin-bottom: 28px;
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 24px;
             position: relative;
         }
 
@@ -245,6 +245,7 @@ $bgClass = 'morning';
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin-bottom: 24px;
         }
 
         .login-btn:hover {
@@ -263,7 +264,7 @@ $bgClass = 'morning';
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 20px;
+            margin-top: 24px;
         }
 
         .back-btn:hover {

@@ -16094,3 +16094,184 @@ button[data-theme-toggle]:not(.modern-theme-toggle) {
   transform: scale(1.2) !important;
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.6) !important;
 }
+
+/* Maxton Integration Styles */
+.page-content {
+    padding: 20px;
+    margin-left: 260px;
+    transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 991.98px) {
+    .page-content {
+        margin-left: 0;
+    }
+}
+
+/* Sidebar adjustments for Maxton */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    background: #fff;
+    border-right: 1px solid #e9ecef;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-100%);
+}
+
+/* Navbar adjustments */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Card styles for Maxton */
+.card {
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1rem;
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+/* Mini stats cards */
+.mini-stats-wid {
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.mini-stats-wid:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.mini-stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Breadcrumb styles */
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    color: #6c757d;
+}
+
+/* Table styles */
+.table-borderless {
+    border: none;
+}
+
+.table-borderless td {
+    border: none;
+    padding: 0.75rem 0;
+}
+
+/* Avatar styles */
+.avatar-sm {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+/* Badge styles */
+.badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Dark mode support */
+[data-theme="dark"] .page-content {
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .sidebar {
+    background: #1e293b;
+    border-right-color: #334155;
+}
+
+[data-theme="dark"] .navbar {
+    background: #1e293b;
+    border-bottom-color: #334155;
+}
+
+[data-theme="dark"] .card {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .card-header {
+    background-color: #0f172a;
+    border-bottom-color: #334155;
+}
+
+[data-theme="dark"] .mini-stats-wid {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .table {
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .text-muted {
+    color: #94a3b8 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .page-content {
+        padding: 15px;
+    }
+    
+    .modern-theme-toggle {
+        min-width: 80px !important;
+        height: 36px !important;
+    }
+    
+    .toggle-track {
+        width: 80px !important;
+        height: 36px !important;
+    }
+    
+    .toggle-thumb {
+        width: 28px !important;
+        height: 28px !important;
+    }
+    
+    [data-theme="dark"] .toggle-thumb {
+        transform: translateX(48px) !important;
+    }
+}
