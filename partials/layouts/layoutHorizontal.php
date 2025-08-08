@@ -88,8 +88,7 @@
                             <iconify-icon icon="solar:alt-arrow-down-outline" class="dropdown-arrow"></iconify-icon>
                         </a>
                                                  <ul class="dropdown-menu" data-debug="dropdown-menu">
-                             <li><a href="index.php">Main Dashboard</a></li>
-                            <li><a href="dashboard.php">Analytics Dashboard</a></li>
+                             <li><a href="index.php">Dashboard</a></li>
                             <li><a href="index-2.php">CRM</a></li>
                             <li><a href="index-3.php">eCommerce</a></li>
                             <li><a href="index-4.php">Cryptocurrency</a></li>
@@ -201,10 +200,10 @@
                             }
                             ?>
                             <?php if ($profile_photo && file_exists($profile_photo)): ?>
-                                <img src="<?= htmlspecialchars($profile_photo) ?>" 
-                                     alt="Profile Photo" 
-                                     class="avatar-image"
-                                     style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                                                     <img src="<?= htmlspecialchars($profile_photo) ?>"
+                          alt="Profile Photo"
+                          class="avatar-image"
+                          style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                             <?php else: ?>
                                 <iconify-icon icon="solar:user-outline" class="avatar-icon"></iconify-icon>
                             <?php endif; ?>

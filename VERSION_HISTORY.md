@@ -1,5 +1,32 @@
 # Version History - PPSolution Ultimate Website
 
+## Version 2.3.0 - Dashboard Cleanup & Footer Update
+**Date:** January 2025  
+**Status:** ✅ Deployed
+
+### 🎯 Main Changes
+- **Fix duplicate charts rendering** on dashboard by loading a single chart bundle only
+- **Footer text updated** to: `© 2025 All rights reserved. | v.3.2508.1`
+- **Theme toggle UX**: Added hover effects (lift + glow) for the advanced toggle in footer
+- **Layout polish**: Adjusted content min-height and footer spacing to remove excessive whitespace
+
+### 🔧 Files Edited
+1. `index.php`
+   - Load only `assets/js/homeOneChart.js` via `$script` to avoid duplicate chart instances
+2. `partials/layouts/layoutBottom.php`
+   - Replace footer text with the new version/copyright string
+3. `assets/css/horizontal-layout.css`
+   - Add hover effects for `.toggle-label` and `.toggle-circle`
+   - Add `html, body` base rules and tweak `.content-wrapper` min-height
+   - Ensure footer spacing does not create extra blank space
+
+### ✅ Testing
+- Charts render once per container (no duplicates)
+- Footer text displays correctly across pages
+- Toggle hover animation works in both light/dark themes
+- Scrolling area no longer has excessive blank space at the bottom
+
+---
 ## Version 2.2.0 - Footer Theme Toggle Implementation
 **Date:** December 2024  
 **Status:** ✅ Deployed

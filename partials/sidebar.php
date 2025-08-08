@@ -20,7 +20,7 @@
                         <a href="index.php"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Main Dashboard</a>
                     </li>
                     <li>
-                        <a href="dashboard.php"><i class="ri-circle-fill circle-icon text-success-main w-auto"></i> Analytics Dashboard</a>
+                        <a href="index.php"><i class="ri-circle-fill circle-icon text-success-main w-auto"></i> Dashboard</a>
                     </li>
                     <li>
                         <a href="index-2.php"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> CRM</a>

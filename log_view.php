@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'db.php';
+require_once 'access_control.php';
 require_once 'user_utils.php';
 
 // Proteksi akses: hanya Administrator dan Management yang bisa melihat log

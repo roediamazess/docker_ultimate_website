@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 if (!in_array($_SESSION['user_role'], ['Administrator', 'Management'])) {
-    header('Location: dashboard.php');
+    header('Location: index.php');
     exit;
 }
 

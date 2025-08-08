@@ -14,11 +14,6 @@ function get_current_user_email() {
     return $_SESSION['user_email'] ?? null;
 }
 
-// Fungsi untuk mendapatkan user role dari session
-function get_current_user_role() {
-    return $_SESSION['user_role'] ?? null;
-}
-
 // Fungsi untuk mendapatkan user display name dari session
 function get_current_user_display_name() {
     return $_SESSION['user_display_name'] ?? null;
@@ -62,14 +57,6 @@ function log_user_activity($action, $description = '') {
     } catch (Exception $e) {
         // Ignore database errors during logging
         error_log("Logging error: " . $e->getMessage());
-    }
-}
-
-// Fungsi untuk redirect jika user tidak login
-function require_login() {
-    if (!is_user_logged_in()) {
-        header('Location: login.php');
-        exit;
     }
 }
 

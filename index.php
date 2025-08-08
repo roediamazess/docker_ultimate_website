@@ -1,6 +1,7 @@
 <?php 
 session_start();
 require_once 'db.php';
+require_once 'access_control.php';
 require_once 'user_utils.php';
 
 // Cek akses menggunakan utility function
@@ -30,11 +31,11 @@ include './partials/layouts/layoutHorizontal.php'
                     <li class="fw-medium">
                         <a href="index.php" class="d-flex align-items-center gap-1 hover-text-primary">
                             <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-                            Dashboard
+                            Home
                         </a>
                     </li>
                     <li>-</li>
-                    <li class="fw-medium">AI</li>
+                    <li class="fw-medium">Dashboard</li>
                 </ul>
             </div>
 

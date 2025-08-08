@@ -1,19 +1,15 @@
-# Git Commit Message - Version 2.2.0
+# Git Commit Message - Version 2.3.0
 
 ## Commit Message
 ```
-feat: implement footer theme toggle and copyright integration
+feat: fix duplicate charts, enhance footer toggle hover, update footer text
 
-- Move theme toggle from header to footer center position
-- Add PPSolution copyright to footer right side  
-- Implement perfect centering using absolute positioning
-- Remove theme toggle from header navigation
-- Add footer-specific CSS with gradient backgrounds
-- Support dark/light theme for footer elements
-- Clean up header navigation to focus on main menu
-- Ensure responsive design across all devices
+- Dashboard: load a single chart bundle to prevent duplicate renders
+- Footer: add hover lift + glow to advanced theme toggle
+- Footer: update text to "© 2025 All rights reserved. | v.3.2508.1"
+- Layout: reduce bottom whitespace via min-height/spacing tweaks
 
-Version 2.2.0 - Footer Theme Toggle Implementation
+Version 2.3.0 - Dashboard Cleanup & Footer Update
 ```
 
 ## Git Commands to Execute
@@ -23,25 +19,14 @@ Version 2.2.0 - Footer Theme Toggle Implementation
 git add .
 
 # Commit with detailed message
-git commit -m "feat: implement footer theme toggle and copyright integration
-
-- Move theme toggle from header to footer center position
-- Add PPSolution copyright to footer right side  
-- Implement perfect centering using absolute positioning
-- Remove theme toggle from header navigation
-- Add footer-specific CSS with gradient backgrounds
-- Support dark/light theme for footer elements
-- Clean up header navigation to focus on main menu
-- Ensure responsive design across all devices
-
-Version 2.2.0 - Footer Theme Toggle Implementation"
+git commit -m "feat: fix duplicate charts, enhance footer toggle hover, update footer text\n\n- Dashboard: load a single chart bundle to prevent duplicate renders\n- Footer: add hover lift + glow to advanced theme toggle\n- Footer: update text to © 2025 All rights reserved. | v.3.2508.1\n- Layout: reduce bottom whitespace via min-height/spacing tweaks\n\nVersion 2.3.0 - Dashboard Cleanup & Footer Update"
 
 # Create version tag
-git tag -a v2.2.0 -m "Version 2.2.0 - Footer Theme Toggle Implementation"
+git tag -a v2.3.0 -m "Version 2.3.0 - Dashboard Cleanup & Footer Update"
 
 # Push changes and tag to remote repository
 git push origin main
-git push origin v2.2.0
+git push origin v2.3.0
 ```
 
 ## Files Modified in This Version

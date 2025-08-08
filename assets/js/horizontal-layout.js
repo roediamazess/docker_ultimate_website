@@ -22,39 +22,72 @@ function initializeAll() {
     initializeRightSideButtons();
     
     // Initialize simple theme toggle
-    initializeSimpleThemeToggle();
+    initializeAdvancedThemeToggle();
     
     console.log('✅ All initialization complete');
 }
 
-// Simple Theme Toggle
-function initializeSimpleThemeToggle() {
-    console.log('🌙 Initializing simple theme toggle...');
+// Advanced Theme Toggle with Ripple Effect
+function initializeAdvancedThemeToggle() {
+    console.log('🌙 Initializing advanced theme toggle...');
     
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
+    const toggle = document.getElementById('theme-toggle');
+    const toggleLabel = document.querySelector('.toggle-label');
+    const overlay = document.getElementById('theme-transition-overlay');
     
-    if (themeToggle && themeIcon) {
+    if (toggle && toggleLabel && overlay) {
         // Set initial theme
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
-        updateThemeIcon(savedTheme);
+        toggle.checked = savedTheme === 'dark';
         
-        // Add click event
-        themeToggle.addEventListener('click', function() {
-            console.log('🌙 Theme toggle clicked');
-            
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcon(newTheme);
-        });
+        // Function to switch theme with ripple effect
+        function switchThemeWithRipple() {
+            const isDark = toggle.checked;
+            console.log('🌙 Advanced theme toggle clicked, switching to:', isDark ? 'dark' : 'light');
+
+            // 1. Calculate ripple origin and size
+            const rect = toggleLabel.getBoundingClientRect();
+            const originX = rect.left + rect.width / 2;
+            const originY = rect.top + rect.height / 2;
+
+            // Find farthest corner to determine circle radius
+            const farthestX = originX > window.innerWidth / 2 ? 0 : window.innerWidth;
+            const farthestY = originY > window.innerHeight / 2 ? 0 : window.innerHeight;
+            const radius = Math.hypot(farthestX - originX, farthestY - originY);
+
+            // 2. Set overlay for animation start
+            overlay.style.width = `${radius * 2}px`;
+            overlay.style.height = `${radius * 2}px`;
+            overlay.style.left = `${originX}px`;
+            overlay.style.top = `${originY}px`;
+            overlay.style.backgroundColor = isDark ? '#0c1445' : '#f0f9ff';
+
+            // 3. Add event listener that runs only once when transition ends
+            overlay.addEventListener('transitionend', () => {
+                // 4. After ripple covers screen, change theme class
+                const newTheme = isDark ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                // 5. Reset overlay for next click
+                overlay.style.transition = 'none';
+                overlay.style.width = '0';
+                overlay.style.height = '0';
+                
+                // Force browser to apply style before re-enabling transition
+                overlay.offsetHeight;
+                
+                overlay.style.transition = 'width 0.8s ease-in-out, height 0.8s ease-in-out';
+            }, { once: true });
+        }
+
+        // Add event listener to toggle
+        toggle.addEventListener('change', switchThemeWithRipple);
         
-        console.log('✅ Simple theme toggle initialized');
+        console.log('✅ Advanced theme toggle initialized');
     } else {
-        console.log('❌ Theme toggle elements not found');
+        console.log('❌ Advanced theme toggle elements not found');
     }
 }
 
