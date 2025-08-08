@@ -9,27 +9,48 @@ $error = '';
 $success = '';
 
 if (isset($_POST['login'])) {
-    $email = $_POST['email'] ?? '';
+    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     
-    $sql = "SELECT * FROM users WHERE email = ?";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$email]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($user && password_verify($password, $user['password'])) {
-        // Login sukses
-        session_regenerate_id(true);
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_email'] = $user['email'];
-        $_SESSION['user_role'] = $user['role'];
-        $_SESSION['user_display_name'] = $user['display_name'];
-        
-        $success = 'Login berhasil! Redirecting...';
-        header('Location: index.php');
-        exit;
+    // Basic validation
+    if (empty($email) || empty($password)) {
+        $error = 'Email dan password harus diisi!';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Format email tidak valid!';
     } else {
-        $error = 'Email atau password salah!';
+        // Rate limiting check (basic)
+        $attempt_key = 'login_attempts_' . md5($email);
+        $attempts = $_SESSION[$attempt_key] ?? 0;
+        
+        if ($attempts >= 5) {
+            $error = 'Terlalu banyak percobaan login. Silakan coba lagi dalam 15 menit.';
+        } else {
+            $sql = "SELECT * FROM users WHERE email = ? AND status = 'active'";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$email]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($user && password_verify($password, $user['password'])) {
+                // Login sukses
+                session_regenerate_id(true);
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_email'] = $user['email'];
+                $_SESSION['user_role'] = $user['role'];
+                $_SESSION['user_display_name'] = $user['display_name'];
+                $_SESSION['login_time'] = time();
+                
+                // Clear login attempts
+                unset($_SESSION[$attempt_key]);
+                
+                $success = 'Login berhasil! Redirecting...';
+                header('Location: index.php');
+                exit;
+            } else {
+                // Increment failed attempts
+                $_SESSION[$attempt_key] = $attempts + 1;
+                $error = 'Email atau password salah!';
+            }
+        }
     }
 }
 

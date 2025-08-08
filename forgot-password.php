@@ -24,48 +24,63 @@ $error = '';
 $success = '';
 
 if (isset($_POST['reset_password'])) {
-    $email = $_POST['email'] ?? '';
+    $email = trim($_POST['email'] ?? '');
     
-    // Validasi email
-    if (empty($email)) {
-        $error = 'Email tidak boleh kosong!';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Format email tidak valid!';
+    // Rate limiting check
+    $reset_key = 'reset_attempts_' . md5($email);
+    $reset_attempts = $_SESSION[$reset_key] ?? 0;
+    
+    if ($reset_attempts >= 3) {
+        $error = 'Terlalu banyak permintaan reset password. Silakan coba lagi dalam 1 jam.';
     } else {
-        // Cek apakah email ada di database
-        $sql = "SELECT id, email, display_name FROM users WHERE email = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($user) {
-            // Generate reset token dengan UTC time
-            $reset_token = bin2hex(random_bytes(32));
-            $reset_expires_utc = date('Y-m-d H:i:s', strtotime('+1 hour')); // UTC time
+        // Validasi email
+        if (empty($email)) {
+            $error = 'Email tidak boleh kosong!';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = 'Format email tidak valid!';
+        } else {
+            // Cek apakah email ada di database
+            $sql = "SELECT id, email, display_name FROM users WHERE email = ? AND status = 'active'";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$email]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            // Simpan token ke database dengan UTC time
-            $update_sql = "UPDATE users SET reset_token = ?, reset_expires = ? WHERE email = ?";
-            $update_stmt = $pdo->prepare($update_sql);
-            
-            if ($update_stmt->execute([$reset_token, $reset_expires_utc, $email])) {
-                // Include email sending function
-                require_once 'send_email.php';
+            if ($user) {
+                // Generate reset token dengan UTC time
+                $reset_token = bin2hex(random_bytes(32));
+                $reset_expires_utc = date('Y-m-d H:i:s', strtotime('+1 hour')); // UTC time
                 
-                // Kirim email reset yang sebenarnya
-                if (sendPasswordResetEmail($email, $reset_token, $user['display_name'])) {
-                    // Convert UTC ke local time untuk display
-                    $reset_expires_local = convertUTCToLocal($reset_expires_utc);
+                // Simpan token ke database dengan UTC time
+                $update_sql = "UPDATE users SET reset_token = ?, reset_expires = ? WHERE email = ?";
+                $update_stmt = $pdo->prepare($update_sql);
+                
+                if ($update_stmt->execute([$reset_token, $reset_expires_utc, $email])) {
+                    // Include email sending function
+                    require_once 'send_email.php';
                     
-                    $success = "Link reset password telah dikirim ke email Anda!<br><br>
-                              <strong>📧 Email telah dikirim ke:</strong> {$email}";
+                    // Kirim email reset yang sebenarnya
+                    if (sendPasswordResetEmail($email, $reset_token, $user['display_name'])) {
+                        // Convert UTC ke local time untuk display
+                        $reset_expires_local = convertUTCToLocal($reset_expires_utc);
+                        
+                        $success = "Link reset password telah dikirim ke email Anda!<br><br>
+                                  <strong>📧 Email telah dikirim ke:</strong> {$email}";
+                        
+                        // Clear reset attempts on success
+                        unset($_SESSION[$reset_key]);
+                    } else {
+                        $error = 'Gagal mengirim email reset password. Silakan coba lagi atau hubungi administrator.';
+                    }
                 } else {
-                    $error = 'Gagal mengirim email reset password. Silakan coba lagi atau hubungi administrator.';
+                    $error = 'Terjadi kesalahan sistem. Silakan coba lagi.';
                 }
             } else {
-                $error = 'Terjadi kesalahan sistem. Silakan coba lagi.';
+                // Don't reveal if email exists or not
+                $success = "Jika email terdaftar, link reset password akan dikirim ke email Anda.";
             }
-        } else {
-            $error = 'Email tidak ditemukan dalam sistem!';
+            
+            // Increment attempts
+            $_SESSION[$reset_key] = $reset_attempts + 1;
         }
     }
 }
