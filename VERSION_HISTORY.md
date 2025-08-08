@@ -1,6 +1,66 @@
 # Version History - Ultimate Website
 
-## Version 2.5 - Login Page Layout Optimization & Spacing Consistency (Latest)
+## Version 2.6 - Sidebar Menu Cleanup & Settings Removal (Latest)
+**Date**: August 2025
+
+### 🧹 **Sidebar Menu Cleanup**
+- **Removed Pricing**: Menu pricing dan detailnya
+- **Removed Blog**: Dropdown menu dengan submenu Blog, Blog Details, Add Blog
+- **Removed FAQs**: Menu FAQ
+- **Removed 404**: Menu halaman error 404
+- **Removed Terms & Conditions**: Menu terms dan conditions
+- **Removed Coming Soon**: Menu coming soon page
+- **Removed Maintenance**: Menu maintenance page
+- **Removed Blank Page**: Menu blank page
+- **Removed Settings**: Dropdown menu dengan submenu Company, Notification, Theme, Currencies, Languages, Payment Gateway
+
+### 🎯 **Focused Navigation**
+- **Core Functionality**: Fokus pada fungsi utama bisnis
+- **Data Management**: User List, Customer List, Project List, Activity List, Audit Logs
+- **Content Management**: Gallery dan Testimonial untuk konten
+- **User Management**: Dashboard, User Management, Role & Access
+- **UI Elements**: Components, Forms, Table, Chart, Widgets untuk development
+
+### 📋 **Current Sidebar Structure**
+```
+📊 Dashboard
+   ├── Main Dashboard
+   ├── Analytics Dashboard
+   ├── CRM, eCommerce, Cryptocurrency
+   ├── Investment, LMS, NFT & Gaming
+   ├── Medical, Analytics, POS & Inventory
+
+🎨 UI Elements
+   ├── Components (Typography, Colors, Button, etc.)
+   ├── Forms (Input Forms, Layout, Validation, Wizard)
+   ├── Table (Basic Table, Data Table)
+   ├── Chart (Line Chart, Column Chart, Pie Chart)
+   └── Widgets
+
+👥 User Management
+   ├── Users (List, Grid, Add User, View Profile)
+   └── Role & Access (Role & Access, Assign Role)
+
+📊 Data Management
+   ├── User List
+   ├── Customer List
+   ├── Project List
+   ├── Activity List
+   ├── Audit Logs
+   ├── Gallery
+   └── Testimonial
+```
+
+### ✨ **Benefits**
+- **Cleaner Interface**: Sidebar lebih bersih dan mudah dinavigasi
+- **Focused Functionality**: Menghilangkan menu yang tidak diperlukan
+- **Better UX**: User experience yang lebih baik dengan menu yang relevan
+- **Maintainable**: Struktur yang lebih mudah di-maintain
+- **Professional**: Tampilan yang lebih profesional dan fokus
+
+---
+
+## Version 2.5 - Login Page Layout Optimization & Spacing Consistency
 **Date**: August 2025
 
 ### 🎯 **Login Page Layout Optimization**
