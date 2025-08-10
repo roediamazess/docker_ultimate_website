@@ -331,7 +331,7 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Information Date *</label>
-                                            <input type="date" name="information_date" class="form-control" required>
+                                            <input type="date" name="information_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Priority *</label>
@@ -348,8 +348,7 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
                                         <div class="col-md-6">
                                             <label class="form-label">Department</label>
                                             <select name="department" class="form-select">
-                                                <option value="">Select Department</option>
-                                                <option value="Food & Beverage">Food & Beverage</option>
+                                                <option value="Food & Beverage" selected>Food & Beverage</option>
                                                 <option value="Kitchen">Kitchen</option>
                                                 <option value="Room Division">Room Division</option>
                                                 <option value="Front Office">Front Office</option>
@@ -364,8 +363,7 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
                                         <div class="col-md-6">
                                             <label class="form-label">Application *</label>
                                             <select name="application" class="form-select" required>
-                                                <option value="">-</option>
-                                                <option value="Power FO">Power FO</option>
+                                                <option value="Power FO" selected>Power FO</option>
                                                 <option value="My POS">My POS</option>
                                                 <option value="My MGR">My MGR</option>
                                                 <option value="Power AR">Power AR</option>
