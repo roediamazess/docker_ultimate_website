@@ -52,6 +52,7 @@ if (isset($_POST['create'])) {
             date('Y-m-d H:i:s')
         ]);
         $message = 'Activity created!';
+        $message_type = 'success';
         log_activity('create_activity', 'Activity: ' . $_POST['type']);
     }
 }
@@ -82,6 +83,7 @@ if (isset($_POST['update'])) {
             $_POST['id']
         ]);
         $message = 'Activity updated!';
+        $message_type = 'info';
         log_activity('update_activity', 'Activity ID: ' . $_POST['id']);
     }
 }
@@ -95,6 +97,7 @@ if (isset($_POST['delete'])) {
         $stmt = $pdo->prepare('DELETE FROM activities WHERE id = ?');
         $stmt->execute([$id]);
         $message = 'Activity deleted!';
+        $message_type = 'warning';
         log_activity('delete_activity', 'Activity ID: ' . $id);
     }
 }
@@ -874,6 +877,100 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
                             margin: 0;
                             font-size: 18px;
                             font-weight: 600;
+                        }
+                        
+                        /* Enhanced Alert Styling */
+                        .alert-animated {
+                            border: none !important;
+                            border-radius: 12px !important;
+                            padding: 16px 20px !important;
+                            margin-bottom: 20px !important;
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+                            transition: all 0.3s ease !important;
+                            animation: slideInDown 0.5s ease-out !important;
+                        }
+                        
+                        .alert-animated:hover {
+                            transform: translateY(-2px) !important;
+                            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+                        }
+                        
+                        .alert-content {
+                            display: flex !important;
+                            align-items: center !important;
+                            gap: 12px !important;
+                        }
+                        
+                        .alert-icon {
+                            font-size: 20px !important;
+                            flex-shrink: 0 !important;
+                        }
+                        
+                        .alert-message {
+                            font-weight: 500 !important;
+                            font-size: 14px !important;
+                        }
+                        
+                        /* Success Alert */
+                        .alert-success {
+                            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
+                            color: #155724 !important;
+                            border-left: 4px solid #28a745 !important;
+                        }
+                        
+                        .alert-success .alert-icon {
+                            color: #28a745 !important;
+                        }
+                        
+                        /* Info Alert */
+                        .alert-info {
+                            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%) !important;
+                            color: #0c5460 !important;
+                            border-left: 4px solid #17a2b8 !important;
+                        }
+                        
+                        .alert-info .alert-icon {
+                            color: #17a2b8 !important;
+                        }
+                        
+                        /* Warning Alert */
+                        .alert-warning {
+                            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
+                            color: #856404 !important;
+                            border-left: 4px solid #ffc107 !important;
+                        }
+                        
+                        .alert-warning .alert-icon {
+                            color: #ffc107 !important;
+                        }
+                        
+                        /* Animation Keyframes */
+                        @keyframes slideInDown {
+                            from {
+                                transform: translateY(-20px);
+                                opacity: 0;
+                            }
+                            to {
+                                transform: translateY(0);
+                                opacity: 1;
+                            }
+                        }
+                        
+                        /* Auto-hide animation */
+                        .alert-animated.fade-out {
+                            animation: fadeOutUp 0.5s ease-in forwards !important;
+                        }
+                        
+                        @keyframes fadeOutUp {
+                            from {
+                                transform: translateY(0);
+                                opacity: 1;
+                            }
+                            to {
+                                transform: translateY(-20px);
+                                opacity: 0;
+                            }
+                        }
                             color: #333;
                         }
                         
@@ -997,7 +1094,12 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
                     });
                     </script>
 <?php if ($message): ?>
-                        <div class="alert alert-info"> <?= htmlspecialchars($message) ?> </div>
+                        <div class="alert alert-<?= $message_type ?? 'info' ?> alert-animated" role="alert">
+                            <div class="alert-content">
+                                <i class="alert-icon ri-<?= $message_type === 'success' ? 'check-line' : ($message_type === 'warning' ? 'error-warning-line' : 'information-line') ?>"></i>
+                                <span class="alert-message"><?= htmlspecialchars($message) ?></span>
+                            </div>
+                        </div>
 <?php endif; ?>
 
                     <div class="card-body">
@@ -1392,6 +1494,36 @@ function closeEditModal() {
         modal.style.opacity = '0';
     }
 }
+
+// Enhanced Alert Management
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-hide alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert-animated');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.classList.add('fade-out');
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 500);
+        }, 5000);
+        
+        // Add click to dismiss functionality
+        alert.addEventListener('click', function() {
+            this.classList.add('fade-out');
+            setTimeout(() => {
+                if (this.parentNode) {
+                    this.parentNode.removeChild(this);
+                }
+            }, 500);
+        });
+        
+        // Add hover effect indicator
+        alert.style.cursor = 'pointer';
+        alert.title = 'Click to dismiss';
+    });
+});
 
 
 </script>

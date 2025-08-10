@@ -193,6 +193,7 @@ Replace background images in `assets/css/login-backgrounds.css`:
 - `README.md` - This documentation
 - `docs/006_add_action_buttons_activity_table.md` - Penambahan tombol action pada tabel activity
 - `docs/007_remove_action_buttons_activity_table.md` - Penghapusan kolom action dari tabel activity
+- `docs/008_enhance_activity_notifications.md` - Peningkatan tampilan notifikasi activity
 - Code comments for technical details
 
 ### **Testing**
