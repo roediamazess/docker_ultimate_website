@@ -437,8 +437,8 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                     <button type="submit" name="create" value="1" class="btn btn-primary">Create</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </form>
                         </div>
@@ -1022,9 +1022,9 @@ document.querySelectorAll('.activity-row').forEach(function(row) {
                     </div>
                   </div>
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" name="delete" value="1" class="btn btn-danger" onclick="return confirm('Delete this activity?')">Delete</button>
                     <button type="submit" name="update" value="1" class="btn btn-primary">Update</button>
+                    <button type="submit" name="delete" value="1" class="btn btn-danger" onclick="return confirm('Delete this activity?')">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                   </div>
                 </form>
               </div>
