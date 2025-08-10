@@ -137,40 +137,25 @@
                         </ul>
                     </li>
 
-                    <li class="nav-item dropdown" data-debug="dropdown-item">
-                        <a href="javascript:void(0)" class="nav-link" data-debug="dropdown-link">
+                    <li class="nav-item" data-debug="nav-item">
+                        <a href="customer_crud.php" class="nav-link">
                             <iconify-icon icon="solar:users-group-two-rounded-outline" class="nav-icon"></iconify-icon>
                             <span>Customers</span>
-                            <iconify-icon icon="solar:alt-arrow-down-outline" class="dropdown-arrow"></iconify-icon>
                         </a>
-                        <ul class="dropdown-menu" data-debug="dropdown-menu">
-                            <li><a href="customer_crud.php">Customer Management</a></li>
-                            <li><a href="customer_crud_new.php">New Customer</a></li>
-                        </ul>
                     </li>
 
-                    <li class="nav-item dropdown" data-debug="dropdown-item">
-                        <a href="javascript:void(0)" class="nav-link" data-debug="dropdown-link">
+                    <li class="nav-item" data-debug="nav-item">
+                        <a href="project_crud.php" class="nav-link">
                             <iconify-icon icon="solar:folder-with-files-outline" class="nav-icon"></iconify-icon>
                             <span>Projects</span>
-                            <iconify-icon icon="solar:alt-arrow-down-outline" class="dropdown-arrow"></iconify-icon>
                         </a>
-                        <ul class="dropdown-menu" data-debug="dropdown-menu">
-                            <li><a href="project_crud.php">Project Management</a></li>
-                            <li><a href="project_crud_new.php">New Project</a></li>
-                        </ul>
                     </li>
 
-                    <li class="nav-item dropdown" data-debug="dropdown-item">
-                        <a href="javascript:void(0)" class="nav-link" data-debug="dropdown-link">
+                    <li class="nav-item" data-debug="nav-item">
+                        <a href="activity_crud.php" class="nav-link">
                             <iconify-icon icon="solar:calendar-outline" class="nav-icon"></iconify-icon>
                             <span>Activities</span>
-                            <iconify-icon icon="solar:alt-arrow-down-outline" class="dropdown-arrow"></iconify-icon>
                         </a>
-                        <ul class="dropdown-menu" data-debug="dropdown-menu">
-                            <li><a href="activity_crud.php">Activity Management</a></li>
-                            <li><a href="activity_crud_new.php">New Activity</a></li>
-                        </ul>
                     </li>
 
                     <li class="nav-item">

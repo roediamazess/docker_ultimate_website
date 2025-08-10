@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Modal Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .btn { padding: 10px 20px; margin: 10px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 5% auto; border-radius: 8px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 20px; border-top: 1px solid #eee; text-align: right; }
+        .close { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; background: none; border: none; }
+        .close:hover { color: black; }
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-control { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .form-select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .col-md-6 { width: 100%; }
+        .col-md-6[style*="grid-column: 1 / -1"] { grid-column: 1 / -1; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Activity Modal Test</h1>
+        <p>This page tests the modal functionality similar to activity_crud.php</p>
+        
+        <button class="btn btn-primary" onclick="showCreateForm()">Create Activity (Bootstrap)</button>
+        <button class="btn btn-success" onclick="showVanillaModal()">Create Activity (Vanilla)</button>
+        <button class="btn btn-danger" onclick="testBootstrap()">Test Bootstrap</button>
+    </div>
+    
+    <!-- Bootstrap Modal -->
+    <div id="createActivityModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Activity</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+                </div>
+                <form method="post">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">No</label>
+                                <input type="number" name="no" class="form-control" value="1">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Status *</label>
+                                <select name="status" class="form-select" required>
+                                    <option value="Open">Open</option>
+                                    <option value="On Progress">On Progress</option>
+                                    <option value="Need Requirement">Need Requirement</option>
+                                    <option value="Done">Done</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Information Date *</label>
+                                <input type="date" name="information_date" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Priority *</label>
+                                <select name="priority" class="form-select" required>
+                                    <option value="Urgent">Urgent</option>
+                                    <option value="Normal" selected>Normal</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-control" rows="3"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Action Solution</label>
+                                <textarea name="action_solution" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" name="create" value="1" class="btn btn-primary">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Simulate the functions from activity_crud.php
+        function showCreateForm() {
+            console.log('showCreateForm called');
+            console.log('Bootstrap available:', typeof bootstrap !== 'undefined');
+            
+            if (typeof bootstrap === 'undefined') {
+                console.error('Bootstrap is not loaded!');
+                console.log('Trying vanilla JavaScript modal as fallback...');
+                showVanillaModal();
+                return;
+            }
+            
+            if (typeof bootstrap.Modal === 'undefined') {
+                console.error('Bootstrap Modal class is not available!');
+                console.log('Trying vanilla JavaScript modal as fallback...');
+                showVanillaModal();
+                return;
+            }
+            
+            console.log('Bootstrap Modal class available:', bootstrap.Modal);
+            
+            let modalEl = document.getElementById('createActivityModal');
+            if (!modalEl) {
+                console.log('Creating new modal element');
+                modalEl = document.createElement('div');
+                modalEl.id = 'createActivityModal';
+                modalEl.className = 'modal fade';
+                modalEl.tabIndex = -1;
+                // ... modal HTML would go here
+                document.body.appendChild(modalEl);
+                console.log('Modal element created and appended to body');
+            }
+            
+            try {
+                console.log('Creating Bootstrap modal instance');
+                const modal = new bootstrap.Modal(modalEl);
+                console.log('Showing modal...');
+                modal.show();
+                console.log('Modal.show() called successfully');
+            } catch (error) {
+                console.error('Error creating/showing modal:', error);
+                console.log('Falling back to vanilla JavaScript modal...');
+                showVanillaModal();
+            }
+        }
+        
+        function showVanillaModal() {
+            console.log('showVanillaModal called');
+            
+            const existingModal = document.getElementById('vanillaCreateModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            const modalContainer = document.createElement('div');
+            modalContainer.id = 'vanillaCreateModal';
+            modalContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                border-radius: 8px;
+                padding: 20px;
+                max-width: 800px;
+                width: 90%;
+                max-height: 90vh;
+                overflow-y: auto;
+                position: relative;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            `;
+            
+            modalContent.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                    <h4 style="margin: 0; color: #333;">Add Activity (Vanilla)</h4>
+                    <button onclick="closeVanillaModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+                </div>
+                <form method="post">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">No</label>
+                            <input type="number" name="no" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" value="1">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Status *</label>
+                            <select name="status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                <option value="Open">Open</option>
+                                <option value="On Progress">On Progress</option>
+                                <option value="Need Requirement">Need Requirement</option>
+                                <option value="Done">Done</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Description</label>
+                            <textarea name="description" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; height: 80px;"></textarea>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Action Solution</label>
+                            <textarea name="action_solution" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; height: 80px;"></textarea>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px; text-align: right; border-top: 1px solid #eee; padding-top: 15px;">
+                        <button type="button" onclick="closeVanillaModal()" style="padding: 8px 16px; margin-right: 10px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer;">Close</button>
+                        <button type="submit" name="create" value="1" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Create</button>
+                    </div>
+                </form>
+            `;
+            
+            modalContainer.appendChild(modalContent);
+            document.body.appendChild(modalContainer);
+            
+            console.log('Vanilla modal created and shown');
+            
+            modalContainer.addEventListener('click', function(e) {
+                if (e.target === modalContainer) {
+                    closeVanillaModal();
+                }
+            });
+        }
+        
+        function closeVanillaModal() {
+            const modal = document.getElementById('vanillaCreateModal');
+            if (modal) {
+                modal.remove();
+                console.log('Vanilla modal closed');
+            }
+        }
+        
+        function testBootstrap() {
+            console.log('Testing Bootstrap availability...');
+            console.log('Window object:', window);
+            console.log('Bootstrap available:', typeof bootstrap !== 'undefined');
+            if (typeof bootstrap !== 'undefined') {
+                console.log('Bootstrap object:', bootstrap);
+                console.log('Bootstrap Modal:', typeof bootstrap.Modal);
+                console.log('Bootstrap version:', bootstrap.VERSION);
+            }
+        }
+        
+        // Page load debugging
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded');
+            console.log('Functions available:');
+            console.log('showCreateForm:', typeof showCreateForm);
+            console.log('showVanillaModal:', typeof showVanillaModal);
+            console.log('closeVanillaModal:', typeof closeVanillaModal);
+            console.log('testBootstrap:', typeof testBootstrap);
+        });
+    </script>
+</body>
+</html>
+

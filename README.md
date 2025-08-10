@@ -191,6 +191,8 @@ Replace background images in `assets/css/login-backgrounds.css`:
 ### **Documentation**
 - `VERSION_HISTORY.md` - Detailed version history
 - `README.md` - This documentation
+- `docs/006_add_action_buttons_activity_table.md` - Penambahan tombol action pada tabel activity
+- `docs/007_remove_action_buttons_activity_table.md` - Penghapusan kolom action dari tabel activity
 - Code comments for technical details
 
 ### **Testing**

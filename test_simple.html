@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Modal Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .btn { padding: 10px 20px; margin: 10px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 15% auto; padding: 20px; border-radius: 5px; width: 80%; max-width: 500px; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: black; }
+    </style>
+</head>
+<body>
+    <h1>Simple Modal Test</h1>
+    
+    <button class="btn btn-primary" onclick="showModal()">Show Modal</button>
+    <button class="btn btn-success" onclick="testFunction()">Test Function</button>
+    
+    <div id="simpleModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Simple Modal</h2>
+            <p>This is a simple modal without Bootstrap.</p>
+            <p>If you can see this, the modal system is working.</p>
+        </div>
+    </div>
+    
+    <script>
+        function showModal() {
+            console.log('showModal function called');
+            const modal = document.getElementById('simpleModal');
+            if (modal) {
+                modal.style.display = 'block';
+                console.log('Modal displayed');
+            } else {
+                console.error('Modal element not found');
+            }
+        }
+        
+        function closeModal() {
+            console.log('closeModal function called');
+            const modal = document.getElementById('simpleModal');
+            if (modal) {
+                modal.style.display = 'none';
+                console.log('Modal closed');
+            }
+        }
+        
+        function testFunction() {
+            console.log('testFunction called');
+            alert('Function is working!');
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('simpleModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        console.log('Page loaded, functions available:');
+        console.log('showModal:', typeof showModal);
+        console.log('closeModal:', typeof closeModal);
+        console.log('testFunction:', typeof testFunction);
+    </script>
+</body>
+</html>
+

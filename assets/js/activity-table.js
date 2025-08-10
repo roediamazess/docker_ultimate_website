@@ -40,6 +40,94 @@ function initActivityTable() {
             setTimeout(() => {
                 this.style.transform = 'scale(1)';
             }, 150);
+            
+            // Update visual feedback for sorting
+            updateSortingVisuals(this);
+        });
+    });
+    
+    // Initialize sorting visuals
+    initSortingVisuals();
+}
+
+/**
+ * Initialize sorting visuals based on current URL parameters
+ */
+function initSortingVisuals() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentSort = urlParams.get('sort');
+    const currentOrder = urlParams.get('order');
+    
+    if (currentSort) {
+        const header = document.querySelector(`[href*="sort=${currentSort}"]`);
+        if (header) {
+            updateSortingVisuals(header, currentOrder);
+        }
+    }
+}
+
+/**
+ * Update sorting visuals for a specific header
+ */
+function updateSortingVisuals(header, order = null) {
+    // Remove all sorting classes first
+    const allHeaders = document.querySelectorAll('.sortable-header');
+    allHeaders.forEach(h => {
+        h.classList.remove('sort-asc', 'sort-desc');
+        // Hide all icons by default
+        const icon = h.querySelector('.sort-icon');
+        if (icon) {
+            icon.style.display = 'none';
+        }
+    });
+    
+    // Get current order from URL if not provided
+    if (!order) {
+        const urlParams = new URLSearchParams(window.location.search);
+        order = urlParams.get('order') || 'asc';
+    }
+    
+    // Add appropriate sorting class
+    if (order === 'desc') {
+        header.classList.add('sort-desc');
+    } else {
+        header.classList.add('sort-asc');
+    }
+    
+    // Update icon display for active sorting header
+    const icon = header.querySelector('.sort-icon');
+    if (icon) {
+        icon.style.display = 'inline-block';
+    }
+    
+    // Add hover effect to show icon on all headers
+    addHoverEffectsToHeaders();
+}
+
+/**
+ * Add hover effects to show sorting icons on hover
+ */
+function addHoverEffectsToHeaders() {
+    const allHeaders = document.querySelectorAll('.sortable-header');
+    
+    allHeaders.forEach(header => {
+        const icon = header.querySelector('.sort-icon');
+        if (!icon) return;
+        
+        // Show icon on hover
+        header.addEventListener('mouseenter', function() {
+            if (!this.classList.contains('sort-asc') && !this.classList.contains('sort-desc')) {
+                icon.style.display = 'inline-block';
+                icon.style.opacity = '0.6';
+            }
+        });
+        
+        // Hide icon on mouse leave (unless it's the active sorting column)
+        header.addEventListener('mouseleave', function() {
+            if (!this.classList.contains('sort-asc') && !this.classList.contains('sort-desc')) {
+                icon.style.display = 'none';
+                icon.style.opacity = '1';
+            }
         });
     });
 }

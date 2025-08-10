@@ -18,14 +18,16 @@ if (!$data) {
     exit;
 }
 
-$fields = ['project_id','no','information_date','user_position','department','application','type','description','action_solution','due_date','status','cnc_number'];
+$fields = ['project_id','no','information_date','user_position','department','application','type','description','action_solution','due_date','status','cnc_number','priority','customer','project'];
 $values = [];
 foreach ($fields as $f) {
     $values[] = $data[$f] ?? null;
 }
 
-$stmt = $pdo->prepare('INSERT INTO activities (project_id, no, information_date, user_position, department, application, type, description, action_solution, due_date, status, cnc_number) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
-$stmt->execute($values);
+$data['created_by'] = $_SESSION['user_id'] ?? null;
+$stmt = $pdo->prepare('INSERT INTO activities (project_id, no, information_date, user_position, department, application, type, description, action_solution, due_date, status, cnc_number, priority, customer, project, created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+$values_with_user = array_merge($values, [$data['created_by']]);
+$stmt->execute($values_with_user);
 
 http_response_code(201);
 echo json_encode(['success'=>true, 'id'=>$pdo->lastInsertId()]);

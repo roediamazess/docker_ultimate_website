@@ -218,7 +218,7 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
                                 <option value="20" <?= $limit===20?'selected':''; ?>>20</option>
                             </select>
                         </div>
-                    <button type="button" class="btn btn-sm btn-primary-600 d-flex align-items-center gap-2" id="createActivityBtn" data-bs-toggle="modal" data-bs-target="#createActivityModal">
+                    <button type="button" class="btn btn-sm btn-primary-600 d-flex align-items-center gap-2" id="createActivityBtn" onclick="showCreateModal()">
                         <iconify-icon icon="solar:add-circle-outline" class="icon"></iconify-icon>
                         Create Activity
                     </button>
@@ -304,144 +304,154 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
                     </form>
                 </div>
                 
-                <!-- Create Activity Modal - Static HTML -->
-                <div class="modal fade" id="createActivityModal" tabindex="-1" aria-labelledby="createActivityModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="createActivityModalLabel">Add Activity</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <form method="post">
-                                <div class="modal-body">
-                                    <?= csrf_field() ?>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label">No</label>
-                                            <input type="number" name="no" class="form-control" value="<?= (int)$next_no ?>">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Status *</label>
-                                            <select name="status" class="form-select" required>
-                                                <option value="Open">Open</option>
-                                                <option value="On Progress">On Progress</option>
-                                                <option value="Need Requirement">Need Requirement</option>
-                                                <option value="Done">Done</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Information Date *</label>
-                                            <input type="date" name="information_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Priority *</label>
-                                            <select name="priority" class="form-select" required>
-                                                <option value="Urgent">Urgent</option>
-                                                <option value="Normal" selected>Normal</option>
-                                                <option value="Low">Low</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">User Position</label>
-                                            <input type="text" name="user_position" class="form-control">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Department</label>
-                                            <select name="department" class="form-select">
-                                                <option value="Food & Beverage" selected>Food & Beverage</option>
-                                                <option value="Kitchen">Kitchen</option>
-                                                <option value="Room Division">Room Division</option>
-                                                <option value="Front Office">Front Office</option>
-                                                <option value="Housekeeping">Housekeeping</option>
-                                                <option value="Engineering">Engineering</option>
-                                                <option value="Sales & Marketing">Sales & Marketing</option>
-                                                <option value="IT / EDP">IT / EDP</option>
-                                                <option value="Accounting">Accounting</option>
-                                                <option value="Executive Office">Executive Office</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Application *</label>
-                                            <select name="application" class="form-select" required>
-                                                <option value="Power FO" selected>Power FO</option>
-                                                <option value="My POS">My POS</option>
-                                                <option value="My MGR">My MGR</option>
-                                                <option value="Power AR">Power AR</option>
-                                                <option value="Power INV">Power INV</option>
-                                                <option value="Power AP">Power AP</option>
-                                                <option value="Power GL">Power GL</option>
-                                                <option value="Keylock">Keylock</option>
-                                                <option value="PABX">PABX</option>
-                                                <option value="DIM">DIM</option>
-                                                <option value="Dynamic Room Rate">Dynamic Room Rate</option>
-                                                <option value="Channel Manager">Channel Manager</option>
-                                                <option value="PB1">PB1</option>
-                                                <option value="Power SIGN">Power SIGN</option>
-                                                <option value="Multi Properties">Multi Properties</option>
-                                                <option value="Scanner ID">Scanner ID</option>
-                                                <option value="IPOS">IPOS</option>
-                                                <option value="Power Runner">Power Runner</option>
-                                                <option value="Power RA">Power RA</option>
-                                                <option value="Power ME">Power ME</option>
-                                                <option value="ECOS">ECOS</option>
-                                                <option value="Cloud WS">Cloud WS</option>
-                                                <option value="Power GO">Power GO</option>
-                                                <option value="Dashpad">Dashpad</option>
-                                                <option value="IPTV">IPTV</option>
-                                                <option value="HSIA">HSIA</option>
-                                                <option value="SGI">SGI</option>
-                                                <option value="Guest Survey">Guest Survey</option>
-                                                <option value="Loyalty Management">Loyalty Management</option>
-                                                <option value="AccPac">AccPac</option>
-                                                <option value="GL Consolidation">GL Consolidation</option>
-                                                <option value="Self Check In">Self Check In</option>
-                                                <option value="Check In Desk">Check In Desk</option>
-                                                <option value="Others">Others</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Type</label>
-                                            <select name="type" class="form-select">
-                                                <option value="Setup">Setup</option>
-                                                <option value="Question">Question</option>
-                                                <option value="Issue">Issue</option>
-                                                <option value="Report Issue">Report Issue</option>
-                                                <option value="Report Request">Report Request</option>
-                                                <option value="Feature Request">Feature Request</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Customer</label>
-                                            <input type="text" name="customer" class="form-control">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Project</label>
-                                            <input type="text" name="project" class="form-control">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Completed Date</label>
-                                            <input type="date" name="due_date" class="form-control">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">CNC Number</label>
-                                            <input type="text" name="cnc_number" class="form-control">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Description</label>
-                                            <textarea name="description" class="form-control" rows="3"></textarea>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Action Solution</label>
-                                            <textarea name="action_solution" class="form-control" rows="3"></textarea>
-                                        </div>
+                <!-- Create Activity Modal - Custom Modal -->
+                <div class="custom-modal-overlay" id="createActivityModal" style="display: none;">
+                    <div class="custom-modal">
+                        <div class="custom-modal-header">
+                            <h5 class="custom-modal-title">Add Activity</h5>
+                            <button type="button" class="custom-modal-close" onclick="closeCreateModal()">&times;</button>
+                        </div>
+                        <form method="post">
+                            <div class="custom-modal-body">
+                                <?= csrf_field() ?>
+                                <div class="custom-modal-row">
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">No</label>
+                                        <input type="number" name="no" class="custom-modal-input" value="<?= (int)$next_no ?>">
+                                    </div>
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Status *</label>
+                                        <select name="status" class="custom-modal-select" required>
+                                            <option value="Open">Open</option>
+                                            <option value="On Progress">On Progress</option>
+                                            <option value="Need Requirement">Need Requirement</option>
+                                            <option value="Done">Done</option>
+                                        </select>
                                     </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="submit" name="create" value="1" class="btn btn-primary">Create</button>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <div class="custom-modal-row">
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Information Date *</label>
+                                        <input type="date" name="information_date" class="custom-modal-input" value="<?= date('Y-m-d') ?>" required>
+                                    </div>
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Priority *</label>
+                                        <select name="priority" class="custom-modal-select" required>
+                                            <option value="Urgent">Urgent</option>
+                                            <option value="Normal" selected>Normal</option>
+                                            <option value="Low">Low</option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </form>
-                        </div>
+                                <div class="custom-modal-row">
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">User Position</label>
+                                        <input type="text" name="user_position" class="custom-modal-input">
+                                    </div>
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Department</label>
+                                        <select name="department" class="custom-modal-select">
+                                            <option value="Food & Beverage" selected>Food & Beverage</option>
+                                            <option value="Kitchen">Kitchen</option>
+                                            <option value="Room Division">Room Division</option>
+                                            <option value="Front Office">Front Office</option>
+                                            <option value="Housekeeping">Housekeeping</option>
+                                            <option value="Engineering">Engineering</option>
+                                            <option value="Sales & Marketing">Sales & Marketing</option>
+                                            <option value="IT / EDP">IT / EDP</option>
+                                            <option value="Accounting">Accounting</option>
+                                            <option value="Executive Office">Executive Office</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="custom-modal-row">
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Application *</label>
+                                        <select name="application" class="custom-modal-select" required>
+                                            <option value="Power FO" selected>Power FO</option>
+                                            <option value="My POS">My POS</option>
+                                            <option value="My MGR">My MGR</option>
+                                            <option value="Power AR">Power AR</option>
+                                            <option value="Power INV">Power INV</option>
+                                            <option value="Power AP">Power AP</option>
+                                            <option value="Power GL">Power GL</option>
+                                            <option value="Keylock">Keylock</option>
+                                            <option value="PABX">PABX</option>
+                                            <option value="DIM">DIM</option>
+                                            <option value="Dynamic Room Rate">Dynamic Room Rate</option>
+                                            <option value="Channel Manager">Channel Manager</option>
+                                            <option value="PB1">PB1</option>
+                                            <option value="Power SIGN">Power SIGN</option>
+                                            <option value="Multi Properties">Multi Properties</option>
+                                            <option value="Scanner ID">Scanner ID</option>
+                                            <option value="IPOS">IPOS</option>
+                                            <option value="Power Runner">Power Runner</option>
+                                            <option value="Power RA">Power RA</option>
+                                            <option value="Power ME">Power ME</option>
+                                            <option value="ECOS">ECOS</option>
+                                            <option value="Cloud WS">Cloud WS</option>
+                                            <option value="Power GO">Power GO</option>
+                                            <option value="Dashpad">Dashpad</option>
+                                            <option value="IPTV">IPTV</option>
+                                            <option value="HSIA">HSIA</option>
+                                            <option value="SGI">SGI</option>
+                                            <option value="Guest Survey">Guest Survey</option>
+                                            <option value="Loyalty Management">Loyalty Management</option>
+                                            <option value="AccPac">AccPac</option>
+                                            <option value="GL Consolidation">GL Consolidation</option>
+                                            <option value="Self Check In">Self Check In</option>
+                                            <option value="Check In Desk">Check In Desk</option>
+                                            <option value="Others">Others</option>
+                                        </select>
+                                    </div>
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Type</label>
+                                        <select name="type" class="custom-modal-select">
+                                            <option value="Setup">Setup</option>
+                                            <option value="Question">Question</option>
+                                            <option value="Issue">Issue</option>
+                                            <option value="Report Issue">Report Issue</option>
+                                            <option value="Report Request">Report Request</option>
+                                            <option value="Feature Request">Feature Request</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="custom-modal-row">
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Customer</label>
+                                        <input type="text" name="customer" class="custom-modal-input">
+                                    </div>
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Project</label>
+                                        <input type="text" name="project" class="custom-modal-input">
+                                    </div>
+                                </div>
+                                <div class="custom-modal-row">
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Completed Date</label>
+                                        <input type="date" name="due_date" class="custom-modal-input">
+                                    </div>
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">CNC Number</label>
+                                        <input type="text" name="cnc_number" class="custom-modal-input">
+                                    </div>
+                                </div>
+                                <div class="custom-modal-row">
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Description</label>
+                                        <textarea name="description" class="custom-modal-textarea" rows="3"></textarea>
+                                    </div>
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Action Solution</label>
+                                        <textarea name="action_solution" class="custom-modal-textarea" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="custom-modal-footer">
+                                <button type="submit" name="create" value="1" class="custom-btn custom-btn-primary">Create</button>
+                                <button type="button" class="custom-btn custom-btn-secondary" onclick="closeCreateModal()">Close</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
                 
@@ -455,75 +465,576 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
                     <style>
                         .activity-row { cursor: pointer; }
                         .activity-row:hover { background-color: rgba(102,126,234,0.08); }
+                        
+                        /* Modern header styling without sorting */
+                        .table-header {
+                            padding: 10px 16px;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            border: none;
+                            border-radius: 8px;
+                            margin: 0;
+                            font-weight: 700;
+                            color: white;
+                            font-size: 12px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            text-align: left;
+                            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+                            transition: all 0.3s ease;
+                            position: relative;
+                            overflow: hidden;
+                        }
+                        
+                        .table-header::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: -100%;
+                            width: 100%;
+                            height: 100%;
+                            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                            transition: left 0.5s;
+                        }
+                        
+                        .table-header:hover::before {
+                            left: 100%;
+                        }
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                        /* Center align NO column header */
+                        .table th:nth-child(1) .table-header {
+                            text-align: center;
+                        }
+                        
+                        /* Center align Information Date header */
+                        .table th:nth-child(2) .table-header {
+                            text-align: center;
+                        }
+                        
+                        /* Center align Status header */
+                        .table th:nth-child(10) .table-header {
+                            text-align: center;
+                        }
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+
+
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                        .table-responsive {
+                            overflow-x: auto;
+                            overflow-y: hidden;
+                            border-radius: 2px;
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                        }
+                        
+                        /* Modern header styling for all columns */
+                        .table-header {
+                            padding: 12px 16px;
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                            border: none;
+                            border-radius: 8px;
+                            margin: 0;
+                            font-weight: 600;
+                            color: white;
+                            font-size: 12px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            text-align: center;
+                            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+                            transition: all 0.3s ease;
+                            position: relative;
+                            overflow: hidden;
+                        }
+                        
+                        .table-header::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: -100%;
+                            width: 100%;
+                            height: 100%;
+                            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                            transition: left 0.5s;
+                        }
+                        
+                        .table-header:hover::before {
+                            left: 100%;
+                        }
+                        
+                        /* Column widths - optimized for content */
+                        .table th:nth-child(1) {
+                            width: 70px;
+                            min-width: 70px;
+                            max-width: 70px;
+                        }
+                        
+                        .table th:nth-child(2) {
+                            width: 140px;
+                            min-width: 140px;
+                            max-width: 140px;
+                        }
+                        
+                        .table th:nth-child(3) {
+                            width: 100px;
+                            min-width: 100px;
+                            max-width: 100px;
+                        }
+                        
+                        .table th:nth-child(4) {
+                            width: 180px;
+                            min-width: 180px;
+                            max-width: 180px;
+                        }
+                        
+                        .table th:nth-child(5) {
+                            width: 150px;
+                            min-width: 150px;
+                            max-width: 150px;
+                        }
+                        
+                        .table th:nth-child(6) {
+                            width: 120px;
+                            min-width: 120px;
+                            max-width: 120px;
+                        }
+                        
+                        .table th:nth-child(7) {
+                            width: 100px;
+                            min-width: 100px;
+                            max-width: 100px;
+                        }
+                        
+                        .table th:nth-child(8) {
+                            width: 200px;
+                            min-width: 200px;
+                            max-width: 200px;
+                        }
+                        
+                        .table th:nth-child(9) {
+                            width: 180px;
+                            min-width: 180px;
+                            max-width: 180px;
+                        }
+                        
+                        .table th:nth-child(10) {
+                            width: 120px;
+                            min-width: 120px;
+                            max-width: 120px;
+                        }
+                        
+                        /* Center align data in specific columns */
+                        .table td:nth-child(2) {
+                            text-align: center;
+                        }
+                        
+                        .table td:nth-child(3) {
+                            text-align: center;
+                        }
+                        
+                        .table td:nth-child(4) {
+                            text-align: left;
+                        }
+                        
+                        .table td:nth-child(5) {
+                            text-align: left;
+                        }
+                        
+                        .table td:nth-child(6) {
+                            text-align: center;
+                        }
+                        
+                        .table td:nth-child(7) {
+                            text-align: center;
+                        }
+                        
+                        .table td:nth-child(10) {
+                            text-align: center;
+                        }
+                        
+                        /* Clean and simple vertical alignment */
+                        .table.table-striped td {
+                            padding: 12px 8px;
+                        }
+                        
+                        /* No column - center aligned */
+                        .table.table-striped td:nth-child(1) {
+                            text-align: center;
+                            vertical-align: middle !important;
+                        }
+                        
+                        /* All other columns - same alignment as No column */
+                        .table.table-striped td:nth-child(2),
+                        .table.table-striped td:nth-child(3),
+                        .table.table-striped td:nth-child(4),
+                        .table.table-striped td:nth-child(5),
+                        .table.table-striped td:nth-child(6),
+                        .table.table-striped td:nth-child(7),
+                        .table.table-striped td:nth-child(8),
+                        .table.table-striped td:nth-child(9),
+                        .table.table-striped td:nth-child(10) {
+                            vertical-align: middle !important;
+                        }
+                        
+                        /* Text alignment for specific columns */
+                        .table.table-striped td:nth-child(2),
+                        .table.table-striped td:nth-child(3),
+                        .table.table-striped td:nth-child(6),
+                        .table.table-striped td:nth-child(7),
+                        .table.table-striped td:nth-child(10) {
+                            text-align: center;
+                        }
+                        
+                        .table.table-striped td:nth-child(4),
+                        .table.table-striped td:nth-child(5),
+                        .table.table-striped td:nth-child(8),
+                        .table.table-striped td:nth-child(9) {
+                            text-align: left;
+                        }
+                        
+                        /* Modal footer spacing improvements - safer selectors */
+                        #createActivityModal .modal-footer,
+                        .modal-footer,
+                        #editActivityModal .modal-footer {
+                            padding: 20px 24px !important;
+                            margin-top: 20px !important;
+                            border-top: 1px solid #dee2e6 !important;
+                            background-color: #f8f9fa !important;
+                            display: block !important;
+                            visibility: visible !important;
+                        }
+                        
+                        #createActivityModal .modal-footer .btn,
+                        .modal-footer .btn,
+                        #editActivityModal .modal-footer .btn {
+                            margin: 0 5px !important;
+                            padding: 10px 20px !important;
+                            font-weight: 500 !important;
+                            display: inline-block !important;
+                            visibility: visible !important;
+                            opacity: 1 !important;
+                            position: relative !important;
+                            z-index: 1 !important;
+                        }
+                        
+                        #createActivityModal .modal-footer .btn:first-child,
+                        .modal-footer .btn:first-child,
+                        #editActivityModal .modal-footer .btn:first-child {
+                            margin-left: 0 !important;
+                        }
+                        
+                        #createActivityModal .modal-footer .btn:last-child,
+                        .modal-footer .btn:last-child,
+                        #editActivityModal .modal-footer .btn:last-child {
+                            margin-right: 0 !important;
+                        }
+                        
+                        /* Modal body bottom spacing */
+                        #createActivityModal .modal-body,
+                        .modal-body,
+                        #editActivityModal .modal-body {
+                            padding-bottom: 30px !important;
+                        }
+                        
+                        /* Force show modal footer for dynamically created modals */
+                        .modal-content .modal-footer {
+                            display: block !important;
+                            visibility: visible !important;
+                            opacity: 1 !important;
+                            position: relative !important;
+                            z-index: 10 !important;
+                        }
+                        
+                        /* Ensure buttons are visible in all modals */
+                        .modal-content .modal-footer .btn {
+                            display: inline-block !important;
+                            visibility: visible !important;
+                            opacity: 1 !important;
+                            position: relative !important;
+                            z-index: 11 !important;
+                        }
+                        
+                        /* Nuclear option - force everything visible */
+                        .modal-footer,
+                        .modal-footer *,
+                        .modal-footer button,
+                        .modal-footer .btn {
+                            display: block !important;
+                            visibility: visible !important;
+                            opacity: 1 !important;
+                            position: static !important;
+                            clip: auto !important;
+                            overflow: visible !important;
+                            height: auto !important;
+                            width: auto !important;
+                            max-height: none !important;
+                            max-width: none !important;
+                            min-height: auto !important;
+                            min-width: auto !important;
+                        }
+                        
+                        /* Specific button styling */
+                        .modal-footer button.btn,
+                        .modal-footer .btn {
+                            display: inline-block !important;
+                            margin: 5px !important;
+                            padding: 10px 20px !important;
+                            border: 1px solid #ccc !important;
+                            background-color: #007bff !important;
+                            color: white !important;
+                            text-decoration: none !important;
+                            border-radius: 4px !important;
+                            cursor: pointer !important;
+                            font-size: 14px !important;
+                            line-height: 1.5 !important;
+                        }
+                        
+                        .modal-footer .btn.btn-danger {
+                            background-color: #dc3545 !important;
+                        }
+                        
+                        .modal-footer .btn.btn-secondary {
+                            background-color: #6c757d !important;
+                        }
+                        
+                        /* Custom Modal Styles - Completely independent of Bootstrap */
+                        .custom-modal-overlay {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background-color: rgba(0, 0, 0, 0.5);
+                            z-index: 9999;
+                            display: none;
+                            visibility: hidden;
+                            opacity: 0;
+                            transition: opacity 0.3s ease;
+                        }
+                        
+                        .custom-modal {
+                            position: fixed;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            background: white;
+                            border-radius: 8px;
+                            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                            width: 90%;
+                            max-width: 800px;
+                            max-height: 90vh;
+                            overflow-y: auto;
+                            z-index: 10000;
+                        }
+                        
+                        .custom-modal-header {
+                            padding: 20px 24px;
+                            border-bottom: 1px solid #dee2e6;
+                            background: #f8f9fa;
+                            border-radius: 8px 8px 0 0;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                        }
+                        
+                        .custom-modal-title {
+                            margin: 0;
+                            font-size: 18px;
+                            font-weight: 600;
+                            color: #333;
+                        }
+                        
+                        .custom-modal-close {
+                            background: none;
+                            border: none;
+                            font-size: 24px;
+                            cursor: pointer;
+                            color: #666;
+                            padding: 0;
+                            width: 30px;
+                            height: 30px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+                        
+                        .custom-modal-close:hover {
+                            color: #333;
+                        }
+                        
+                        .custom-modal-body {
+                            padding: 24px;
+                        }
+                        
+
+                        
+                        .custom-modal-row {
+                            display: flex;
+                            gap: 20px;
+                            margin-bottom: 20px;
+                        }
+                        
+                        .custom-modal-col {
+                            flex: 1;
+                        }
+                        
+                        .custom-modal-label {
+                            display: block;
+                            margin-bottom: 8px;
+                            font-weight: 500;
+                            color: #333;
+                            font-size: 14px;
+                        }
+                        
+                        .custom-modal-input,
+                        .custom-modal-select,
+                        .custom-modal-textarea {
+                            width: 100%;
+                            padding: 10px 12px;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            font-size: 14px;
+                            background: white;
+                        }
+                        
+                        .custom-modal-input:focus,
+                        .custom-modal-select:focus,
+                        .custom-modal-textarea:focus {
+                            outline: none;
+                            border-color: #007bff;
+                            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+                        }
+                        
+                        .custom-modal-footer {
+                            padding: 20px 24px;
+                            border-top: 1px solid #dee2e6;
+                            background: #f8f9fa;
+                            border-radius: 0 0 8px 8px;
+                            display: flex;
+                            gap: 10px;
+                            justify-content: flex-end;
+                        }
+                        
+                        .custom-btn {
+                            padding: 10px 20px;
+                            border: none;
+                            border-radius: 4px;
+                            font-size: 14px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        }
+                        
+                        .custom-btn-primary {
+                            background-color: #007bff;
+                            color: white;
+                        }
+                        
+                        .custom-btn-primary:hover {
+                            background-color: #0056b3;
+                        }
+                        
+                        .custom-btn-danger {
+                            background-color: #dc3545;
+                            color: white;
+                        }
+                        
+                        .custom-btn-danger:hover {
+                            background-color: #c82333;
+                        }
+                        
+                        .custom-btn-secondary {
+                            background-color: #6c757d;
+                            color: white;
+                        }
+                        
+                        .custom-btn-secondary:hover {
+                            background-color: #545b62;
+                        }
                     </style>
+                    
+                    <!-- Force vertical alignment with JavaScript -->
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Force vertical alignment for all table cells - same as No column
+                        const tableCells = document.querySelectorAll('.table.table-striped tbody tr td');
+                        tableCells.forEach(function(cell) {
+                            cell.style.setProperty('vertical-align', 'middle', 'important');
+                        });
+                    });
+                    </script>
 <?php if ($message): ?>
                         <div class="alert alert-info"> <?= htmlspecialchars($message) ?> </div>
 <?php endif; ?>
 
                     <div class="card-body">
 
-                    <table class="table sortable-table mb-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0">
                         <thead>
                             <tr>
                                 <th scope="col">
-                                    <a href="?<?= http_build_query(array_merge($_GET, ['sort' => 'no', 'order' => $sort_column === 'no' && $sort_order === 'ASC' ? 'desc' : 'asc'])) ?>" class="sortable-header <?= $sort_column === 'no' ? ($sort_order === 'ASC' ? 'sort-asc' : 'sort-desc') : '' ?>">
-                                        <span class="header-text">No</span>
-                                        <iconify-icon icon="solar:sorting-bold" class="sort-icon"></iconify-icon>
-                                    </a>
+                                    <div class="table-header">No</div>
                                 </th>
                                 <th scope="col">
-                                    <a href="?<?= http_build_query(array_merge($_GET, ['sort' => 'information_date', 'order' => $sort_column === 'information_date' && $sort_order === 'ASC' ? 'desc' : 'asc'])) ?>" class="sortable-header <?= $sort_column === 'information_date' ? ($sort_order === 'ASC' ? 'sort-asc' : 'sort-desc') : '' ?>">
-                                        <span class="header-text">Information Date</span>
-                                        <iconify-icon icon="solar:sorting-bold" class="sort-icon"></iconify-icon>
-                                    </a>
+                                    <div class="table-header">Information Date</div>
                                 </th>
                                 <th scope="col">
-                                    <a href="?<?= http_build_query(array_merge($_GET, ['sort' => 'priority', 'order' => $sort_column === 'priority' && $sort_order === 'ASC' ? 'desc' : 'asc'])) ?>" class="sortable-header <?= $sort_column === 'priority' ? ($sort_order === 'ASC' ? 'sort-asc' : 'sort-desc') : '' ?>">
-                                        <span class="header-text">Priority</span>
-                                        <iconify-icon icon="solar:sorting-bold" class="sort-icon"></iconify-icon>
-                                    </a>
+                                    <div class="table-header">Priority</div>
                                 </th>
                                 <th scope="col">
-                                    <a href="?<?= http_build_query(array_merge($_GET, ['sort' => 'user_position', 'order' => $sort_column === 'user_position' && $sort_order === 'ASC' ? 'desc' : 'asc'])) ?>" class="sortable-header <?= $sort_column === 'user_position' ? ($sort_order === 'ASC' ? 'sort-asc' : 'sort-desc') : '' ?>">
-                                        <span class="header-text">User &amp; Position</span>
-                                        <iconify-icon icon="solar:sorting-bold" class="sort-icon"></iconify-icon>
-                                    </a>
+                                    <div class="table-header">User &amp; Position</div>
                                 </th>
                                 <th scope="col">
-                                    <a href="?<?= http_build_query(array_merge($_GET, ['sort' => 'department', 'order' => $sort_column === 'department' && $sort_order === 'ASC' ? 'desc' : 'asc'])) ?>" class="sortable-header <?= $sort_column === 'department' ? ($sort_order === 'ASC' ? 'sort-asc' : 'sort-desc') : '' ?>">
-                                        <span class="header-text">Department</span>
-                                        <iconify-icon icon="solar:sorting-bold" class="sort-icon"></iconify-icon>
-                                    </a>
+                                    <div class="table-header">Department</div>
                                 </th>
                                 <th scope="col">
-                                    <a href="?<?= http_build_query(array_merge($_GET, ['sort' => 'application', 'order' => $sort_column === 'application' && $sort_order === 'ASC' ? 'desc' : 'asc'])) ?>" class="sortable-header <?= $sort_column === 'application' ? ($sort_order === 'ASC' ? 'sort-asc' : 'sort-desc') : '' ?>">
-                                        <span class="header-text">Application</span>
-                                        <iconify-icon icon="solar:arrow-up-bold" class="sort-icon"></iconify-icon>
-                                    </a>
+                                    <div class="table-header">Application</div>
                                 </th>
                                 <th scope="col">
-                                    <a href="?<?= http_build_query(array_merge($_GET, ['sort' => 'type', 'order' => $sort_column === 'type' && $sort_order === 'ASC' ? 'desc' : 'asc'])) ?>" class="sortable-header <?= $sort_column === 'type' ? ($sort_order === 'ASC' ? 'sort-asc' : 'sort-desc') : '' ?>">
-                                        <span class="header-text">Type</span>
-                                        <iconify-icon icon="solar:sorting-bold" class="sort-icon"></iconify-icon>
-                                    </a>
+                                    <div class="table-header">Type</div>
                                 </th>
                                 <th scope="col">
-                                    <a href="?<?= http_build_query(array_merge($_GET, ['sort' => 'description', 'order' => $sort_column === 'description' && $sort_order === 'ASC' ? 'desc' : 'asc'])) ?>" class="sortable-header <?= $sort_column === 'description' ? ($sort_order === 'ASC' ? 'sort-asc' : 'sort-desc') : '' ?>">
-                                        <span class="header-text">Description</span>
-                                        <iconify-icon icon="solar:sorting-bold" class="sort-icon"></iconify-icon>
-                                    </a>
+                                    <div class="table-header">Description</div>
                                 </th>
                                 <th scope="col">
-                                    <a href="?<?= http_build_query(array_merge($_GET, ['sort' => 'action_solution', 'order' => $sort_column === 'action_solution' && $sort_order === 'ASC' ? 'desc' : 'asc'])) ?>" class="sortable-header <?= $sort_column === 'action_solution' ? ($sort_order === 'ASC' ? 'sort-asc' : 'sort-desc') : '' ?>">
-                                        <span class="header-text">Action / Solution</span>
-                                        <iconify-icon icon="solar:sorting-bold" class="sort-icon"></iconify-icon>
-                                    </a>
+                                    <div class="table-header">Action / Solution</div>
                                 </th>
                                 <th scope="col">
-                                    <a href="?<?= http_build_query(array_merge($_GET, ['sort' => 'status', 'order' => $sort_column === 'status' && $sort_order === 'ASC' ? 'desc' : 'asc'])) ?>" class="sortable-header <?= $sort_column === 'status' ? ($sort_order === 'ASC' ? 'sort-asc' : 'sort-desc') : '' ?>">
-                                        <span class="header-text">Status</span>
-                                        <iconify-icon icon="solar:sorting-bold" class="sort-icon"></iconify-icon>
-                                    </a>
+                                    <div class="table-header">Status</div>
                                 </th>
                             </tr>
                         </thead>
@@ -585,10 +1096,11 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
                                     ?>
                                     <span class="status-badge <?= $status_class ?> px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($a['status'] ?? 'Open') ?></span>
                                 </td>
-</tr>
+                            </tr>
 <?php endforeach; ?>
                         </tbody>
 </table>
+                    </div>
 
 <!-- Pagination -->
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
@@ -614,8 +1126,8 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
 </div>
 
 <script>
-function showCreateForm() {
-    console.log('showCreateForm called - using static modal');
+function showCreateModal() {
+    console.log('showCreateModal called - using custom modal');
     
     // Get the existing modal element
     const modalEl = document.getElementById('createActivityModal');
@@ -626,232 +1138,24 @@ function showCreateForm() {
         return;
     }
     
-    // Check if Bootstrap is available
-    if (typeof bootstrap === 'undefined') {
-        console.error('Bootstrap is not loaded!');
-        alert('Bootstrap tidak tersedia!');
-        return;
-    }
+    // Show custom modal
+    modalEl.style.display = 'block';
+    modalEl.style.visibility = 'visible';
+    modalEl.style.opacity = '1';
     
-    if (typeof bootstrap.Modal === 'undefined') {
-        console.error('Bootstrap Modal class is not available!');
-        alert('Bootstrap Modal tidak tersedia!');
-        return;
-    }
-    
-    try {
-        console.log('Creating Bootstrap modal instance...');
-        const modal = new bootstrap.Modal(modalEl);
-        console.log('Modal instance created:', modal);
-        
-        console.log('Showing modal...');
-        modal.show();
-        console.log('Modal.show() called successfully');
-        
-    } catch (error) {
-        console.error('Error showing modal:', error);
-        alert('Error: ' + error.message);
-    }
+    console.log('Custom modal shown successfully');
 }
 
-// Fallback function using vanilla JavaScript
-function showVanillaModal() {
-    console.log('showVanillaModal called');
-    
-    // Remove existing modal if any
-    const existingModal = document.getElementById('vanillaCreateModal');
-    if (existingModal) {
-        existingModal.remove();
-    }
-    
-    // Create modal container
-    const modalContainer = document.createElement('div');
-    modalContainer.id = 'vanillaCreateModal';
-    modalContainer.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    `;
-    
-    // Create modal content
-    const modalContent = document.createElement('div');
-    modalContent.style.cssText = `
-        background: white;
-        border-radius: 8px;
-        padding: 20px;
-        max-width: 800px;
-        width: 90%;
-        max-height: 90vh;
-        overflow-y: auto;
-        position: relative;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    `;
-    
-    modalContent.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-            <h4 style="margin: 0; color: #333;">Add Activity</h4>
-            <button onclick="closeVanillaModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
-        </div>
-        <form method="post">
-            <?= csrf_field() ?>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">No</label>
-                    <input type="number" name="no" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" value="<?= (int)$next_no ?>">
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Status *</label>
-                    <select name="status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-                        <option value="Open">Open</option>
-                        <option value="On Progress">On Progress</option>
-                        <option value="Need Requirement">Need Requirement</option>
-                        <option value="Done">Done</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Information Date *</label>
-                    <input type="date" name="information_date" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Priority *</label>
-                    <select name="priority" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-                        <option value="Urgent">Urgent</option>
-                        <option value="Normal" selected>Normal</option>
-                        <option value="Low">Low</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">User Position</label>
-                    <input type="text" name="user_position" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Department</label>
-                    <select name="department" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        <option value="">Select Department</option>
-                        <option value="Food & Beverage">Food & Beverage</option>
-                        <option value="Kitchen">Kitchen</option>
-                        <option value="Room Division">Room Division</option>
-                        <option value="Front Office">Front Office</option>
-                        <option value="Housekeeping">Housekeeping</option>
-                        <option value="Engineering">Engineering</option>
-                        <option value="Sales & Marketing">Sales & Marketing</option>
-                        <option value="IT / EDP">IT / EDP</option>
-                        <option value="Accounting">Accounting</option>
-                        <option value="Executive Office">Executive Office</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Application *</label>
-                    <select name="application" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-                        <option value="">-</option>
-                        <option value="Power FO">Power FO</option>
-                        <option value="My POS">My POS</option>
-                        <option value="My MGR">My MGR</option>
-                        <option value="Power AR">Power AR</option>
-                        <option value="Power INV">Power INV</option>
-                        <option value="Power AP">Power AP</option>
-                        <option value="Power GL">Power GL</option>
-                        <option value="Keylock">Keylock</option>
-                        <option value="PABX">PABX</option>
-                        <option value="DIM">DIM</option>
-                        <option value="Dynamic Room Rate">Dynamic Room Rate</option>
-                        <option value="Channel Manager">Channel Manager</option>
-                        <option value="PB1">PB1</option>
-                        <option value="Power SIGN">Power SIGN</option>
-                        <option value="Multi Properties">Multi Properties</option>
-                        <option value="Scanner ID">Scanner ID</option>
-                        <option value="IPOS">IPOS</option>
-                        <option value="Power Runner">Power Runner</option>
-                        <option value="Power RA">Power RA</option>
-                        <option value="Power ME">Power ME</option>
-                        <option value="ECOS">ECOS</option>
-                        <option value="Cloud WS">Cloud WS</option>
-                        <option value="Power GO">Power GO</option>
-                        <option value="Dashpad">Dashpad</option>
-                        <option value="IPTV">IPTV</option>
-                        <option value="HSIA">HSIA</option>
-                        <option value="SGI">SGI</option>
-                        <option value="Guest Survey">Guest Survey</option>
-                        <option value="Loyalty Management">Loyalty Management</option>
-                        <option value="AccPac">AccPac</option>
-                        <option value="GL Consolidation">GL Consolidation</option>
-                        <option value="Self Check In">Self Check In</option>
-                        <option value="Check In Desk">Check In Desk</option>
-                        <option value="Others">Others</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Type</label>
-                    <select name="type" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        <option value="Setup">Setup</option>
-                        <option value="Question">Question</option>
-                        <option value="Issue">Issue</option>
-                        <option value="Report Issue">Report Issue</option>
-                        <option value="Report Request">Report Request</option>
-                        <option value="Feature Request">Feature Request</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Customer</label>
-                    <input type="text" name="customer" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Project</label>
-                    <input type="text" name="project" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Completed Date</label>
-                    <input type="date" name="due_date" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">CNC Number</label>
-                    <input type="text" name="cnc_number" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
-                <div style="grid-column: 1 / -1;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Description</label>
-                    <textarea name="description" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; height: 80px;"></textarea>
-                </div>
-                <div style="grid-column: 1 / -1;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Action Solution</label>
-                    <textarea name="action_solution" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; height: 80px;"></textarea>
-                </div>
-            </div>
-            <div style="margin-top: 20px; text-align: right; border-top: 1px solid #eee; padding-top: 15px;">
-                <button type="button" onclick="closeVanillaModal()" style="padding: 8px 16px; margin-right: 10px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer;">Close</button>
-                <button type="submit" name="create" value="1" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Create</button>
-            </div>
-        </form>
-    `;
-    
-    modalContainer.appendChild(modalContent);
-    document.body.appendChild(modalContainer);
-    
-    console.log('Vanilla modal created and shown');
-    
-    // Add click outside to close functionality
-    modalContainer.addEventListener('click', function(e) {
-        if (e.target === modalContainer) {
-            closeVanillaModal();
-        }
-    });
-}
-
-function closeVanillaModal() {
-    const modal = document.getElementById('vanillaCreateModal');
+function closeCreateModal() {
+    const modal = document.getElementById('createActivityModal');
     if (modal) {
-        modal.remove();
-        console.log('Vanilla modal closed');
-    } else {
-        console.log('No vanilla modal found to close');
+        modal.style.display = 'none';
+        modal.style.visibility = 'hidden';
+        modal.style.opacity = '0';
     }
 }
+
+
 
 function hideCreateForm() {
     const form = document.getElementById('createActivityForm');
@@ -878,58 +1182,59 @@ document.querySelectorAll('.activity-row').forEach(function(row) {
         const priority = row.dataset.priority || 'Normal';
         const infoDate = row.dataset.informationDate || '';
 
-        // Build a lightweight modal dynamically if not exists
+        // Build a custom modal without Bootstrap dependencies
         let modalEl = document.getElementById('editActivityModal');
         if (!modalEl) {
             modalEl = document.createElement('div');
             modalEl.id = 'editActivityModal';
-            modalEl.className = 'modal fade';
-            modalEl.tabIndex = -1;
+            modalEl.className = 'custom-modal-overlay';
             modalEl.innerHTML = `
-            <div class="modal-dialog modal-lg modal-dialog-scrollable">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title">Edit Activity</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="custom-modal">
+              <div class="custom-modal-header">
+                <h5 class="custom-modal-title">Edit Activity</h5>
+                <button type="button" class="custom-modal-close" onclick="closeEditModal()">&times;</button>
                 </div>
                 <form method="post" id="editActivityForm">
-                  <div class="modal-body">
+                <div class="custom-modal-body">
                     <?= csrf_field() ?>
                     <input type="hidden" name="id" id="edit_id">
-                    <div class="row g-3">
-                      <div class="col-md-6">
-                        <label class="form-label">No</label>
-                        <input type="number" name="no" id="edit_no" class="form-control">
+                  <div class="custom-modal-row">
+                    <div class="custom-modal-col">
+                      <label class="custom-modal-label">No</label>
+                      <input type="number" name="no" id="edit_no" class="custom-modal-input">
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Status *</label>
-                        <select name="status" id="edit_status" class="form-select" required>
+                    <div class="custom-modal-col">
+                      <label class="custom-modal-label">Status *</label>
+                      <select name="status" id="edit_status" class="custom-modal-select" required>
                           <option value="Open">Open</option>
                           <option value="On Progress">On Progress</option>
                           <option value="Need Requirement">Need Requirement</option>
                           <option value="Done">Done</option>
                         </select>
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Information Date *</label>
-                        <input type="date" name="information_date" id="edit_information_date" class="form-control" required>
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Priority *</label>
-                        <select name="priority" id="edit_priority" class="form-select" required>
+                  <div class="custom-modal-row">
+                    <div class="custom-modal-col">
+                      <label class="custom-modal-label">Information Date *</label>
+                      <input type="date" name="information_date" id="edit_information_date" class="custom-modal-input" required>
+                    </div>
+                    <div class="custom-modal-col">
+                      <label class="custom-modal-label">Priority *</label>
+                      <select name="priority" id="edit_priority" class="custom-modal-select" required>
                           <option value="Urgent">Urgent</option>
                           <option value="Normal">Normal</option>
                           <option value="Low">Low</option>
                         </select>
                       </div>
-
-                      <div class="col-md-6">
-                        <label class="form-label">User Position</label>
-                        <input type="text" name="user_position" id="edit_user_position" class="form-control">
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Department</label>
-                        <select name="department" id="edit_department" class="form-select">
+                  <div class="custom-modal-row">
+                    <div class="custom-col">
+                      <label class="custom-modal-label">User Position</label>
+                      <input type="text" name="user_position" id="edit_user_position" class="custom-modal-input">
+                    </div>
+                    <div class="custom-modal-col">
+                      <label class="custom-modal-label">Department</label>
+                      <select name="department" id="edit_department" class="custom-modal-select">
                           <option value="">Select Department</option>
                           <option value="Food & Beverage">Food & Beverage</option>
                           <option value="Kitchen">Kitchen</option>
@@ -943,10 +1248,11 @@ document.querySelectorAll('.activity-row').forEach(function(row) {
                           <option value="Executive Office">Executive Office</option>
                         </select>
                       </div>
-
-                      <div class="col-md-6">
-                        <label class="form-label">Application *</label>
-                        <select name="application" id="edit_application" class="form-select" required>
+                  </div>
+                  <div class="custom-modal-row">
+                    <div class="custom-modal-col">
+                      <label class="custom-modal-label">Application *</label>
+                      <select name="application" id="edit_application" class="custom-modal-select" required>
                           <option value="">-</option>
                           <option value="Power FO">Power FO</option>
                           <option value="My POS">My POS</option>
@@ -984,9 +1290,9 @@ document.querySelectorAll('.activity-row').forEach(function(row) {
                           <option value="Others">Others</option>
                         </select>
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Type</label>
-                        <select name="type" id="edit_type" class="form-select">
+                    <div class="custom-modal-col">
+                      <label class="custom-modal-label">Type</label>
+                      <select name="type" id="edit_type" class="custom-modal-select">
                           <option value="Setup">Setup</option>
                           <option value="Question">Question</option>
                           <option value="Issue">Issue</option>
@@ -995,39 +1301,44 @@ document.querySelectorAll('.activity-row').forEach(function(row) {
                           <option value="Feature Request">Feature Request</option>
                         </select>
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Customer</label>
-                        <input type="text" name="customer" id="edit_customer" class="form-control">
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Project</label>
-                        <input type="text" name="project" id="edit_project_name" class="form-control">
+                  <div class="custom-modal-row">
+                    <div class="custom-modal-col">
+                      <label class="custom-modal-label">Customer</label>
+                      <input type="text" name="customer" id="edit_customer" class="custom-modal-input">
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Completed Date</label>
-                        <input type="date" name="due_date" id="edit_due_date" class="form-control">
+                    <div class="custom-modal-col">
+                      <label class="custom-modal-label">Project</label>
+                      <input type="text" name="project" id="edit_project_name" class="custom-modal-input">
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label">CNC Number</label>
-                        <input type="text" name="cnc_number" id="edit_cnc_number" class="form-control">
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" id="edit_description" class="form-control" rows="3"></textarea>
+                  <div class="custom-modal-row">
+                    <div class="custom-modal-col">
+                      <label class="custom-modal-label">Completed Date</label>
+                      <input type="date" name="due_date" id="edit_due_date" class="custom-modal-input">
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label">Action Solution</label>
-                        <textarea name="action_solution" id="edit_action_solution" class="form-control" rows="3"></textarea>
+                    <div class="custom-modal-col">
+                      <label class="custom-modal-label">CNC Number</label>
+                      <input type="text" name="cnc_number" id="edit_cnc_number" class="custom-modal-input">
                       </div>
                     </div>
+                  <div class="custom-modal-row">
+                    <div class="custom-modal-col">
+                      <label class="custom-modal-label">Description</label>
+                      <textarea name="description" id="edit_description" class="custom-modal-textarea" rows="3"></textarea>
                   </div>
-                  <div class="modal-footer">
-                    <button type="submit" name="update" value="1" class="btn btn-primary">Update</button>
-                    <button type="submit" name="delete" value="1" class="btn btn-danger" onclick="return confirm('Delete this activity?')">Delete</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <div class="custom-modal-col">
+                      <label class="custom-modal-label">Action Solution</label>
+                      <textarea name="action_solution" id="edit_action_solution" class="custom-modal-textarea" rows="3"></textarea>
                   </div>
-                </form>
               </div>
+                </div>
+                <div class="custom-modal-footer">
+                  <button type="submit" name="update" value="1" class="custom-btn custom-btn-primary">Update</button>
+                  <button type="submit" name="delete" value="1" class="custom-btn custom-btn-danger" onclick="return confirm('Delete this activity?')">Delete</button>
+                  <button type="button" class="custom-btn custom-btn-secondary" onclick="closeEditModal()">Close</button>
+                </div>
+              </form>
             </div>`;
             document.body.appendChild(modalEl);
         }
@@ -1045,8 +1356,12 @@ document.querySelectorAll('.activity-row').forEach(function(row) {
         document.getElementById('edit_action_solution').value = actionSolution;
         document.getElementById('edit_priority').value = priority;
 
-        const modal = new bootstrap.Modal(modalEl);
-        modal.show();
+        // Show custom modal
+        modalEl.style.display = 'block';
+        modalEl.style.visibility = 'visible';
+        modalEl.style.opacity = '1';
+        
+        // Modal is now visible with custom styling
     });
 });
 
@@ -1069,19 +1384,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function deleteActivity(activityId) {
-    if (confirm('Are you sure you want to delete this activity?')) {
-        const form = document.createElement('form');
-        form.method = 'post';
-        form.innerHTML = `
-            <?= csrf_field() ?>
-            <input type="hidden" name="id" value="${activityId}">
-            <input type="hidden" name="delete" value="1">
-        `;
-        document.body.appendChild(form);
-        form.submit();
+function closeEditModal() {
+    const modal = document.getElementById('editActivityModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.style.visibility = 'hidden';
+        modal.style.opacity = '0';
     }
 }
+
+
 </script>
 
 <!-- Activity Table Enhancement Script -->
