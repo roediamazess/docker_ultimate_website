@@ -31,13 +31,7 @@ if (isset($_POST['create'])) {
     if (!csrf_verify()) {
         $message = 'CSRF token tidak valid!';
         $message_type = 'error';
-        
-        // Trigger notifikasi kapsul untuk error
-        echo "<script>
-            if (window.logoNotificationManager) {
-                window.logoNotificationManager.showActivityError('CSRF token tidak valid!', 5000);
-            }
-        </script>";
+        $notification_type = 'error';
     } else {
         $stmt = $pdo->prepare('INSERT INTO activities (project_id, no, information_date, user_position, department, application, type, description, action_solution, due_date, status, cnc_number, priority, customer, project, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
@@ -59,16 +53,10 @@ if (isset($_POST['create'])) {
             get_current_user_id(),
             date('Y-m-d H:i:s')
         ]);
-        $message = 'Activity created!';
+        $message = 'Activity berhasil dibuat!';
         $message_type = 'success';
+        $notification_type = 'created';
         log_activity('create_activity', 'Activity: ' . $_POST['type']);
-        
-        // Trigger notifikasi kapsul
-        echo "<script>
-            if (window.logoNotificationManager) {
-                window.logoNotificationManager.showActivityCreated('Activity berhasil dibuat!', 5000);
-            }
-        </script>";
     }
 }
 
@@ -77,13 +65,7 @@ if (isset($_POST['update'])) {
     if (!csrf_verify()) {
         $message = 'CSRF token tidak valid!';
         $message_type = 'error';
-        
-        // Trigger notifikasi kapsul untuk error
-        echo "<script>
-            if (window.logoNotificationManager) {
-                window.logoNotificationManager.showActivityError('CSRF token tidak valid!', 5000);
-            }
-        </script>";
+        $notification_type = 'error';
     } else {
         $informationDate = !empty($_POST['information_date']) ? $_POST['information_date'] : null;
         $stmt = $pdo->prepare('UPDATE activities SET project_id=?, no=?, information_date=?, user_position=?, department=?, application=?, type=?, description=?, action_solution=?, due_date=?, status=?, cnc_number=?, priority=?, customer=?, project=? WHERE id=?');
@@ -109,27 +91,15 @@ if (isset($_POST['update'])) {
         // Deteksi perubahan status untuk notifikasi yang sesuai
         $newStatus = $_POST['status'];
         if ($newStatus === 'Cancel') {
-            $message = 'Activity canceled!';
+            $message = 'Activity berhasil dibatalkan!';
             $message_type = 'warning';
+            $notification_type = 'cancelled';
             log_activity('cancel_activity', 'Activity ID: ' . $_POST['id'] . ' - Status changed to Cancel');
-            
-            // Trigger notifikasi kapsul untuk cancel
-            echo "<script>
-                if (window.logoNotificationManager) {
-                    window.logoNotificationManager.showActivityCanceled('Activity berhasil dibatalkan!', 5000);
-                }
-            </script>";
         } else {
-            $message = 'Activity updated!';
+            $message = 'Activity berhasil diperbarui!';
             $message_type = 'info';
+            $notification_type = 'updated';
             log_activity('update_activity', 'Activity ID: ' . $_POST['id']);
-            
-            // Trigger notifikasi kapsul untuk update biasa
-            echo "<script>
-                if (window.logoNotificationManager) {
-                    window.logoNotificationManager.showActivityUpdated('Activity berhasil diperbarui!', 5000);
-                }
-            </script>";
         }
     }
 }
@@ -224,8 +194,21 @@ $projects = $pdo->query('SELECT project_id, project_name FROM projects ORDER BY 
 // Next auto number for display (server tetap akan hitung saat insert)
 $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fetchColumn());
 
-// Include logo notification script only for this page so notifications match test_activity_notifications.html
-$script = ($script ?? '') . "\n<script src=\"assets/js/logo-notifications.js\"></script>\n";
+// Include logo notification script and trigger after DOM ready so it always appears under logo
+$script = ($script ?? '')
+    . "\n<script src=\"assets/js/logo-notifications.js\"></script>\n"
+    . "<script>document.addEventListener('DOMContentLoaded',function(){\n"
+    . "  var t=" . json_encode($notification_type ?? '') . ";\n"
+    . "  var msg=" . json_encode($message ?? '') . ";\n"
+    . "  if(t && window.logoNotificationManager && window.logoNotificationManager.isAvailable){\n"
+    . "    switch(t){\n"
+    . "      case 'created': window.logoNotificationManager.showActivityCreated(msg||'Activity berhasil dibuat!',5000); break;\n"
+    . "      case 'updated': window.logoNotificationManager.showActivityUpdated(msg||'Activity berhasil diperbarui!',5000); break;\n"
+    . "      case 'cancelled': window.logoNotificationManager.showActivityCanceled(msg||'Activity berhasil dibatalkan!',5000); break;\n"
+    . "      case 'error': window.logoNotificationManager.showActivityError(msg||'Terjadi kesalahan!',5000); break;\n"
+    . "    }\n"
+    . "  }\n"
+    . "});</script>\n";
 ?>
 
 <?php include './partials/layouts/layoutHorizontal.php'; ?>
