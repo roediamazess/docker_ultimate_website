@@ -31,7 +31,7 @@
                 </div>
                 <div class="col-md-4 text-end">
                     <!-- Version / Copyright on Right -->
-                    <p class="mb-0">&copy; 2025 All rights reserved. | v.3.2508.1</p>
+                    <p class="mb-0">&copy; 2025 All rights reserved. | v.3.2508.1.0</p>
                 </div>
             </div>
         </div>

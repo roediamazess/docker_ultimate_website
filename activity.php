@@ -1155,9 +1155,19 @@ $script = ($script ?? '')
                         }
                         </style>
                     
-                    <!-- Force vertical alignment with JavaScript -->
+                    <!-- Force vertical alignment with JavaScript & handle openEdit from Kanban -->
                     <script>
                     document.addEventListener('DOMContentLoaded', function() {
+                        // Handle openEdit from Kanban (?openEdit=ID)
+                        try {
+                            const params = new URLSearchParams(window.location.search);
+                            const openId = params.get('openEdit');
+                            if (openId) {
+                                const row = document.querySelector('.activity-row[data-id="' + CSS.escape(openId) + '"]');
+                                if (row) { row.click(); }
+                            }
+                        } catch (e) { console.warn(e); }
+
                         // Force vertical alignment for all table cells - same as No column
                         const tableCells = document.querySelectorAll('.table.table-striped tbody tr td');
                         tableCells.forEach(function(cell) {
