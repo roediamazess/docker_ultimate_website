@@ -91,7 +91,7 @@ if (isset($_POST['update'])) {
         // Deteksi perubahan status untuk notifikasi yang sesuai
         $newStatus = $_POST['status'];
         if ($newStatus === 'Cancel') {
-            $message = 'Activity berhasil dibatalkan!';
+            $message = 'Activity dibatalkan!';
             $message_type = 'warning';
             $notification_type = 'cancelled';
             log_activity('cancel_activity', 'Activity ID: ' . $_POST['id'] . ' - Status changed to Cancel');
@@ -196,15 +196,14 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
 
 // Include logo notification script and trigger after DOM ready so it always appears under logo
 $script = ($script ?? '')
-    . "\n<script src=\"assets/js/logo-notifications.js\"></script>\n"
     . "<script>document.addEventListener('DOMContentLoaded',function(){\n"
     . "  var t=" . json_encode($notification_type ?? '') . ";\n"
     . "  var msg=" . json_encode($message ?? '') . ";\n"
-    . "  if(t && window.logoNotificationManager && window.logoNotificationManager.isAvailable){\n"
+    . "  if(t && window.logoNotificationManager){\n"
     . "    switch(t){\n"
     . "      case 'created': window.logoNotificationManager.showActivityCreated(msg||'Activity berhasil dibuat!',5000); break;\n"
     . "      case 'updated': window.logoNotificationManager.showActivityUpdated(msg||'Activity berhasil diperbarui!',5000); break;\n"
-    . "      case 'cancelled': window.logoNotificationManager.showActivityCanceled(msg||'Activity berhasil dibatalkan!',5000); break;\n"
+    . "      case 'cancelled': window.logoNotificationManager.showActivityCanceled(msg||'Activity dibatalkan!',5000); break;\n"
     . "      case 'error': window.logoNotificationManager.showActivityError(msg||'Terjadi kesalahan!',5000); break;\n"
     . "    }\n"
     . "  }\n"
@@ -1350,7 +1349,7 @@ document.querySelectorAll('.activity-row').forEach(function(row) {
                       </div>
                       </div>
                   <div class="custom-modal-row">
-                    <div class="custom-col">
+                    <div class="custom-modal-col">
                       <label class="custom-modal-label">User Position</label>
                       <input type="text" name="user_position" id="edit_user_position" class="custom-modal-input">
                     </div>

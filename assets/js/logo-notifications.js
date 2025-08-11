@@ -90,6 +90,10 @@ class LogoNotificationManager {
                 from { width: 100%; }
                 to { width: 0%; }
             }
+            /* Info blue color (configurable) */
+            :root { --notify-info-color: #90C5D8; }
+            .notify-info-progress { background-color: var(--notify-info-color); }
+            .notify-info-circle { background-color: var(--notify-info-color); }
         `;
         document.head.appendChild(style);
     }
@@ -149,8 +153,8 @@ class LogoNotificationManager {
                 icon = `<div class="w-8 h-8 rounded-full bg-red-500 flex-shrink-0 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></div>`;
                 break;
             case 'info':
-                progressColor = 'bg-yellow-400';
-                icon = `<div class="w-8 h-8 rounded-full bg-yellow-500 flex-shrink-0 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>`;
+                progressColor = 'notify-info-progress';
+                icon = `<div class="w-8 h-8 rounded-full notify-info-circle flex-shrink-0 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 13l3 3 7-7" /><path stroke-linecap="round" stroke-linejoin="round" d="M5 11l3 3 5-5" /></svg></div>`;
                 break;
             case 'warning':
                 progressColor = 'bg-orange-400';
@@ -180,15 +184,15 @@ class LogoNotificationManager {
     }
 
     // Method khusus untuk aktivitas
-    showActivityCreated(message = 'Aktivitas berhasil dibuat!', duration = 5000) {
+    showActivityCreated(message = 'Activity berhasil dibuat!', duration = 5000) {
         return this.showNotification(message, 'success', duration);
     }
 
-    showActivityUpdated(message = 'Aktivitas berhasil diperbarui!', duration = 5000) {
+    showActivityUpdated(message = 'Activity berhasil diperbarui!', duration = 5000) {
         return this.showNotification(message, 'info', duration);
     }
 
-    showActivityCanceled(message = 'Aktivitas berhasil dibatalkan!', duration = 5000) {
+    showActivityCanceled(message = 'Activity dibatalkan!', duration = 5000) {
         return this.showNotification(message, 'warning', duration);
     }
 
@@ -220,11 +224,6 @@ class LogoNotificationManager {
             this.container.innerHTML = '';
             this.notificationStack = [];
         }
-        
-        // Method to check if notification system is available
-        isAvailable() {
-            return !!this.container;
-        }
     }
 
     // Hapus notifikasi tertentu
@@ -236,11 +235,15 @@ class LogoNotificationManager {
                 this.notificationStack.splice(index, 1);
             }
         }
-        
-        // Method to check if notification system is available
-        isAvailable() {
-            return !!this.container;
-        }
+    }
+
+    // Aliases & utilities
+    clear() {
+        this.clearAll();
+    }
+
+    isAvailable() {
+        return !!this.container;
     }
 }
 

@@ -117,7 +117,7 @@ if (isset($_POST['update'])) {
             // Trigger notifikasi kapsul untuk cancel
             echo "<script>
                 if (window.logoNotificationManager) {
-                    window.logoNotificationManager.showActivityCanceled('Activity berhasil dibatalkan!', 5000);
+                    window.logoNotificationManager.showActivityCanceled('Activity dibatalkan!', 5000);
                 }
             </script>";
         } else {
