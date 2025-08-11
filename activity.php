@@ -1112,14 +1112,7 @@ $script = ($script ?? '')
                         });
                     });
                     </script>
-<?php if ($message): ?>
-                        <div class="alert alert-<?= $message_type ?? 'info' ?> alert-animated" role="alert">
-                            <div class="alert-content">
-                                <i class="alert-icon ri-<?= $message_type === 'success' ? 'check-line' : ($message_type === 'warning' ? 'error-warning-line' : 'information-line') ?>"></i>
-                                <span class="alert-message"><?= htmlspecialchars($message) ?></span>
-                            </div>
-                        </div>
-<?php endif; ?>
+<?php /* Alert HTML dinonaktifkan karena sudah menggunakan kapsul notifikasi di bawah logo */ ?>
 
                     <div class="table-responsive">
                         <table class="table table-striped mb-0">
