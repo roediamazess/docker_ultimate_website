@@ -269,5 +269,16 @@
   color: var(--brand-text-on-accent) !important;
 }
 
+/* Secondary color utilities (used for Need Requirement status) */
+.bg-secondary-focus { background-color: rgba(109, 40, 217, 0.12) !important; }
+.text-secondary-main { color: #6D28D9 !important; }
+
+[data-theme="dark"] .status-badge.bg-secondary-focus,
+[data-theme="dark"] .priority-badge.bg-secondary-focus,
+[data-theme="dark"] .type-badge.bg-secondary-focus {
+  background-color: rgba(109, 40, 217, 0.22) !important; /* purple-700 with opacity */
+  color: #E9D5FF !important; /* purple-200 for legibility */
+}
+
 
 
