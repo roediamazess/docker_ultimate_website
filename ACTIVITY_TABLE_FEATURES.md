@@ -20,7 +20,7 @@ Halaman Activities > Activity List telah ditingkatkan dengan fitur sorting dan f
 
 ### 2. Sistem Filtering yang Lengkap
 - **Search Bar**: Pencarian real-time dengan auto-submit setelah 500ms
-- **Filter Status**: Open, On Progress, Need Requirement, Done
+- **Filter Status**: Open, On Progress, Need Requirement, Done, Cancel
 - **Filter Priority**: Urgent, Normal, Low
 - **Filter Type**: Setup, Question, Issue, Report Issue, Report Request, Feature Request
 - **Filter Department**: Semua departemen yang tersedia

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Activity List Functionality</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .clickable-row {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .clickable-row:hover {
+            background-color: #f8f9fa;
+        }
+        .form-container {
+            display: none;
+            margin-bottom: 24px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-open { background-color: #fff3cd; color: #856404; }
+        .status-progress { background-color: #d1ecf1; color: #0c5460; }
+        .status-requirement { background-color: #f8d7da; color: #721c24; }
+        .status-done { background-color: #d4edda; color: #155724; }
+        .status-cancel { background-color: #e2e3e5; color: #383d41; }
+        .type-badge {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .type-setup { background-color: #d4edda; color: #155724; }
+        .type-question { background-color: #d1ecf1; color: #0c5460; }
+        .type-issue { background-color: #fff3cd; color: #856404; }
+        .type-report-issue { background-color: #f8d7da; color: #721c24; }
+        .type-report-request { background-color: #cce5ff; color: #004085; }
+        .type-feature-request { background-color: #e2e3e5; color: #383d41; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Test Activity List Functionality</h2>
+        <p class="text-muted">This demonstrates the new activity list without action buttons and with row-click editing.</p>
+        
+        <div class="row mb-3">
+            <div class="col">
+                <button type="button" class="btn btn-primary" onclick="showCreateForm()">
+                    <i class="bi bi-plus"></i> Create Activity
+                </button>
+            </div>
+        </div>
+
+        <!-- Create Activity Form -->
+        <div id="createActivityForm" class="form-container">
+            <h5 class="mb-3">Add New Activity</h5>
+            <form class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Project *</label>
+                    <select class="form-select" required>
+                        <option value="">Select Project</option>
+                        <option value="PRJ001">Project Alpha</option>
+                        <option value="PRJ002">Project Beta</option>
+                        <option value="PRJ003">Project Gamma</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Description *</label>
+                    <textarea class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">CNC Number</label>
+                    <input type="text" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select class="form-select">
+                        <option value="Open">Open</option>
+                        <option value="On Progress">On Progress</option>
+                        <option value="Need Requirement">Need Requirement</option>
+                        <option value="Done">Done</option>
+                        <option value="Cancel">Cancel</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Type</label>
+                    <select class="form-select">
+                        <option value="Setup">Setup</option>
+                        <option value="Question">Question</option>
+                        <option value="Issue">Issue</option>
+                        <option value="Report Issue">Report Issue</option>
+                        <option value="Report Request">Report Request</option>
+                        <option value="Feature Request">Feature Request</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Information Date</label>
+                    <input type="date" class="form-control">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Add Activity</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideCreateForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Update Activity Form -->
+        <div id="updateActivityForm" class="form-container">
+            <h5 class="mb-3">Update Activity</h5>
+            <form class="row g-3">
+                <input type="hidden" id="update_id">
+                <div class="col-md-6">
+                    <label class="form-label">Project *</label>
+                    <select id="update_project_id" class="form-select" required>
+                        <option value="">Select Project</option>
+                        <option value="PRJ001">Project Alpha</option>
+                        <option value="PRJ002">Project Beta</option>
+                        <option value="PRJ003">Project Gamma</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Description *</label>
+                    <textarea id="update_description" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">CNC Number</label>
+                    <input type="text" id="update_cnc_number" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select id="update_status" class="form-select">
+                        <option value="Open">Open</option>
+                        <option value="On Progress">On Progress</option>
+                        <option value="Need Requirement">Need Requirement</option>
+                        <option value="Done">Done</option>
+                        <option value="Cancel">Cancel</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Type</label>
+                    <select id="update_type" class="form-select">
+                        <option value="Setup">Setup</option>
+                        <option value="Question">Question</option>
+                        <option value="Issue">Issue</option>
+                        <option value="Report Issue">Report Issue</option>
+                        <option value="Report Request">Report Request</option>
+                        <option value="Feature Request">Feature Request</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" id="update_due_date" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Information Date</label>
+                    <input type="date" id="update_information_date" class="form-control">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Update Activity</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideUpdateForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Activity Table -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Activity List</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Project</th>
+                            <th>Type</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="clickable-row" onclick="editActivity(1, 'PRJ001', 'Setup new CNC machine for production line', 'CNC001', 'Open', 'Setup', '2024-02-15', '2024-01-20')">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">Setup new CNC machine for production line</h6>
+                                        <small class="text-muted">CNC001</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Project Alpha</td>
+                            <td><span class="type-badge type-setup">Setup</span></td>
+                            <td>15 Feb 2024</td>
+                            <td><span class="status-badge status-open">Open</span></td>
+                        </tr>
+                        <tr class="clickable-row" onclick="editActivity(2, 'PRJ002', 'Question about material specifications', 'CNC002', 'On Progress', 'Question', '2024-02-20', '2024-01-22')">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">Question about material specifications</h6>
+                                        <small class="text-muted">CNC002</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Project Beta</td>
+                            <td><span class="type-badge type-question">Question</span></td>
+                            <td>20 Feb 2024</td>
+                            <td><span class="status-badge status-progress">On Progress</span></td>
+                        </tr>
+                        <tr class="clickable-row" onclick="editActivity(3, 'PRJ003', 'Issue with cutting tool performance', 'CNC003', 'Need Requirement', 'Issue', '2024-02-25', '2024-01-25')">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">Issue with cutting tool performance</h6>
+                                        <small class="text-muted">CNC003</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Project Gamma</td>
+                            <td><span class="type-badge type-issue">Issue</span></td>
+                            <td>25 Feb 2024</td>
+                            <td><span class="status-badge status-requirement">Need Requirement</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h6>Instructions:</h6>
+            <ul>
+                <li><strong>Click any row</strong> in the table to open the update form</li>
+                <li><strong>No action buttons</strong> - the entire row is clickable</li>
+                <li><strong>Delete functionality removed</strong> as requested</li>
+                <li>Forms automatically hide/show each other</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function showCreateForm() {
+            document.getElementById('createActivityForm').style.display = 'block';
+            document.getElementById('updateActivityForm').style.display = 'none';
+        }
+
+        function hideCreateForm() {
+            document.getElementById('createActivityForm').style.display = 'none';
+        }
+
+        function showUpdateForm(id, project_id, description, cnc_number, status, type, due_date, information_date) {
+            document.getElementById('createActivityForm').style.display = 'none';
+            
+            document.getElementById('update_id').value = id;
+            document.getElementById('update_project_id').value = project_id;
+            document.getElementById('update_description').value = description;
+            document.getElementById('update_cnc_number').value = cnc_number;
+            document.getElementById('update_status').value = status;
+            document.getElementById('update_type').value = type;
+            document.getElementById('update_due_date').value = due_date;
+            document.getElementById('update_information_date').value = information_date;
+            document.getElementById('updateActivityForm').style.display = 'block';
+        }
+
+        function hideUpdateForm() {
+            document.getElementById('updateActivityForm').style.display = 'none';
+        }
+
+        function editActivity(activityId, projectId, description, cncNumber, status, type, dueDate, informationDate) {
+            showUpdateForm(activityId, projectId, description, cncNumber, status, type, dueDate, informationDate);
+        }
+    </script>
+</body>
+</html>

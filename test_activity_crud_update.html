@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Activity CRUD Update - Popup Form Modal</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Custom Modal Styles - Sama seperti di activity_crud_update.php */
+        .custom-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-modal-overlay.show {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        .custom-modal {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .custom-modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #dee2e6;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .custom-modal-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .custom-modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        
+        .custom-modal-close:hover {
+            background-color: #e9ecef;
+            color: #333;
+        }
+        
+        .custom-modal-body {
+            padding: 24px;
+        }
+        
+        .custom-modal-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .custom-modal-col {
+            flex: 1;
+        }
+        
+        .custom-modal-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .custom-modal-input,
+        .custom-modal-select,
+        .custom-modal-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .custom-modal-input:focus,
+        .custom-modal-select:focus,
+        .custom-modal-textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        
+        .custom-modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #dee2e6;
+            background: #f8f9fa;
+            border-radius: 0 0 8px 8px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .custom-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .custom-btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .custom-btn-primary:hover {
+            background-color: #0056b3;
+        }
+        
+        .custom-btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .custom-btn-secondary:hover {
+            background-color: #545b62;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">Test Activity CRUD Update</h1>
+                <button onclick="showCreateModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
+                    <i class="fas fa-plus mr-2"></i>Add Activity
+                </button>
+            </div>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <h3 class="text-lg font-semibold text-blue-800 mb-2">🎯 Tujuan Test</h3>
+                <p class="text-blue-700">
+                    File ini dibuat untuk memverifikasi bahwa popup form modal di <code>activity_crud_update.php</code> 
+                    berfungsi dengan baik dan memiliki styling yang sama seperti yang diinginkan.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold text-green-800 mb-2">✅ Fitur yang Tersedia</h3>
+                    <ul class="text-green-700 space-y-1">
+                        <li>• Popup form modal "Add Activity"</li>
+                        <li>• Layout dua kolom yang rapi</li>
+                        <li>• Styling modern dan profesional</li>
+                        <li>• Semua field yang diperlukan</li>
+                        <li>• Form validation</li>
+                        <li>• Responsive design</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold text-yellow-800 mb-2">🔧 Cara Test</h3>
+                    <ol class="text-yellow-700 space-y-1">
+                        <li>1. Klik tombol "Add Activity" di atas</li>
+                        <li>2. Modal akan muncul dengan overlay</li>
+                        <li>3. Periksa layout dua kolom</li>
+                        <li>4. Test semua form fields</li>
+                        <li>5. Klik "Close" untuk menutup</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">📋 Field yang Tersedia</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-2">Left Column:</h4>
+                        <ul class="space-y-1">
+                            <li>• No (auto-fill)</li>
+                            <li>• Information Date * (default today)</li>
+                            <li>• User Position</li>
+                            <li>• Application * (default Power FO)</li>
+                            <li>• Customer</li>
+                            <li>• Completed Date</li>
+                            <li>• Description</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-2">Right Column:</h4>
+                        <ul class="space-y-1">
+                            <li>• Status * (default Open)</li>
+                            <li>• Priority * (default Normal)</li>
+                            <li>• Department</li>
+                            <li>• Type (default Issue)</li>
+                            <li>• Project</li>
+                            <li>• CNC Number</li>
+                            <li>• Action Solution</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Activity Modal - Custom Modal -->
+    <div class="custom-modal-overlay" id="createActivityModal" style="display: none;">
+        <div class="custom-modal">
+            <div class="custom-modal-header">
+                <h5 class="custom-modal-title">Add Activity</h5>
+                <button type="button" class="custom-modal-close" onclick="closeCreateModal()">&times;</button>
+            </div>
+            <form method="post">
+                <div class="custom-modal-body">
+                    <div class="custom-modal-row">
+                        <div class="custom-modal-col">
+                            <label class="custom-modal-label">No</label>
+                            <input type="number" name="no" class="custom-modal-input" value="1">
+                        </div>
+                        <div class="custom-modal-col">
+                            <label class="custom-modal-label">Status *</label>
+                            <select name="status" class="custom-modal-select" required>
+                                <option value="Open" selected>Open</option>
+                                <option value="On Progress">On Progress</option>
+                                <option value="Need Requirement">Need Requirement</option>
+                                <option value="Done">Done</option>
+                                <option value="Cancel">Cancel</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="custom-modal-row">
+                        <div class="custom-modal-col">
+                            <label class="custom-modal-label">Information Date *</label>
+                            <input type="date" name="information_date" class="custom-modal-input" value="<?= date('Y-m-d') ?>" required>
+                        </div>
+                        <div class="custom-modal-col">
+                            <label class="custom-modal-label">Priority *</label>
+                            <select name="priority" class="custom-modal-select" required>
+                                <option value="Low">Low</option>
+                                <option value="Normal" selected>Normal</option>
+                                <option value="Hard">Hard</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="custom-modal-row">
+                        <div class="custom-modal-col">
+                            <label class="custom-modal-label">User Position</label>
+                            <input type="text" name="user_position" class="custom-modal-input">
+                        </div>
+                        <div class="custom-modal-col">
+                            <label class="custom-modal-label">Department</label>
+                            <select name="department" class="custom-modal-select">
+                                <option value="">Select Department</option>
+                                <option value="Food & Beverage">Food & Beverage</option>
+                                <option value="Kitchen">Kitchen</option>
+                                <option value="Room Division">Room Division</option>
+                                <option value="Front Office">Front Office</option>
+                                <option value="Housekeeping">Housekeeping</option>
+                                <option value="Engineering">Engineering</option>
+                                <option value="Sales & Marketing">Sales & Marketing</option>
+                                <option value="IT / EDP">IT / EDP</option>
+                                <option value="Accounting">Accounting</option>
+                                <option value="Executive Office">Executive Office</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="custom-modal-row">
+                        <div class="custom-modal-col">
+                            <label class="custom-modal-label">Application *</label>
+                            <select name="application" class="custom-modal-select" required>
+                                <option value="">Select Application</option>
+                                <option value="Power FO" selected>Power FO</option>
+                                <option value="My POS">My POS</option>
+                                <option value="My MGR">My MGR</option>
+                                <option value="Power AR">Power AR</option>
+                                <option value="Power INV">Power INV</option>
+                                <option value="Power AP">Power AP</option>
+                                <option value="Power GL">Power GL</option>
+                                <option value="Keylock">Keylock</option>
+                                <option value="PABX">PABX</option>
+                                <option value="DIM">DIM</option>
+                                <option value="Dynamic Room Rate">Dynamic Room Rate</option>
+                                <option value="Channel Manager">Channel Manager</option>
+                                <option value="PB1">PB1</option>
+                                <option value="Power SIGN">Power SIGN</option>
+                                <option value="Multi Properties">Multi Properties</option>
+                                <option value="Scanner ID">Scanner ID</option>
+                                <option value="IPOS">IPOS</option>
+                                <option value="Power Runner">Power Runner</option>
+                                <option value="Power RA">Power RA</option>
+                                <option value="Power ME">Power ME</option>
+                                <option value="ECOS">ECOS</option>
+                                <option value="Cloud WS">Cloud WS</option>
+                                <option value="Power GO">Power GO</option>
+                                <option value="Dashpad">Dashpad</option>
+                                <option value="IPTV">IPTV</option>
+                                <option value="HSIA">HSIA</option>
+                                <option value="SGI">SGI</option>
+                                <option value="Guest Survey">Guest Survey</option>
+                                <option value="Loyalty Management">Loyalty Management</option>
+                                <option value="AccPac">AccPac</option>
+                                <option value="GL Consolidation">GL Consolidation</option>
+                                <option value="Self Check In">Self Check In</option>
+                                <option value="Check In Desk">Check In Desk</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
+                        <div class="custom-modal-col">
+                            <label class="custom-modal-label">Type</label>
+                            <select name="type" class="custom-modal-select">
+                                <option value="Setup">Setup</option>
+                                <option value="Question">Question</option>
+                                <option value="Issue" selected>Issue</option>
+                                <option value="Report Issue">Report Issue</option>
+                                <option value="Report Request">Report Request</option>
+                                <option value="Feature Request">Feature Request</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="custom-modal-row">
+                        <div class="custom-modal-col">
+                            <label class="custom-modal-label">Customer</label>
+                            <input type="text" name="customer" class="custom-modal-input">
+                        </div>
+                        <div class="custom-modal-col">
+                            <label class="custom-modal-label">Project</label>
+                            <input type="text" name="project" class="custom-modal-input">
+                        </div>
+                    </div>
+                    <div class="custom-modal-row">
+                        <div class="custom-modal-col">
+                            <label class="custom-modal-label">Completed Date</label>
+                            <input type="date" name="completed_date" class="custom-modal-input">
+                        </div>
+                        <div class="custom-modal-col">
+                            <label class="custom-modal-label">CNC Number</label>
+                            <input type="text" name="cnc_number" class="custom-modal-input">
+                        </div>
+                    </div>
+                    <div class="custom-modal-row">
+                        <div class="custom-modal-col">
+                            <label class="custom-modal-label">Description *</label>
+                            <textarea name="description" class="custom-modal-textarea" rows="3" required></textarea>
+                        </div>
+                        <div class="custom-modal-col">
+                            <label class="custom-modal-label">Action Solution</label>
+                            <textarea name="action_solution" class="custom-modal-textarea" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="custom-modal-footer">
+                    <button type="submit" name="create" value="1" class="custom-btn custom-btn-primary">Create</button>
+                    <button type="button" class="custom-btn custom-btn-secondary" onclick="closeCreateModal()">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Modal functions
+        function showCreateModal() {
+            document.getElementById('createActivityModal').style.display = 'flex';
+            document.getElementById('createActivityModal').classList.add('show');
+        }
+        
+        function closeCreateModal() {
+            document.getElementById('createActivityModal').classList.remove('show');
+            setTimeout(() => {
+                document.getElementById('createActivityModal').style.display = 'none';
+            }, 300);
+        }
+        
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('custom-modal-overlay')) {
+                event.target.classList.remove('show');
+                setTimeout(() => {
+                    event.target.style.display = 'none';
+                }, 300);
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modals = document.querySelectorAll('.custom-modal-overlay.show');
+                modals.forEach(modal => {
+                    modal.classList.remove('show');
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                    }, 300);
+                });
+            }
+        });
+        
+        // Set today's date as default
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelector('input[name="information_date"]').value = today;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Notifikasi Kapsul Baru</title>
+    
+    <!-- Menggunakan Tailwind CSS untuk styling cepat dan modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Menggunakan Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Style dasar untuk body dan font */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Kontainer untuk tumpukan notifikasi */
+        #notification-container {
+            position: fixed;
+            top: 5rem; /* 80px, beri ruang di bawah logo */
+            left: 1.5rem; /* 24px */
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        /* Style untuk setiap kartu notifikasi */
+        .notification-capsule {
+            transform-origin: top left; /* Animasi berpusat dari pojok kiri atas */
+            animation: emerge-from-logo 0.5s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+        }
+        
+        /* Animasi "muncul dari logo" */
+        @keyframes emerge-from-logo {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.6);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Animasi keluar */
+        .notification-capsule.hide {
+            animation: fade-out 0.4s ease-in forwards;
+        }
+        @keyframes fade-out {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.6);
+            }
+        }
+        
+        /* Animasi untuk progress bar */
+        .progress-line {
+            height: 2px;
+            animation: shrink 4.5s linear forwards;
+        }
+        @keyframes shrink {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <!-- Header dengan Logo Perusahaan (Placeholder) -->
+    <header class="fixed top-0 left-0 p-6 z-10">
+        <div id="company-logo" class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
+            P
+        </div>
+    </header>
+
+    <!-- Kontainer untuk notifikasi akan muncul di sini -->
+    <div id="notification-container"></div>
+
+    <!-- Konten utama halaman -->
+    <main class="flex items-center justify-center min-h-screen">
+        <div class="text-center bg-white p-8 sm:p-12 rounded-2xl shadow-lg">
+            <h1 class="text-2xl sm:text-3xl font-bold mb-2">Test Notifikasi Kapsul Baru</h1>
+            <p class="text-slate-600 mb-8">Klik tombol untuk melihat contoh notifikasi dengan sistem baru.</p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                <!-- Tombol untuk memicu notifikasi -->
+                <button onclick="testActivityCreated()" 
+                        class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md">
+                    Buat Aktivitas
+                </button>
+                <button onclick="testActivityUpdated()" 
+                        class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md">
+                    Update Aktivitas
+                </button>
+                <button onclick="testActivityCanceled()" 
+                        class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md">
+                    Batalkan Aktivitas
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
+                <button onclick="testActivityError()"
+                        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md">
+                    Error Aktivitas
+                </button>
+            </div>
+
+            <div class="mt-8 p-4 bg-blue-50 rounded-lg">
+                <h3 class="font-semibold text-blue-800 mb-2">Informasi Test:</h3>
+                <ul class="text-sm text-blue-700 space-y-1">
+                    <li>• Notifikasi menggunakan sistem baru dengan Tailwind CSS</li>
+                    <li>• Animasi emerge-from-logo dan fade-out</li>
+                    <li>• Progress bar otomatis mengecil dalam 4.5 detik</li>
+                    <li>• Auto-hide setelah 5 detik</li>
+                    <li>• Maksimal 5 notifikasi dalam stack</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- Include logo-notifications.js -->
+    <script src="assets/js/logo-notifications.js"></script>
+
+    <script>
+        // Test functions untuk setiap jenis notifikasi
+        function testActivityCreated() {
+            if (window.logoNotificationManager) {
+                window.logoNotificationManager.showActivityCreated('Aktivitas berhasil dibuat!', 5000);
+            } else {
+                console.error('LogoNotificationManager tidak tersedia');
+            }
+        }
+
+        function testActivityUpdated() {
+            if (window.logoNotificationManager) {
+                window.logoNotificationManager.showActivityUpdated('Aktivitas berhasil diperbarui!', 5000);
+            } else {
+                console.error('LogoNotificationManager tidak tersedia');
+            }
+        }
+
+        function testActivityCanceled() {
+            if (window.logoNotificationManager) {
+                window.logoNotificationManager.showActivityCanceled('Aktivitas berhasil dibatalkan!', 5000);
+            } else {
+                console.error('LogoNotificationManager tidak tersedia');
+            }
+        }
+
+
+        function testActivityError() {
+            if (window.logoNotificationManager) {
+                window.logoNotificationManager.showActivityError('Terjadi kesalahan pada aktivitas!', 5000);
+            } else {
+                console.error('LogoNotificationManager tidak tersedia');
+            }
+        }
+
+        // Test notifikasi umum
+        function testGeneralNotifications() {
+            if (window.logoNotificationManager) {
+                window.logoNotificationManager.showSuccess('Operasi berhasil!', 3000);
+                setTimeout(() => {
+                    window.logoNotificationManager.showInfo('Informasi penting!', 3000);
+                }, 1000);
+                setTimeout(() => {
+                    window.logoNotificationManager.showWarning('Peringatan!', 3000);
+                }, 2000);
+                setTimeout(() => {
+                    window.logoNotificationManager.showError('Error terjadi!', 3000);
+                }, 3000);
+            }
+        }
+
+        // Auto-test setelah halaman load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Test Notifikasi Kapsul Baru siap!');
+            
+            // Test notifikasi umum setelah 2 detik
+            setTimeout(testGeneralNotifications, 2000);
+        });
+    </script>
+
+</body>
+</html>

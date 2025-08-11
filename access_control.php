@@ -6,7 +6,7 @@ $access_map = [
         'user' => ['create'=>true,'read'=>true,'update'=>true,'delete'=>true],
         'customer' => ['create'=>true,'read'=>true,'update'=>true,'delete'=>true],
         'project' => ['create'=>true,'read'=>true,'update'=>true,'delete'=>true],
-        'activity' => ['create'=>true,'read'=>true,'update'=>true,'delete'=>true],
+        'activity' => ['create'=>true,'read'=>true,'update'=>true,'delete'=>false],
         'log' => ['read'=>true],
     ],
     'Management' => [

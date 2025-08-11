@@ -40,6 +40,7 @@ html, body {
 /* Logo Section */
 .nav-logo {
     flex-shrink: 0;
+    position: relative;
 }
 
 .nav-logo img {
@@ -52,6 +53,194 @@ html, body {
 .nav-logo img:hover {
     transform: scale(1.05);
 }
+
+/* Notification Container - New Tailwind-based Design */
+#notification-container {
+    position: fixed;
+    top: 5rem; /* 80px, beri ruang di bawah logo */
+    left: 1.5rem; /* 24px */
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+/* Notification Capsule Styles */
+.notification-capsule {
+    transform-origin: top left;
+    animation: emerge-from-logo 0.5s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+}
+
+/* Animation for notification entry */
+@keyframes emerge-from-logo {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.6);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Animation for notification exit */
+.notification-capsule.hide {
+    animation: fade-out 0.4s ease-in forwards;
+}
+
+@keyframes fade-out {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.6);
+    }
+}
+
+/* Animation for progress bar */
+.progress-line {
+    height: 2px;
+    animation: shrink 4.5s linear forwards;
+}
+
+@keyframes shrink {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+/* Responsive Design for Notification Container */
+@media (max-width: 1024px) {
+    #notification-container {
+        left: 1rem;
+        top: 4.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    #notification-container {
+        left: 0.75rem;
+        top: 4rem;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    #notification-container {
+        left: 0.5rem;
+        top: 3.5rem;
+        gap: 0.375rem;
+    }
+}
+
+/* Dark Mode Support for Notifications */
+[data-theme="dark"] .notification-capsule {
+    background-color: #1e293b !important; /* slate-800 */
+    color: #f1f5f9 !important; /* slate-100 */
+}
+
+[data-theme="dark"] .notification-capsule .bg-red-500 {
+    background-color: #ef4444 !important;
+}
+
+[data-theme="dark"] .notification-capsule .bg-yellow-500 {
+    background-color: #eab308 !important;
+}
+
+[data-theme="dark"] .notification-capsule .bg-green-500 {
+    background-color: #22c55e !important;
+}
+
+/* Additional utility classes for notifications */
+.notification-capsule .bg-slate-800 {
+    background-color: #1e293b !important;
+}
+
+.notification-capsule .text-white {
+    color: #ffffff !important;
+}
+
+.notification-capsule .rounded-full {
+    border-radius: 9999px !important;
+}
+
+.notification-capsule .shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.notification-capsule .flex {
+    display: flex !important;
+}
+
+.notification-capsule .items-center {
+    align-items: center !important;
+}
+
+.notification-capsule .p-2 {
+    padding: 0.5rem !important;
+}
+
+.notification-capsule .w-8 {
+    width: 2rem !important;
+}
+
+.notification-capsule .h-8 {
+    height: 2rem !important;
+}
+
+.notification-capsule .rounded-full {
+    border-radius: 9999px !important;
+}
+
+.notification-capsule .flex-shrink-0 {
+    flex-shrink: 0 !important;
+}
+
+.notification-capsule .justify-center {
+    justify-content: center !important;
+}
+
+.notification-capsule .h-5 {
+    height: 1.25rem !important;
+}
+
+.notification-capsule .w-5 {
+    width: 1.25rem !important;
+}
+
+.notification-capsule .px-3 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+}
+
+.notification-capsule .flex-grow {
+    flex-grow: 1 !important;
+}
+
+.notification-capsule .text-sm {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+}
+
+.notification-capsule .font-medium {
+    font-weight: 500 !important;
+}
+
+.notification-capsule .leading-tight {
+    line-height: 1.25 !important;
+}
+
+.notification-capsule .mt-1 {
+    margin-top: 0.25rem !important;
+}
+
+.notification-capsule .h-2 {
+    height: 0.5rem !important;
+}
+
+
 
 /* Main Navigation Menu */
 .nav-menu {
@@ -1737,4 +1926,3 @@ html, body {
     background-color: rgba(102, 126, 234, 0.12);
     border-color: rgba(102, 126, 234, 0.3);
 }
-

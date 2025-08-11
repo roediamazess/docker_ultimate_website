@@ -707,4 +707,15 @@ include './partials/layouts/layoutHorizontal.php'
             </div>
         </div>
 
+<script>
+// Show welcome notification when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if logoNotificationManager is available
+    if (typeof logoNotificationManager !== 'undefined' && logoNotificationManager.isAvailable()) {
+        // Show a welcome notification
+        logoNotificationManager.showSuccess('Welcome to the Dashboard! 🎉', 5000);
+    }
+});
+</script>
+
 <?php include './partials/layouts/layoutBottom.php'; ?>

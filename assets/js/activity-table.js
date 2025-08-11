@@ -266,23 +266,6 @@ function hideEditForm(activityId) {
     }
 }
 
-/**
- * Confirm delete action
- */
-function confirmDelete(activityId, activityName) {
-    if (confirm(`Are you sure you want to delete activity "${activityName}"?`)) {
-        // Create and submit delete form
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.innerHTML = `
-            <input type="hidden" name="delete" value="1">
-            <input type="hidden" name="id" value="${activityId}">
-            <input type="hidden" name="csrf_token" value="${document.querySelector('input[name="csrf_token"]').value}">
-        `;
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
 
 /**
  * Add loading state to buttons

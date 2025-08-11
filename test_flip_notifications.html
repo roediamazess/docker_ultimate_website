@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Flip Card Notifications</title>
+    
+    <!-- Remix Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <!-- Horizontal Layout CSS -->
+    <link rel="stylesheet" href="assets/css/horizontal-layout.css">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .test-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .test-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .test-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+        
+        .test-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .test-btn.success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .test-btn.info {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .test-btn.warning {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .test-btn.error {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .logo-section {
+            position: relative;
+            display: inline-block;
+            margin: 20px;
+        }
+        
+        .company-logo {
+            height: 80px;
+            width: auto;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            background: white;
+        }
+        
+        /* Logo Notification Container - Fixed Position */
+        .logo-notification-container {
+            position: fixed;
+            top: 5rem;
+            left: 1.5rem;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            perspective: 1000px;
+            pointer-events: none;
+        }
+        
+        /* Logo Notification Styles - Flip Card Circle */
+        .logo-notification {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            pointer-events: auto;
+            cursor: pointer;
+            transform-origin: top left;
+            animation: emerge-from-logo 0.5s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+        }
+        
+        /* Flip Card Inner */
+        .logo-notification-inner {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        /* Saat di-hover, putar kartu */
+        .logo-notification:hover .logo-notification-inner {
+            transform: rotateY(180deg);
+        }
+        
+        /* Style untuk sisi depan dan belakang kartu */
+        .logo-notification-front, .logo-notification-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 9999px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .logo-notification-back {
+            transform: rotateY(180deg);
+        }
+        
+        /* Notification Types - Front Side */
+        .logo-notification.success .logo-notification-front {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .logo-notification.info .logo-notification-front {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+        
+        .logo-notification.warning .logo-notification-front {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+        
+        .logo-notification.error .logo-notification-front {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        /* Back side styling */
+        .logo-notification-back {
+            background: white;
+            color: #1f2937;
+        }
+        
+        /* Icon styling */
+        .logo-notification i,
+        .logo-notification svg {
+            font-size: 2.5rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            flex-shrink: 0;
+        }
+        
+        .logo-notification-back i,
+        .logo-notification-back svg {
+            font-size: 1.5rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Text styling */
+        .logo-notification .notification-text {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+        
+        .logo-notification-back h4 {
+            font-weight: 700;
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .logo-notification-back p {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+        
+        /* Button styling */
+        .logo-notification-back button {
+            width: 100%;
+            background: #e5e7eb;
+            color: #374151;
+            font-size: 0.75rem;
+            padding: 0.25rem;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .logo-notification-back button:hover {
+            background: #d1d5db;
+        }
+        
+        /* Utility classes */
+        .mb-1 {
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Animasi "muncul dari logo" */
+        @keyframes emerge-from-logo {
+            from {
+                opacity: 0;
+                transform: translateY(-40px) scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Animasi saat notifikasi hilang */
+        .logo-notification.fade-out {
+            animation: fade-out-anim 0.4s ease-in forwards;
+        }
+        
+        @keyframes fade-out-anim {
+            from { 
+                opacity: 1; 
+                transform: scale(1); 
+            }
+            to { 
+                opacity: 0; 
+                transform: scale(0.8); 
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .logo-notification {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .logo-notification i,
+            .logo-notification svg {
+                font-size: 2rem;
+                width: 2rem;
+                height: 2rem;
+            }
+            
+            .logo-notification-back i,
+            .logo-notification-back svg {
+                font-size: 1.25rem;
+                width: 1.25rem;
+                height: 1.25rem;
+            }
+            
+            .logo-notification-container {
+                left: 1rem;
+                top: 4rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo-notification {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .logo-notification i,
+            .logo-notification svg {
+                font-size: 1.5rem;
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+            
+            .logo-notification-back i,
+            .logo-notification-back svg {
+                font-size: 1rem;
+                width: 1rem;
+                height: 1rem;
+            }
+            
+            .logo-notification-container {
+                left: 0.75rem;
+                top: 3.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo Notification Container -->
+    <div class="logo-notification-container" id="logoNotificationContainer"></div>
+    
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🧪 Test Flip Card Notifications</h1>
+            <p>Klik tombol di bawah untuk menguji notifikasi flip card</p>
+        </div>
+        
+        <div class="test-buttons">
+            <button class="test-btn success" onclick="showSuccessNotification()">
+                <i class="ri-check-line"></i>
+                Success
+            </button>
+            <button class="test-btn info" onclick="showInfoNotification()">
+                <i class="ri-information-line"></i>
+                Info
+            </button>
+            <button class="test-btn warning" onclick="showWarningNotification()">
+                <i class="ri-error-warning-line"></i>
+                Warning
+            </button>
+            <button class="test-btn error" onclick="showErrorNotification()">
+                <i class="ri-close-circle-line"></i>
+                Error
+            </button>
+        </div>
+        
+        <div class="logo-section">
+            <img src="assets/images/company/logo.png" alt="PPSolution Logo" class="company-logo">
+            <p style="text-align: center; margin-top: 10px; color: #666;">Logo Perusahaan</p>
+        </div>
+        
+        <div style="margin-top: 40px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3>📋 Instruksi Testing:</h3>
+            <ol>
+                <li>Klik salah satu tombol notifikasi di atas</li>
+                <li>Notifikasi akan muncul di sebelah kiri sebagai flip card</li>
+                <li>Hover pada notifikasi untuk melihat efek flip</li>
+                <li>Klik tombol "Tutup" untuk menutup notifikasi</li>
+                <li>Notifikasi akan otomatis hilang setelah 5 detik</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        class SimpleNotificationManager {
+            constructor() {
+                this.container = document.getElementById('logoNotificationContainer');
+                this.currentNotification = null;
+                this.isShowing = false;
+                this.autoHideTimer = null;
+                
+                if (this.container) {
+                    console.log('Simple Notification Manager initialized');
+                } else {
+                    console.error('Container not found!');
+                }
+            }
+            
+            showNotification(message, type = 'info', duration = 5000, icon = null) {
+                if (!this.container) {
+                    console.warn('Container not available');
+                    return;
+                }
+                
+                // Clear existing notification
+                this.clear();
+                
+                // Create notification element
+                const notification = this.createNotificationElement(message, type, icon);
+                
+                // Add to container
+                this.container.appendChild(notification);
+                this.currentNotification = notification;
+                this.isShowing = true;
+                
+                // Auto-hide after duration
+                if (duration > 0) {
+                    this.autoHideTimer = setTimeout(() => {
+                        this.hideNotification();
+                    }, duration);
+                }
+                
+                console.log(`Notification shown: ${message} (${type})`);
+            }
+            
+            createNotificationElement(message, type, icon) {
+                const notification = document.createElement('div');
+                notification.className = `logo-notification ${type}`;
+                
+                // Default icon if none provided
+                if (!icon) {
+                    switch (type) {
+                        case 'success':
+                            icon = 'ri-check-line';
+                            break;
+                        case 'info':
+                            icon = 'ri-information-line';
+                            break;
+                        case 'warning':
+                            icon = 'ri-error-warning-line';
+                            break;
+                        case 'error':
+                            icon = 'ri-close-circle-line';
+                            break;
+                        default:
+                            icon = 'ri-information-line';
+                    }
+                }
+                
+                // Get title based on type
+                let title = 'Notifikasi';
+                switch (type) {
+                    case 'success':
+                        title = 'Berhasil!';
+                        break;
+                    case 'info':
+                        title = 'Info';
+                        break;
+                    case 'warning':
+                        title = 'Peringatan';
+                        break;
+                    case 'error':
+                        title = 'Error';
+                        break;
+                }
+                
+                notification.innerHTML = `
+                    <div class="logo-notification-inner">
+                        <!-- SISI DEPAN KARTU -->
+                        <div class="logo-notification-front">
+                            <i class="${icon}"></i>
+                            <p class="notification-text">Hover</p>
+                        </div>
+                        <!-- SISI BELAKANG KARTU -->
+                        <div class="logo-notification-back">
+                            <div class="mb-1">
+                                <i class="${icon}"></i>
+                            </div>
+                            <h4>${title}</h4>
+                            <p>${message}</p>
+                            <button class="close-btn" onclick="notificationManager.hideNotification()">Tutup</button>
+                        </div>
+                    </div>
+                `;
+                
+                return notification;
+            }
+            
+            hideNotification() {
+                if (!this.currentNotification || !this.isShowing) {
+                    return;
+                }
+                
+                // Clear auto-hide timer
+                if (this.autoHideTimer) {
+                    clearTimeout(this.autoHideTimer);
+                    this.autoHideTimer = null;
+                }
+                
+                // Add fade-out animation
+                this.currentNotification.classList.add('fade-out');
+                
+                // Remove after animation
+                setTimeout(() => {
+                    if (this.currentNotification && this.currentNotification.parentNode) {
+                        this.currentNotification.parentNode.removeChild(this.currentNotification);
+                    }
+                    this.currentNotification = null;
+                    this.isShowing = false;
+                }, 400);
+                
+                console.log('Notification hidden');
+            }
+            
+            clear() {
+                if (this.currentNotification) {
+                    this.hideNotification();
+                }
+            }
+        }
+        
+        // Initialize notification manager
+        let notificationManager;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            notificationManager = new SimpleNotificationManager();
+        });
+        
+        // Test functions
+        function showSuccessNotification() {
+            if (notificationManager) {
+                notificationManager.showNotification('Activity berhasil ditambahkan!', 'success', 5000, 'ri-add-line');
+            }
+        }
+        
+        function showInfoNotification() {
+            if (notificationManager) {
+                notificationManager.showNotification('Activity berhasil diperbarui!', 'info', 5000, 'ri-refresh-line');
+            }
+        }
+        
+        function showWarningNotification() {
+            if (notificationManager) {
+                notificationManager.showNotification('Activity berhasil dihapus!', 'warning', 5000, 'ri-delete-bin-line');
+            }
+        }
+        
+        function showErrorNotification() {
+            if (notificationManager) {
+                notificationManager.showNotification('Terjadi kesalahan saat memproses activity!', 'error', 5000, 'ri-error-warning-line');
+            }
+        }
+    </script>
+</body>
+</html>

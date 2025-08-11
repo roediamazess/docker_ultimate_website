@@ -194,6 +194,8 @@ Replace background images in `assets/css/login-backgrounds.css`:
 - `docs/006_add_action_buttons_activity_table.md` - Penambahan tombol action pada tabel activity
 - `docs/007_remove_action_buttons_activity_table.md` - Penghapusan kolom action dari tabel activity
 - `docs/008_enhance_activity_notifications.md` - Peningkatan tampilan notifikasi activity
+- `docs/009_add_cancel_status_activity.md` - Penambahan status Cancel pada Activity List
+- `docs/010_remove_delete_function_activity.md` - Penghapusan fungsi delete pada Activity List
 - Code comments for technical details
 
 ### **Testing**

@@ -100,13 +100,13 @@ if (isset($_POST['update'])) {
     $message = 'Activity updated!';
 }
 
-// DELETE ACTIVITY
-if (isset($_POST['delete'])) {
-    $id = $_POST['id'];
-    $stmt = $pdo->prepare('DELETE FROM activities WHERE id=?');
-    $stmt->execute([$id]);
-    $message = 'Activity deleted!';
-}
+// DELETE ACTIVITY - Removed as per user request
+// if (isset($_POST['delete'])) {
+//     $id = $_POST['id'];
+//     $stmt = $pdo->prepare('DELETE FROM activities WHERE id=?');
+//     $stmt->execute([$id]);
+//     $message = 'Activity deleted!';
+// }
 
 // Kanban grouping
 $kanban = [];
@@ -248,7 +248,7 @@ foreach ($activities as $a) {
         <option value="Done" <?= $filter_status==='Done'?'selected':'' ?>>Done</option>
     </select>
     <button type="submit">Cari</button>
-    <a href="activity_crud.php">Reset</a>
+    <a href="activity.php">Reset</a>
 </form>
 <div style="overflow-x:auto; max-width:100vw; margin-bottom:16px;">
 <table border="1" cellpadding="4" style="min-width:900px;">
@@ -271,7 +271,6 @@ foreach ($activities as $a) {
     <td><input type="text" name="cnc_number" value="<?= htmlspecialchars($a['cnc_number']) ?>"></td>
     <td>
         <button type="submit" name="update">Update</button>
-        <button type="submit" name="delete" onclick="return confirm('Delete activity?')">Delete</button>
     </td>
     </form>
 </tr>

@@ -243,7 +243,7 @@
             </li>
             
             <li>
-                <a href="activity_crud.php">
+                <a href="activity.php">
                     <iconify-icon icon="solar:checklist-outline" class="menu-icon"></iconify-icon>
                     <span>Activity List</span>
                 </a>

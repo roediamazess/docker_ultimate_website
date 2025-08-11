@@ -11,7 +11,7 @@ CREATE TYPE project_status AS ENUM ('Scheduled', 'Running', 'Document', 'Documen
 CREATE TYPE department_type AS ENUM ('Food & Beverage', 'Kitchen', 'Room Division', 'Front Office', 'Housekeeping', 'Engineering', 'Sales & Marketing', 'IT / EDP', 'Accounting', 'Executive Office');
 CREATE TYPE application_type AS ENUM ('Power FO', 'My POS', 'My MGR', 'Power AR', 'Power INV', 'Power AP', 'Power GL', 'Keylock', 'PABX', 'DIM', 'Dynamic Room Rate', 'Channel Manager', 'PB1', 'Power SIGN', 'Multi Properties', 'Scanner ID', 'IPOS', 'Power Runner', 'Power RA', 'Power ME', 'ECOS', 'Cloud WS', 'Power GO', 'Dashpad', 'IPTV', 'HSIA', 'SGI', 'Guest Survey', 'Loyalty Management', 'AccPac', 'GL Consolidation', 'Self Check In', 'Check In Desk', 'Others');
 CREATE TYPE activity_type AS ENUM ('Setup', 'Question', 'Issue', 'Report Issue', 'Report Request', 'Feature Request');
-CREATE TYPE activity_status AS ENUM ('Open', 'On Progress', 'Need Requirement', 'Done');
+CREATE TYPE activity_status AS ENUM ('Open', 'On Progress', 'Need Requirement', 'Done', 'Cancel');
 
 -- USERS TABLE
 CREATE TABLE users (
@@ -80,14 +80,19 @@ CREATE TABLE activities (
     project_id VARCHAR(50),
     no INTEGER,
     information_date DATE,
+    priority VARCHAR(20) DEFAULT 'Normal',
     user_position VARCHAR(100),
     department department_type,
     application application_type,
     type activity_type,
     description TEXT,
     action_solution TEXT,
+    customer VARCHAR(100),
+    project VARCHAR(100),
+    completed_date DATE,
     due_date DATE,
     status activity_status,
     cnc_number VARCHAR(50),
+    created_by INTEGER REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

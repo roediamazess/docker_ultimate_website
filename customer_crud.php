@@ -30,6 +30,13 @@ $message = '';
 if (isset($_POST['create'])) {
     if (!csrf_verify()) {
         $message = 'CSRF token tidak valid!';
+        
+        // Trigger notifikasi kapsul untuk error
+        echo "<script>
+            if (window.logoNotificationManager) {
+                window.logoNotificationManager.showError('CSRF token tidak valid!', 5000);
+            }
+        </script>";
     } else {
         $stmt = $pdo->prepare('INSERT INTO customers (customer_id, name, star, room, outlet, type, "group", zone, address, billing, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
@@ -47,6 +54,13 @@ if (isset($_POST['create'])) {
         ]);
         $message = 'Customer created!';
         log_activity('create_customer', 'Customer ID: ' . $_POST['customer_id']);
+        
+        // Trigger notifikasi kapsul untuk success
+        echo "<script>
+            if (window.logoNotificationManager) {
+                window.logoNotificationManager.showSuccess('Customer berhasil dibuat!', 5000);
+            }
+        </script>";
     }
 }
 
@@ -54,6 +68,13 @@ if (isset($_POST['create'])) {
 if (isset($_POST['update'])) {
     if (!csrf_verify()) {
         $message = 'CSRF token tidak valid!';
+        
+        // Trigger notifikasi kapsul untuk error
+        echo "<script>
+            if (window.logoNotificationManager) {
+                window.logoNotificationManager.showError('CSRF token tidak valid!', 5000);
+            }
+        </script>";
     } else {
         $stmt = $pdo->prepare('UPDATE customers SET customer_id=?, name=?, star=?, room=?, outlet=?, type=?, "group"=?, zone=?, address=?, billing=? WHERE id=?');
         $stmt->execute([
@@ -71,6 +92,13 @@ if (isset($_POST['update'])) {
         ]);
         $message = 'Customer updated!';
         log_activity('update_customer', 'Customer ID: ' . $_POST['id']);
+        
+        // Trigger notifikasi kapsul untuk success
+        echo "<script>
+            if (window.logoNotificationManager) {
+                window.logoNotificationManager.showSuccess('Customer berhasil diperbarui!', 5000);
+            }
+        </script>";
     }
 }
 

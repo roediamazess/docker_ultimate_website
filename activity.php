@@ -30,6 +30,14 @@ $message = '';
 if (isset($_POST['create'])) {
     if (!csrf_verify()) {
         $message = 'CSRF token tidak valid!';
+        $message_type = 'error';
+        
+        // Trigger notifikasi kapsul untuk error
+        echo "<script>
+            if (window.logoNotificationManager) {
+                window.logoNotificationManager.showActivityError('CSRF token tidak valid!', 5000);
+            }
+        </script>";
     } else {
         $stmt = $pdo->prepare('INSERT INTO activities (project_id, no, information_date, user_position, department, application, type, description, action_solution, due_date, status, cnc_number, priority, customer, project, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
@@ -54,6 +62,13 @@ if (isset($_POST['create'])) {
         $message = 'Activity created!';
         $message_type = 'success';
         log_activity('create_activity', 'Activity: ' . $_POST['type']);
+        
+        // Trigger notifikasi kapsul
+        echo "<script>
+            if (window.logoNotificationManager) {
+                window.logoNotificationManager.showActivityCreated('Activity berhasil dibuat!', 5000);
+            }
+        </script>";
     }
 }
 
@@ -61,6 +76,14 @@ if (isset($_POST['create'])) {
 if (isset($_POST['update'])) {
     if (!csrf_verify()) {
         $message = 'CSRF token tidak valid!';
+        $message_type = 'error';
+        
+        // Trigger notifikasi kapsul untuk error
+        echo "<script>
+            if (window.logoNotificationManager) {
+                window.logoNotificationManager.showActivityError('CSRF token tidak valid!', 5000);
+            }
+        </script>";
     } else {
         $informationDate = !empty($_POST['information_date']) ? $_POST['information_date'] : null;
         $stmt = $pdo->prepare('UPDATE activities SET project_id=?, no=?, information_date=?, user_position=?, department=?, application=?, type=?, description=?, action_solution=?, due_date=?, status=?, cnc_number=?, priority=?, customer=?, project=? WHERE id=?');
@@ -82,23 +105,32 @@ if (isset($_POST['update'])) {
             $_POST['project'] ?? null,
             $_POST['id']
         ]);
-        $message = 'Activity updated!';
-        $message_type = 'info';
-        log_activity('update_activity', 'Activity ID: ' . $_POST['id']);
-    }
-}
-
-// Delete Activity
-if (isset($_POST['delete'])) {
-    if (!csrf_verify()) {
-        $message = 'CSRF token tidak valid!';
-    } else {
-        $id = $_POST['id'];
-        $stmt = $pdo->prepare('DELETE FROM activities WHERE id = ?');
-        $stmt->execute([$id]);
-        $message = 'Activity deleted!';
-        $message_type = 'warning';
-        log_activity('delete_activity', 'Activity ID: ' . $id);
+        
+        // Deteksi perubahan status untuk notifikasi yang sesuai
+        $newStatus = $_POST['status'];
+        if ($newStatus === 'Cancel') {
+            $message = 'Activity canceled!';
+            $message_type = 'warning';
+            log_activity('cancel_activity', 'Activity ID: ' . $_POST['id'] . ' - Status changed to Cancel');
+            
+            // Trigger notifikasi kapsul untuk cancel
+            echo "<script>
+                if (window.logoNotificationManager) {
+                    window.logoNotificationManager.showActivityCanceled('Activity berhasil dibatalkan!', 5000);
+                }
+            </script>";
+        } else {
+            $message = 'Activity updated!';
+            $message_type = 'info';
+            log_activity('update_activity', 'Activity ID: ' . $_POST['id']);
+            
+            // Trigger notifikasi kapsul untuk update biasa
+            echo "<script>
+                if (window.logoNotificationManager) {
+                    window.logoNotificationManager.showActivityUpdated('Activity berhasil diperbarui!', 5000);
+                }
+            </script>";
+        }
     }
 }
 
@@ -142,14 +174,14 @@ if ($search) {
 }
 
 if ($filter_status === 'not_done') {
-    // Filter untuk status yang belum Done
-    $where_conditions[] = "a.status != 'Done'";
+    // Filter untuk status yang belum Done dan bukan Cancel
+    $where_conditions[] = "a.status NOT IN ('Done', 'Cancel')";
 } elseif ($filter_status) {
     $where_conditions[] = "a.status = ?";
     $params[] = $filter_status;
 } elseif ($default_status_filter === 'not_done') {
-    // Filter default: tampilkan status yang belum Done
-    $where_conditions[] = "a.status != 'Done'";
+    // Filter default: tampilkan status yang belum Done dan bukan Cancel
+    $where_conditions[] = "a.status NOT IN ('Done', 'Cancel')";
 }
 
 if ($filter_type) {
@@ -297,12 +329,13 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
                                     <option value="On Progress" <?= $filter_status === 'On Progress' ? 'selected' : '' ?>>On Progress</option>
                                     <option value="Need Requirement" <?= $filter_status === 'Need Requirement' ? 'selected' : '' ?>>Need Requirement</option>
                                     <option value="Done" <?= $filter_status === 'Done' ? 'selected' : '' ?>>Done</option>
+                                    <option value="Cancel" <?= $filter_status === 'Cancel' ? 'selected' : '' ?>>Cancel</option>
                                 </select>
                             </div>
                         </div>
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn-apply">Apply Filters</button>
-                            <a href="activity_crud.php" class="btn-reset">Reset</a>
+                            <a href="activity.php" class="btn-reset">Reset</a>
                         </div>
                     </form>
                 </div>
@@ -329,6 +362,7 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
                                             <option value="On Progress">On Progress</option>
                                             <option value="Need Requirement">Need Requirement</option>
                                             <option value="Done">Done</option>
+                                            <option value="Cancel">Cancel</option>
                                         </select>
                                     </div>
                                 </div>
@@ -1102,8 +1136,6 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
                         </div>
 <?php endif; ?>
 
-                    <div class="card-body">
-
                     <div class="table-responsive">
                         <table class="table table-striped mb-0">
                         <thead>
@@ -1192,7 +1224,8 @@ $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fe
                                         'Open' => 'bg-warning-focus text-warning-main',
                                         'On Progress' => 'bg-info-focus text-info-main',
                                         'Need Requirement' => 'bg-secondary-focus text-secondary-main',
-                                        'Done' => 'bg-success-focus text-success-main'
+                                        'Done' => 'bg-success-focus text-success-main',
+                                        'Cancel' => 'bg-danger-focus text-danger-main'
                                     ];
                                     $status_class = $status_colors[$a['status'] ?? 'Open'] ?? 'bg-neutral-200 text-neutral-600';
                                     ?>
@@ -1312,6 +1345,7 @@ document.querySelectorAll('.activity-row').forEach(function(row) {
                           <option value="On Progress">On Progress</option>
                           <option value="Need Requirement">Need Requirement</option>
                           <option value="Done">Done</option>
+                          <option value="Cancel">Cancel</option>
                         </select>
                       </div>
                       </div>
@@ -1437,7 +1471,6 @@ document.querySelectorAll('.activity-row').forEach(function(row) {
                 </div>
                 <div class="custom-modal-footer">
                   <button type="submit" name="update" value="1" class="custom-btn custom-btn-primary">Update</button>
-                  <button type="submit" name="delete" value="1" class="custom-btn custom-btn-danger" onclick="return confirm('Delete this activity?')">Delete</button>
                   <button type="button" class="custom-btn custom-btn-secondary" onclick="closeEditModal()">Close</button>
                 </div>
               </form>
@@ -1524,7 +1557,6 @@ document.addEventListener('DOMContentLoaded', function() {
         alert.title = 'Click to dismiss';
     });
 });
-
 
 </script>
 

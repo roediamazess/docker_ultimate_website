@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Demo Logo Notifications - PPSolution</title>
+    
+    <!-- Remix Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <!-- Horizontal Layout CSS -->
+    <link rel="stylesheet" href="assets/css/horizontal-layout.css">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .demo-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .demo-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .demo-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .demo-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .demo-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .demo-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .demo-btn.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .demo-btn.success:hover {
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+        
+        .demo-btn.info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .demo-btn.info:hover {
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+        
+        .demo-btn.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+        
+        .demo-btn.warning:hover {
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+        
+        .demo-btn.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+        
+        .demo-btn.error:hover {
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+        
+        .demo-btn.custom {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+        
+        .demo-btn.custom:hover {
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+        
+        .demo-btn.special {
+            background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+        }
+        
+        .demo-btn.special:hover {
+            box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4);
+        }
+        
+        .demo-description {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .demo-description h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .demo-description ul {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+        
+        .demo-description li {
+            margin-bottom: 8px;
+        }
+        
+        .demo-description strong {
+            color: #495057;
+        }
+        
+        .code-example {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        
+        .code-example .comment {
+            color: #a0aec0;
+        }
+        
+        .code-example .function {
+            color: #81e6d9;
+        }
+        
+        .code-example .string {
+            color: #fbd38d;
+        }
+        
+        .code-example .number {
+            color: #90cdf4;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        [data-theme="dark"] {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        }
+        
+        [data-theme="dark"] .demo-section {
+            background: rgba(45, 55, 72, 0.95);
+            color: #e2e8f0;
+        }
+        
+        [data-theme="dark"] .demo-section h2 {
+            color: #e2e8f0;
+            border-bottom-color: #667eea;
+        }
+        
+        [data-theme="dark"] .demo-description {
+            background: #4a5568;
+        }
+        
+        [data-theme="dark"] .demo-description h3 {
+            color: #e2e8f0;
+        }
+        
+        [data-theme="dark"] .demo-description strong {
+            color: #e2e8f0;
+        }
+        
+        [data-theme="dark"] .demo-description li {
+            color: #cbd5e0;
+        }
+        
+        @media (max-width: 768px) {
+            .demo-container {
+                padding: 15px;
+            }
+            
+            .demo-header h1 {
+                font-size: 2rem;
+            }
+            
+            .button-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .demo-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">
+        <i class="ri-sun-line" id="themeIcon"></i>
+    </button>
+    
+    <!-- Demo Container -->
+    <div class="demo-container">
+        <!-- Header -->
+        <div class="demo-header">
+            <h1>🚀 Logo Notification System</h1>
+            <p>Demo sistem notifikasi yang muncul dari logo perusahaan dengan efek yang smooth</p>
+        </div>
+        
+        <!-- Basic Notifications -->
+        <div class="demo-section">
+            <h2>📱 Basic Notifications</h2>
+            <div class="button-grid">
+                <button class="demo-btn success" onclick="showSuccess()">
+                    <i class="ri-check-line"></i>
+                    Success Notification
+                </button>
+                <button class="demo-btn info" onclick="showInfo()">
+                    <i class="ri-information-line"></i>
+                    Info Notification
+                </button>
+                <button class="demo-btn warning" onclick="showWarning()">
+                    <i class="ri-error-warning-line"></i>
+                    Warning Notification
+                </button>
+                <button class="demo-btn error" onclick="showError()">
+                    <i class="ri-close-circle-line"></i>
+                    Error Notification
+                </button>
+            </div>
+            
+            <div class="demo-description">
+                <h3>✨ Fitur Basic Notifications</h3>
+                <ul>
+                    <li><strong>Success:</strong> Notifikasi hijau untuk operasi berhasil</li>
+                    <li><strong>Info:</strong> Notifikasi biru untuk informasi umum</li>
+                    <li><strong>Warning:</strong> Notifikasi oranye untuk peringatan</li>
+                    <li><strong>Error:</strong> Notifikasi merah untuk error</li>
+                    <li><strong>Auto-hide:</strong> Otomatis hilang setelah 5 detik</li>
+                    <li><strong>Click to dismiss:</strong> Klik untuk tutup notifikasi</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Advanced Features -->
+        <div class="demo-section">
+            <h2>🎯 Advanced Features</h2>
+            <div class="button-grid">
+                <button class="demo-btn custom" onclick="showCustom()">
+                    <i class="ri-settings-3-line"></i>
+                    Custom Duration
+                </button>
+                <button class="demo-btn special" onclick="showPersistent()">
+                    <i class="ri-lock-line"></i>
+                    Persistent Notification
+                </button>
+                <button class="demo-btn info" onclick="showNoIcon()">
+                    <i class="ri-image-line"></i>
+                    No Icon
+                </button>
+                <button class="demo-btn warning" onclick="showNoClose()">
+                    <i class="ri-close-line"></i>
+                    No Close Button
+                </button>
+                <button class="demo-btn success" onclick="showPulse()">
+                    <i class="ri-heart-pulse-line"></i>
+                    Pulse Effect
+                </button>
+                <button class="demo-btn custom" onclick="showQueue()">
+                    <i class="ri-list-check-2"></i>
+                    Queue System
+                </button>
+            </div>
+            
+            <div class="demo-description">
+                <h3>🚀 Fitur Advanced</h3>
+                <ul>
+                    <li><strong>Custom Duration:</strong> Set durasi tampil sesuai kebutuhan</li>
+                    <li><strong>Persistent:</strong> Notifikasi yang tidak auto-hide</li>
+                    <li><strong>No Icon:</strong> Notifikasi tanpa ikon</li>
+                    <li><strong>No Close Button:</strong> Notifikasi tanpa tombol close</li>
+                    <li><strong>Pulse Effect:</strong> Efek berkedip yang menarik</li>
+                    <li><strong>Queue System:</strong> Sistem antrian untuk multiple notifications</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Code Examples -->
+        <div class="demo-section">
+            <h2>💻 Code Examples</h2>
+            <div class="demo-description">
+                <h3>📝 Cara Penggunaan</h3>
+                <p>Berikut adalah contoh cara menggunakan sistem notifikasi logo:</p>
+                
+                <div class="code-example">
+<span class="comment">// Basic usage</span>
+<span class="function">logoNotificationManager</span>.<span class="function">success</span>(<span class="string">'Activity created successfully!'</span>);
+<span class="function">logoNotificationManager</span>.<span class="function">info</span>(<span class="string">'System is running smoothly'</span>);
+<span class="function">logoNotificationManager</span>.<span class="function">warning</span>(<span class="string">'Please check your input'</span>);
+<span class="function">logoNotificationManager</span>.<span class="function">error</span>(<span class="string">'Something went wrong!'</span>);
+
+<span class="comment">// Advanced usage</span>
+<span class="function">logoNotificationManager</span>.<span class="function">custom</span>(<span class="string">'Custom message'</span>, <span class="string">'info'</span>, <span class="number">10000</span>);
+<span class="function">logoNotificationManager</span>.<span class="function">persistent</span>(<span class="string">'Important message'</span>, <span class="string">'warning'</span>);
+<span class="function">logoNotificationManager</span>.<span class="function">noIcon</span>(<span class="string">'Message without icon'</span>, <span class="string">'info'</span>);
+<span class="function">logoNotificationManager</span>.<span class="function">noClose</span>(<span class="string">'Click to dismiss'</span>, <span class="string">'success'</span>);
+
+<span class="comment">// Utility functions</span>
+<span class="function">logoNotificationManager</span>.<span class="function">clear</span>(); <span class="comment">// Clear all notifications</span>
+<span class="function">logoNotificationManager</span>.<span class="function">getCount</span>(); <span class="comment">// Get notification count</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Info -->
+        <div class="demo-section">
+            <h2>ℹ️ System Information</h2>
+            <div class="demo-description">
+                <h3>🔧 Teknologi yang Digunakan</h3>
+                <ul>
+                    <li><strong>CSS3:</strong> Animasi, transitions, dan transforms yang smooth</li>
+                    <li><strong>JavaScript ES6+:</strong> Class-based architecture dengan modern syntax</li>
+                    <li><strong>Responsive Design:</strong> Menyesuaikan dengan berbagai ukuran layar</li>
+                    <li><strong>Dark Theme Support:</strong> Mendukung tema gelap dan terang</li>
+                    <li><strong>Queue System:</strong> Mengelola multiple notifications dengan antrian</li>
+                    <li><strong>Performance Optimized:</strong> Efisien dan tidak membebani browser</li>
+                </ul>
+                
+                <h3>🎨 Fitur Visual</h3>
+                <ul>
+                    <li><strong>Gradient Backgrounds:</strong> Warna yang menarik dan modern</li>
+                    <li><strong>Backdrop Filter:</strong> Efek blur untuk depth</li>
+                    <li><strong>Box Shadows:</strong> Shadow yang dalam dan realistis</li>
+                    <li><strong>Smooth Animations:</strong> Transisi yang halus dan natural</li>
+                    <li><strong>Hover Effects:</strong> Feedback visual saat interaksi</li>
+                    <li><strong>Icon Integration:</strong> Ikon yang sesuai dengan tipe notifikasi</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Logo Notification System Script -->
+    <script src="assets/js/logo-notifications.js"></script>
+    
+    <script>
+        // Demo functions
+        function showSuccess() {
+            logoNotificationManager.success('Activity created successfully! 🎉');
+        }
+        
+        function showInfo() {
+            logoNotificationManager.info('System is running smoothly ✨');
+        }
+        
+        function showWarning() {
+            logoNotificationManager.warning('Please check your input data ⚠️');
+        }
+        
+        function showError() {
+            logoNotificationManager.error('Something went wrong! Please try again ❌');
+        }
+        
+        function showCustom() {
+            logoNotificationManager.custom('Custom notification with 10 seconds duration ⏰', 'info', 10000);
+        }
+        
+        function showPersistent() {
+            logoNotificationManager.persistent('This notification will stay until you close it 🔒', 'warning');
+        }
+        
+        function showNoIcon() {
+            logoNotificationManager.noIcon('Notification without icon 🚫', 'info');
+        }
+        
+        function showNoClose() {
+            logoNotificationManager.noClose('Click anywhere to dismiss this notification 👆', 'success');
+        }
+        
+        function showPulse() {
+            logoNotificationManager.info('Notification with pulse effect 💓', 3000);
+            setTimeout(() => {
+                logoNotificationManager.pulse('Pulse effect activated!', 'success', 2000);
+            }, 1000);
+        }
+        
+        function showQueue() {
+            logoNotificationManager.success('First notification 🥇', 2000);
+            logoNotificationManager.info('Second notification 🥈', 2000);
+            logoNotificationManager.warning('Third notification 🥉', 2000);
+            logoNotificationManager.error('Fourth notification 🏅', 2000);
+        }
+        
+        // Theme toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            html.setAttribute('data-theme', newTheme);
+            themeIcon.className = newTheme === 'light' ? 'ri-sun-line' : 'ri-moon-line';
+            
+            // Show notification
+            logoNotificationManager.info(`Theme changed to ${newTheme} mode 🌙`, 3000);
+        }
+        
+        // Initialize demo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show welcome message
+            setTimeout(() => {
+                if (typeof logoNotificationManager !== 'undefined' && logoNotificationManager.isAvailable()) {
+                    logoNotificationManager.success('Welcome to Logo Notification Demo! 🚀', 4000);
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

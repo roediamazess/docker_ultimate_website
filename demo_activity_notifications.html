@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Demo Activity Notifications - PPSolution</title>
+    
+    <!-- Remix Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <!-- Horizontal Layout CSS -->
+    <link rel="stylesheet" href="assets/css/horizontal-layout.css">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .demo-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .demo-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .demo-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .demo-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .demo-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .demo-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .demo-btn.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .demo-btn.success:hover {
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+        
+        .demo-btn.info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .demo-btn.info:hover {
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+        
+        .demo-btn.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+        
+        .demo-btn.warning:hover {
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+        
+        .demo-btn.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+        
+        .demo-btn.error:hover {
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+        
+        .demo-btn.special {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+        
+        .demo-btn.special:hover {
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+        
+        .demo-description {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .demo-description h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .demo-description ul {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+        
+        .demo-description li {
+            margin-bottom: 8px;
+        }
+        
+        .demo-description strong {
+            color: #495057;
+        }
+        
+        .code-example {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        
+        .code-example .comment {
+            color: #a0aec0;
+        }
+        
+        .code-example .function {
+            color: #81e6d9;
+        }
+        
+        .code-example .string {
+            color: #fbd38d;
+        }
+        
+        .code-example .number {
+            color: #90cdf4;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        [data-theme="dark"] {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        }
+        
+        [data-theme="dark"] .demo-section {
+            background: rgba(45, 55, 72, 0.95);
+            color: #e2e8f0;
+        }
+        
+        [data-theme="dark"] .demo-section h2 {
+            color: #e2e8f0;
+            border-bottom-color: #667eea;
+        }
+        
+        [data-theme="dark"] .demo-description {
+            background: #4a5568;
+        }
+        
+        [data-theme="dark"] .demo-description h3 {
+            color: #e2e8f0;
+        }
+        
+        [data-theme="dark"] .demo-description strong {
+            color: #e2e8f0;
+        }
+        
+        [data-theme="dark"] .demo-description li {
+            color: #cbd5e0;
+        }
+        
+        @media (max-width: 768px) {
+            .demo-container {
+                padding: 15px;
+            }
+            
+            .demo-header h1 {
+                font-size: 2rem;
+            }
+            
+            .button-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .demo-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">
+        <i class="ri-sun-line" id="themeIcon"></i>
+    </button>
+    
+    <!-- Demo Container -->
+    <div class="demo-container">
+        <!-- Header -->
+        <div class="demo-header">
+            <h1>🎯 Activity Notifications</h1>
+            <p>Demo sistem notifikasi activity yang muncul dari logo perusahaan</p>
+        </div>
+        
+        <!-- Activity Notifications -->
+        <div class="demo-section">
+            <h2>📱 Activity Notifications</h2>
+            <div class="button-grid">
+                <button class="demo-btn success" onclick="showActivityCreated()">
+                    <i class="ri-add-line"></i>
+                    Activity Created
+                </button>
+                <button class="demo-btn info" onclick="showActivityUpdated()">
+                    <i class="ri-refresh-line"></i>
+                    Activity Updated
+                </button>
+                <button class="demo-btn error" onclick="showActivityError()">
+                    <i class="ri-error-warning-line"></i>
+                    Activity Error
+                </button>
+            </div>
+            
+            <div class="demo-description">
+                <h3>✨ Fitur Activity Notifications</h3>
+                <ul>
+                    <li><strong>Single Notification:</strong> Hanya 1 notifikasi yang muncul di dekat logo</li>
+                    <li><strong>Activity Specific:</strong> Notifikasi khusus untuk operasi activity</li>
+                    <li><strong>Auto-hide:</strong> Otomatis hilang setelah 5 detik</li>
+                    <li><strong>Click to dismiss:</strong> Klik untuk tutup notifikasi</li>
+                    <li><strong>Smart Detection:</strong> Otomatis mendeteksi operasi activity</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Integration Examples -->
+        <div class="demo-section">
+            <h2>🔗 Integration Examples</h2>
+            <div class="button-grid">
+                <button class="demo-btn special" onclick="testFormSubmission()">
+                    <i class="ri-send-plane-line"></i>
+                    Test Form Submission
+                </button>
+                <button class="demo-btn info" onclick="testAjaxResponse()">
+                    <i class="ri-ajax-line"></i>
+                    Test AJAX Response
+                </button>
+                <button class="demo-btn warning" onclick="testCustomEvent()">
+                    <i class="ri-notification-line"></i>
+                    Test Custom Event
+                </button>
+                <button class="demo-btn success" onclick="clearNotification()">
+                    <i class="ri-close-line"></i>
+                    Clear Notification
+                </button>
+            </div>
+            
+            <div class="demo-description">
+                <h3>🚀 Cara Integrasi</h3>
+                <p>Notifikasi akan otomatis muncul saat:</p>
+                <ul>
+                    <li><strong>Form Submission:</strong> Submit form activity</li>
+                    <li><strong>AJAX Response:</strong> Response dari API activity</li>
+                    <li><strong>Custom Events:</strong> Event custom untuk activity</li>
+                    <li><strong>Manual Trigger:</strong> Panggil fungsi secara manual</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Code Examples -->
+        <div class="demo-section">
+            <h2>💻 Code Examples</h2>
+            <div class="demo-description">
+                <h3>📝 Cara Penggunaan</h3>
+                <p>Berikut adalah contoh cara menggunakan sistem notifikasi activity:</p>
+                
+                <div class="code-example">
+<span class="comment">// Manual trigger notifications</span>
+<span class="function">showActivityNotification</span>(<span class="string">'created'</span>, <span class="string">'Activity created successfully!'</span>);
+<span class="function">showActivityNotification</span>(<span class="string">'updated'</span>, <span class="string">'Activity updated successfully!'</span>);
+<span class="function">showActivityNotification</span>(<span class="string">'error'</span>, <span class="string">'Operation failed!'</span>);
+
+<span class="comment">// Custom event triggers</span>
+<span class="function">document</span>.<span class="function">dispatchEvent</span>(<span class="function">new</span> <span class="function">CustomEvent</span>(<span class="string">'activityCreated'</span>, {
+    detail: { message: <span class="string">'Custom message'</span> }
+}));
+
+<span class="comment">// Clear notification</span>
+<span class="function">clearActivityNotification</span>();
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Info -->
+        <div class="demo-section">
+            <h2>ℹ️ System Information</h2>
+            <div class="demo-description">
+                <h3>🔧 Fitur Sistem</h3>
+                <ul>
+                    <li><strong>Single Notification:</strong> Hanya 1 notifikasi yang aktif</li>
+                    <li><strong>Activity Focused:</strong> Khusus untuk operasi activity</li>
+                    <li><strong>Auto Detection:</strong> Otomatis mendeteksi operasi activity</li>
+                    <li><strong>Form Integration:</strong> Terintegrasi dengan form submission</li>
+                    <li><strong>AJAX Support:</strong> Mendukung AJAX dan XHR responses</li>
+                    <li><strong>Custom Events:</strong> Support untuk custom events</li>
+                </ul>
+                
+                <h3>🎯 Kapan Muncul</h3>
+                <ul>
+                    <li><strong>Add Activity:</strong> Saat membuat activity baru</li>
+                    <li><strong>Update Activity:</strong> Saat mengubah activity</li>
+                    <li><strong>Error:</strong> Saat operasi gagal</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Logo Notification System Scripts -->
+    <script src="assets/js/logo-notifications.js"></script>
+    <script src="assets/js/activity-notifications.js"></script>
+    
+    <script>
+        // Demo functions
+        function showActivityCreated() {
+            if (typeof showActivityNotification !== 'undefined') {
+                showActivityNotification('created', 'Activity created successfully! 🎉');
+            } else {
+                console.warn('Activity notification system not available');
+            }
+        }
+        
+        function showActivityUpdated() {
+            if (typeof showActivityNotification !== 'undefined') {
+                showActivityNotification('updated', 'Activity updated successfully! ✨');
+            } else {
+                console.warn('Activity notification system not available');
+            }
+        }
+        
+        
+        function showActivityError() {
+            if (typeof showActivityNotification !== 'undefined') {
+                showActivityNotification('error', 'Operation failed! Please try again! ❌');
+            } else {
+                console.warn('Activity notification system not available');
+            }
+        }
+        
+        function testFormSubmission() {
+            // Simulate form submission
+            const event = new Event('submit');
+            document.dispatchEvent(event);
+            
+            // Show notification
+            showActivityNotification('created', 'Form submitted successfully! 📝');
+        }
+        
+        function testAjaxResponse() {
+            // Simulate AJAX response
+            const mockResponse = {
+                success: true,
+                action: 'create',
+                message: 'Activity created via AJAX! 🚀'
+            };
+            
+            // Trigger custom event
+            document.dispatchEvent(new CustomEvent('activityCreated', {
+                detail: mockResponse
+            }));
+        }
+        
+        function testCustomEvent() {
+            // Test different custom events
+            const events = [
+                { name: 'activityCreated', message: 'Custom event: Activity created! 🎯' },
+                { name: 'activityUpdated', message: 'Custom event: Activity updated! 🔄' },
+            ];
+            
+            events.forEach((event, index) => {
+                setTimeout(() => {
+                    document.dispatchEvent(new CustomEvent(event.name, {
+                        detail: { message: event.message }
+                    }));
+                }, index * 2000);
+            });
+        }
+        
+        function clearNotification() {
+            if (typeof clearActivityNotification !== 'undefined') {
+                clearActivityNotification();
+            } else {
+                console.warn('Activity notification system not available');
+            }
+        }
+        
+        // Theme toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            html.setAttribute('data-theme', newTheme);
+            themeIcon.className = newTheme === 'light' ? 'ri-sun-line' : 'ri-moon-line';
+            
+            // Show notification
+            if (typeof showActivityNotification !== 'undefined') {
+                showActivityNotification('info', `Theme changed to ${newTheme} mode 🌙`);
+            }
+        }
+        
+        // Initialize demo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show welcome message
+            setTimeout(() => {
+                if (typeof showActivityNotification !== 'undefined') {
+                    showActivityNotification('info', 'Welcome to Activity Notification Demo! 🎯', 4000);
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
