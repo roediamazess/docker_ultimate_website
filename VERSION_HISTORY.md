@@ -1,6 +1,19 @@
 # Version History - Ultimate Website
 
-## Version 2.2.5 - Current (August 2025)
+## Version 2.2.6 - Current (August 2025)
+### 🎯 List View Header Consistency + Kanban polish
+- List View: header chip diseragamkan (tinggi/vertical spacing konsisten, min-height 56px, flex align center) sehingga "INFORMATION DATE" tidak turun
+- List View: lebarkan kolom PRIORITY dan APPLICATION agar label tetap 1 baris
+- List View (Dark Mode): header chip lebih kontras (gradient gelap, border, shadow)
+- Status "Need Requirement": tambahkan warna utilitas `bg-secondary-focus` dan `text-secondary-main` (light/dark) di `theme-override.css`
+- Kanban: cegah notifikasi ganda saat drag & drop (one-time init + debounce notifikasi)
+
+### 🔧 Technical
+- Files Modified: `activity.php`, `assets/css/theme-override.css`, `activity_kanban.php`
+
+---
+
+## Version 2.2.5 - Previous (August 2025)
 ### 🎯 Kanban Edit Parity + Fixes
 - Double click kartu Kanban membuka modal Edit langsung di halaman Kanban (tanpa pindah ke List View)
 - Modal Edit Kanban disamakan dengan List View: No, Status, Information Date, Priority, User Position, Department, Application, Type, Customer, Project, Completed Date, CNC Number, Description, Action/Solution

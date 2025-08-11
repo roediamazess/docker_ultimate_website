@@ -493,38 +493,39 @@ $script = ($script ?? '')
                         .activity-row { cursor: pointer; }
                         .activity-row:hover { background-color: rgba(102,126,234,0.08); }
                         
-                        /* Modern header styling without sorting */
+                        /* Header chip base */
                         .table-header {
-                            padding: 10px 16px;
-                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            padding: 12px 16px;
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
                             border: none;
                             border-radius: 8px;
                             margin: 0;
                             font-weight: 700;
-                            color: white;
+                            color: #fff;
                             font-size: 12px;
                             text-transform: uppercase;
                             letter-spacing: 0.5px;
-                            text-align: left;
-                            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+                            text-align: center;
+                            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
                             transition: all 0.3s ease;
                             position: relative;
                             overflow: hidden;
-                        }
-                        
-                        .table-header::before {
-                            content: '';
-                            position: absolute;
-                            top: 0;
-                            left: -100%;
-                            width: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
                             height: 100%;
-                            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-                            transition: left 0.5s;
+                            min-height: 56px;
+                            line-height: 1.15;
                         }
-                        
-                        .table-header:hover::before {
-                            left: 100%;
+                        .table-header::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent); transition: left .5s; }
+                        .table-header:hover::before { left: 100%; }
+                        /* Dark theme header chip */
+                        [data-theme="dark"] .table .table-header,
+                        [data-theme="dark"] .table-header {
+                            background: linear-gradient(135deg, #0f172a 0%, #111827 100%) !important;
+                            color: #e5e7eb !important;
+                            box-shadow: 0 1px 4px rgba(0,0,0,.6) !important;
+                            border: 1px solid #334155 !important;
                         }
                         
 
@@ -605,6 +606,11 @@ $script = ($script ?? '')
                             transition: all 0.3s ease;
                             position: relative;
                             overflow: hidden;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            height: 100%;
+                            min-height: 52px;
                         }
                         
                         .table-header::before {
@@ -622,6 +628,9 @@ $script = ($script ?? '')
                             left: 100%;
                         }
                         
+                        /* Make header chip fill cell height and equalize vertical spacing */
+                        .table thead th { padding: 0 !important; vertical-align: middle !important; }
+
                         /* Column widths - optimized for content */
                         .table th:nth-child(1) {
                             width: 70px;
@@ -636,9 +645,9 @@ $script = ($script ?? '')
                         }
                         
                         .table th:nth-child(3) {
-                            width: 100px;
-                            min-width: 100px;
-                            max-width: 100px;
+                            width: 130px; /* widen PRIORITY so text stays on one line */
+                            min-width: 130px;
+                            max-width: 130px;
                         }
                         
                         .table th:nth-child(4) {
@@ -654,9 +663,9 @@ $script = ($script ?? '')
                         }
                         
                         .table th:nth-child(6) {
-                            width: 120px;
-                            min-width: 120px;
-                            max-width: 120px;
+                            width: 140px; /* widen APPLICATION similar to PRIORITY */
+                            min-width: 140px;
+                            max-width: 140px;
                         }
                         
                         .table th:nth-child(7) {

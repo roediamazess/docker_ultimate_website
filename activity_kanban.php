@@ -26,6 +26,8 @@ $script = ($script ?? '') . <<<'SCRIPT'
 // Drag & Drop + Edit Modal (HTML5)
 (function(){
   function initKanban(){
+    if (window.__kanbanInitDone) return; // prevent double init
+    window.__kanbanInitDone = true;
     // Delegasi: tangkap dblclick di board agar lebih konsisten
     var boardEl = document.querySelector('.kanban-board');
     if(boardEl){
@@ -57,23 +59,28 @@ $script = ($script ?? '') . <<<'SCRIPT'
     document.querySelectorAll('.kanban-column').forEach(function(col){
       col.addEventListener('dragover', function(e){ e.preventDefault(); this.classList.add('drag-over');});
       col.addEventListener('dragleave', function(){ this.classList.remove('drag-over');});
-      col.addEventListener('drop', async function(e){
+    col.addEventListener('drop', async function(e){
         e.preventDefault(); this.classList.remove('drag-over');
         const id = e.dataTransfer.getData('text/plain');
         const newStatus = this.dataset.status;
         try {
           const res = await fetch('update_activity_status.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id, status:newStatus})});
           const ok = res.ok; if(ok){ this.querySelector('.kanban-cards').prepend(document.querySelector('[data-id="'+id+'"]')); }
-          if(window.logoNotificationManager&&ok){ logoNotificationManager.showActivityUpdated('Status dipindah ke '+newStatus, 3000); }
+          if(window.logoNotificationManager&&ok){
+            if (window.__kanbanNotifyTimer) { clearTimeout(window.__kanbanNotifyTimer); }
+            window.__kanbanNotifyTimer = setTimeout(function(){ logoNotificationManager.showActivityUpdated('Status dipindah ke '+newStatus, 3000); }, 50);
+          }
         } catch(err){ console.error(err); }
       });
     });
   }
 
-  // Init segera tanpa menunggu onload lain
-  try{ initKanban(); }catch(e){ console.warn(e); }
-  // Pastikan ulang setelah DOMContentLoaded jika ada race
-  document.addEventListener('DOMContentLoaded', function(){ try{ initKanban(); }catch(e){ console.warn(e); } });
+  // Init sekali saja
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initKanban, { once: true });
+  } else {
+    initKanban();
+  }
 })();
 
 async function openKanbanEditModal(id, cardEl){
