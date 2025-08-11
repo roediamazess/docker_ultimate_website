@@ -223,6 +223,9 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $projects = $pdo->query('SELECT project_id, project_name FROM projects ORDER BY project_name')->fetchAll(PDO::FETCH_ASSOC);
 // Next auto number for display (server tetap akan hitung saat insert)
 $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fetchColumn());
+
+// Include logo notification script only for this page so notifications match test_activity_notifications.html
+$script = ($script ?? '') . "\n<script src=\"assets/js/logo-notifications.js\"></script>\n";
 ?>
 
 <?php include './partials/layouts/layoutHorizontal.php'; ?>
