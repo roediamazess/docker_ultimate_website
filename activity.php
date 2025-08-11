@@ -1100,7 +1100,55 @@ $script = ($script ?? '')
                         .custom-btn-secondary:hover {
                             background-color: #545b62;
                         }
-                    </style>
+                        /* Dark mode overrides for custom Activity modals */
+                        [data-theme="dark"] .custom-modal {
+                            background: #1f2937 !important; /* slate-800 */
+                            color: #e5e7eb !important; /* zinc-200 */
+                            border: 1px solid #334155 !important; /* slate-700 */
+                        }
+                        [data-theme="dark"] .custom-modal-header {
+                            background: linear-gradient(135deg, #0f172a 0%, #111827 100%) !important;
+                            border-bottom: 1px solid #334155 !important;
+                            color: #e5e7eb !important;
+                        }
+                        [data-theme="dark"] .custom-modal-footer {
+                            background: #0b1220 !important;
+                            border-top: 1px solid #334155 !important;
+                        }
+                        [data-theme="dark"] .custom-modal-input,
+                        [data-theme="dark"] .custom-modal-select,
+                        [data-theme="dark"] .custom-modal-textarea {
+                            background: #111827 !important;
+                            border: 1px solid #374151 !important;
+                            color: #e5e7eb !important;
+                        }
+                        [data-theme="dark"] .custom-modal-input::placeholder,
+                        [data-theme="dark"] .custom-modal-textarea::placeholder {
+                            color: #9ca3af !important;
+                        }
+                        [data-theme="dark"] .custom-modal-input:focus,
+                        [data-theme="dark"] .custom-modal-select:focus,
+                        [data-theme="dark"] .custom-modal-textarea:focus {
+                            border-color: #3b82f6 !important;
+                            box-shadow: 0 0 0 3px rgba(59,130,246,.25) !important;
+                            outline: none !important;
+                        }
+                        [data-theme="dark"] .custom-btn-secondary {
+                            background: #374151 !important;
+                            color: #e5e7eb !important;
+                            border: 1px solid #4b5563 !important;
+                        }
+                        [data-theme="dark"] .custom-btn-secondary:hover {
+                            background: #4b5563 !important;
+                        }
+                        /* Make field labels readable in dark mode */
+                        [data-theme="dark"] .custom-modal-label,
+                        [data-theme="dark"] .filter-label,
+                        [data-theme="dark"] label {
+                            color: #e5e7eb !important;
+                            font-weight: 600 !important;
+                        }
+                        </style>
                     
                     <!-- Force vertical alignment with JavaScript -->
                     <script>

@@ -1,6 +1,32 @@
 # Version History - Ultimate Website
 
-## Version 2.2.2 - Current (January 2025)
+## Version 2.2.3 - Current (August 2025)
+### 🎯 Improvements
+- Konsistensi tema Light/Dark di seluruh website (navbar, card/table header, tombol)
+- Dark mode Activities disesuaikan: tabel, badge, modal edit, dan filter
+- Notifikasi logo: warna Update biru (#90C5D8) dan ikon ceklis ganda
+- Perbaikan FOUC (flash putih) saat refresh di dark mode
+
+### 📝 Changes Made
+- Tambah `assets/css/theme-override.css` untuk theme unify dan glass card
+- Edit `partials/head.php` untuk memuat theme override
+- Edit `partials/layouts/layoutHorizontal.php` untuk early theme init (hindari flash putih)
+- Edit `assets/js/logo-notifications.js` (warna dan ikon Update)
+- Edit `activity.php` (hapus alert HTML, trigger kapsul, dark-mode modal & label)
+- Edit `activity_crud_update.php` (pesan cancel)
+
+### 🔧 Technical Details
+- Files Modified: `activity.php`, `activity_crud_update.php`, `partials/layouts/layoutHorizontal.php`, `assets/js/logo-notifications.js`, `partials/head.php`
+- Files Added: `assets/css/theme-override.css`
+- Behavior: Notifikasi tunggal via kapsul; UI seragam; dark mode stabil
+
+### ✅ Status
+- Production Ready: ✅
+- Testing: ✅ Verified (create/update/cancel, dark refresh)
+
+---
+
+## Version 2.2.2 - Previous (January 2025)
 ### 🎯 **Major Changes**
 - **Enhanced Activity Notifications**: Meningkatkan tampilan notifikasi activity dengan ikon, warna, dan animasi
 - **Improved User Experience**: Notifikasi yang lebih menarik dan interaktif

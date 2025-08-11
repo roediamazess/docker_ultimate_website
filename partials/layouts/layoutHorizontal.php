@@ -2,6 +2,22 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 
+<script>
+// Set tema sedini mungkin sebelum CSS agar tidak flash putih di dark mode
+(function() {
+  try {
+    var saved = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    if (saved === 'dark') {
+      // Hindari kilat putih sebelum CSS termuat
+      document.documentElement.style.backgroundColor = '#0c1445';
+      // body mungkin belum ada saat ini; aman jika ada
+      if (document.body) document.body.style.backgroundColor = '#0c1445';
+    }
+  } catch (e) {}
+})();
+</script>
+
 <?php include './partials/head.php' ?>
 
 <style>

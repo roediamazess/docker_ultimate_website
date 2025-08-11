@@ -35,6 +35,8 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <!-- horizontal layout css -->
     <link rel="stylesheet" href="assets/css/horizontal-layout.css">
+    <!-- Theme override to unify headers and brand colors -->
+    <link rel="stylesheet" href="assets/css/theme-override.css">
     
     <!-- Iconify for sorting icons -->
     <script src="https://unpkg.com/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>

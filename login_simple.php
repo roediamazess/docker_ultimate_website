@@ -69,6 +69,11 @@ if (isset($_POST['login'])) {
     <link href="assets/css/login-backgrounds.css" rel="stylesheet">
     <script src="https://unpkg.com/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
     <style>
+        :root{
+            --login-primary-start:#667eea; /* purple-blue */
+            --login-primary-end:#764ba2;   /* purple */
+            --login-accent:#90C5D8;        /* brand accent */
+        }
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -109,6 +114,24 @@ if (isset($_POST['login'])) {
             background-repeat: no-repeat;
         }
 
+        /* Modern gradient glow overlay */
+        .background-animation::after{
+            content:"";
+            position:absolute; inset:0;
+            pointer-events:none;
+            background:
+              radial-gradient(800px 400px at 10% 10%, rgba(144,197,216,.20), transparent 60%),
+              radial-gradient(700px 350px at 90% 20%, rgba(118,75,162,.15), transparent 60%),
+              radial-gradient(700px 350px at 20% 80%, rgba(102,126,234,.18), transparent 60%);
+            mix-blend-mode: screen;
+            animation: bgFloat 14s ease-in-out infinite alternate;
+        }
+
+        @keyframes bgFloat{
+            0%{transform: translate3d(0,0,0) scale(1);} 
+            100%{transform: translate3d(0,-15px,0) scale(1.02);} 
+        }
+
         .login-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
@@ -123,7 +146,10 @@ if (isset($_POST['login'])) {
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 10;
+            animation: popIn .6s cubic-bezier(.2,.8,.2,1) both;
         }
+
+        @keyframes popIn{from{opacity:0; transform: translate(-50%, -46%) scale(.96);} to{opacity:1; transform: translate(-50%, -50%) scale(1);} }
 
         .login-header {
             text-align: center;
@@ -133,7 +159,7 @@ if (isset($_POST['login'])) {
         .login-logo {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--login-primary-start) 0%, var(--login-primary-end) 100%);
             border-radius: 20px;
             display: flex;
             align-items: center;
@@ -156,7 +182,7 @@ if (isset($_POST['login'])) {
         }
 
         .time-greeting {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--login-primary-start) 0%, var(--login-primary-end) 100%);
             color: white;
             padding: 12px 24px;
             border-radius: 50px;
@@ -247,21 +273,31 @@ if (isset($_POST['login'])) {
         .login-btn {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--login-primary-start) 0%, var(--login-primary-end) 100%);
             color: white;
             border: none;
             border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
             margin-bottom: 24px;
+            position: relative; overflow: hidden;
         }
 
         .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 12px 28px rgba(102, 126, 234, 0.45);
         }
+
+        .login-btn:active { transform: translateY(0); }
+
+        /* subtle shine animation */
+        .login-btn::after{
+            content:""; position:absolute; inset:0; background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.35) 30%, transparent 60%);
+            transform: translateX(-120%);
+        }
+        .login-btn:hover::after{ transform: translateX(120%); transition: transform .9s ease; }
 
         .error-message {
             background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
