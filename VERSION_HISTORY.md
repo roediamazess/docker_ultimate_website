@@ -1,6 +1,24 @@
 # Version History - Ultimate Website
 
-## Version 2.2.4 - Current (August 2025)
+## Version 2.2.5 - Current (August 2025)
+### 🎯 Kanban Edit Parity + Fixes
+- Double click kartu Kanban membuka modal Edit langsung di halaman Kanban (tanpa pindah ke List View)
+- Modal Edit Kanban disamakan dengan List View: No, Status, Information Date, Priority, User Position, Department, Application, Type, Customer, Project, Completed Date, CNC Number, Description, Action/Solution
+- Kartu Kanban kini menampilkan Action/Solution dan meta tambahan (User Position)
+- Update kartu realtime setelah submit (termasuk pindah kolom jika Status berubah)
+
+### 🐞 Bugfix
+- Normalisasi tanggal di client dan server untuk mencegah error SQLSTATE[22007] (format dd/mm/yyyy → yyyy-mm-dd)
+- Handler `dblclick` lebih andal: event delegation + fallback dua klik cepat
+- Tambah CSS minimal modal di Kanban agar selalu tampil di atas layout
+
+### 🔧 Technical
+- Files Added/Changed: `activity_kanban.php`, `get_activity.php`, `update_activity_detail.php`
+- Server: sanitasi tanggal (`information_date`, `due_date`) dan dukung field tambahan (user_position, customer, project, cnc_number)
+
+---
+
+## Version 2.2.4 - Previous (August 2025)
 ### 🎯 New: Activities Kanban View
 - Halaman baru `activity_kanban.php` dengan 5 kolom status (Open/On Progress/Need Requirement/Done/Cancel)
 - Drag & drop antar kolom; update status via `update_activity_status.php`

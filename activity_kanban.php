@@ -5,7 +5,7 @@ require_once 'access_control.php';
 require_login();
 
 // Ambil activities per status
-$stmt = $pdo->query("SELECT id, no, information_date, priority, department, application, type, description, status FROM activities ORDER BY no ASC");
+$stmt = $pdo->query("SELECT id, no, information_date, priority, user_position, department, application, type, description, action_solution, customer, project, due_date, cnc_number, status FROM activities ORDER BY no ASC");
 $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $columns = [
@@ -24,59 +24,62 @@ foreach ($activities as $a) {
 $script = ($script ?? '') . <<<'SCRIPT'
 <script>
 // Drag & Drop + Edit Modal (HTML5)
-document.addEventListener('DOMContentLoaded', function(){
-  // Delegasi: tangkap dblclick di board agar lebih konsisten
-  var boardEl = document.querySelector('.kanban-board');
-  if(boardEl){
-    boardEl.addEventListener('dblclick', function(e){
-      var card = e.target.closest('.kanban-card');
-      if(card){ e.preventDefault(); openKanbanEditModal(card.dataset.id, card); }
+(function(){
+  function initKanban(){
+    // Delegasi: tangkap dblclick di board agar lebih konsisten
+    var boardEl = document.querySelector('.kanban-board');
+    if(boardEl){
+      boardEl.addEventListener('dblclick', function(e){
+        var card = e.target.closest('.kanban-card');
+        if(card){ e.preventDefault(); openKanbanEditModal(card.dataset.id, card); }
+      });
+    }
+
+    document.querySelectorAll('.kanban-card').forEach(function(card){
+      card.addEventListener('dragstart', function(e){ e.dataTransfer.setData('text/plain', this.dataset.id); });
+      // Double click -> open edit modal directly on Kanban
+      card.addEventListener('dblclick', function(){
+        var id = this.dataset.id;
+        openKanbanEditModal(id, this);
+      });
+      // Fallback: detect double-click via dua klik cepat (<300ms)
+      let lastClick = 0;
+      card.addEventListener('click', function(e){
+        const now = Date.now();
+        if (now - lastClick < 300) {
+          e.preventDefault();
+          openKanbanEditModal(this.dataset.id, this);
+        }
+        lastClick = now;
+      });
+    });
+
+    document.querySelectorAll('.kanban-column').forEach(function(col){
+      col.addEventListener('dragover', function(e){ e.preventDefault(); this.classList.add('drag-over');});
+      col.addEventListener('dragleave', function(){ this.classList.remove('drag-over');});
+      col.addEventListener('drop', async function(e){
+        e.preventDefault(); this.classList.remove('drag-over');
+        const id = e.dataTransfer.getData('text/plain');
+        const newStatus = this.dataset.status;
+        try {
+          const res = await fetch('update_activity_status.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id, status:newStatus})});
+          const ok = res.ok; if(ok){ this.querySelector('.kanban-cards').prepend(document.querySelector('[data-id="'+id+'"]')); }
+          if(window.logoNotificationManager&&ok){ logoNotificationManager.showActivityUpdated('Status dipindah ke '+newStatus, 3000); }
+        } catch(err){ console.error(err); }
+      });
     });
   }
 
-  document.querySelectorAll('.kanban-card').forEach(function(card){
-    card.addEventListener('dragstart', function(e){ e.dataTransfer.setData('text/plain', this.dataset.id); });
-    // Double click -> open edit modal directly on Kanban
-    card.addEventListener('dblclick', function(){
-      var id = this.dataset.id;
-      openKanbanEditModal(id, this);
-    });
-    // Fallback: detect double-click via two quick clicks (<300ms)
-    let lastClick = 0;
-    card.addEventListener('click', function(e){
-      const now = Date.now();
-      if (now - lastClick < 300) {
-        e.preventDefault();
-        openKanbanEditModal(this.dataset.id, this);
-      }
-      lastClick = now;
-    });
-  });
-  document.querySelectorAll('.kanban-column').forEach(function(col){
-    col.addEventListener('dragover', function(e){ e.preventDefault(); this.classList.add('drag-over');});
-    col.addEventListener('dragleave', function(){ this.classList.remove('drag-over');});
-    col.addEventListener('drop', async function(e){
-      e.preventDefault(); this.classList.remove('drag-over');
-      const id = e.dataTransfer.getData('text/plain');
-      const newStatus = this.dataset.status;
-      try {
-        const res = await fetch('update_activity_status.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id, status:newStatus})});
-        const ok = res.ok; if(ok){ this.querySelector('.kanban-cards').prepend(document.querySelector('[data-id="'+id+'"]')); }
-        if(window.logoNotificationManager&&ok){ logoNotificationManager.showActivityUpdated('Status dipindah ke '+newStatus, 3000); }
-      } catch(err){ console.error(err); }
-    });
-  });
-});
+  // Init segera tanpa menunggu onload lain
+  try{ initKanban(); }catch(e){ console.warn(e); }
+  // Pastikan ulang setelah DOMContentLoaded jika ada race
+  document.addEventListener('DOMContentLoaded', function(){ try{ initKanban(); }catch(e){ console.warn(e); } });
+})();
 
 async function openKanbanEditModal(id, cardEl){
+  let modalEl = document.getElementById('editActivityModal');
+  let firstCreate = false;
   try{
-    const res = await fetch('get_activity.php?id=' + encodeURIComponent(id));
-    if(!res.ok){ throw new Error('Gagal mengambil data'); }
-    const data = await res.json();
-    if(!data || !data.success){ throw new Error(data && data.message ? data.message : 'Gagal mengambil data'); }
-    const a = data.activity || {};
-
-    let modalEl = document.getElementById('editActivityModal');
     if(!modalEl){
       modalEl = document.createElement('div');
       modalEl.id = 'editActivityModal';
@@ -89,6 +92,7 @@ async function openKanbanEditModal(id, cardEl){
         </div>
         <form id="kanbanEditForm">
         <div class="custom-modal-body">
+          <div id="k_edit_loading" class="loading-text" style="display:none;margin-bottom:8px;color:#6b7280">Loading...</div>
           <input type="hidden" name="id" id="k_edit_id">
           <div class="custom-modal-row">
             <div class="custom-modal-col">
@@ -122,6 +126,10 @@ async function openKanbanEditModal(id, cardEl){
           </div>
           <div class="custom-modal-row">
             <div class="custom-modal-col">
+              <label class="custom-modal-label">User Position</label>
+              <input type="text" name="user_position" id="k_edit_user_position" class="custom-modal-input">
+            </div>
+            <div class="custom-modal-col">
               <label class="custom-modal-label">Department</label>
               <select name="department" id="k_edit_department" class="custom-modal-select">
                 <option value="">Select Department</option>
@@ -137,6 +145,8 @@ async function openKanbanEditModal(id, cardEl){
                 <option value="Executive Office">Executive Office</option>
               </select>
             </div>
+          </div>
+          <div class="custom-modal-row">
             <div class="custom-modal-col">
               <label class="custom-modal-label">Application *</label>
               <select name="application" id="k_edit_application" class="custom-modal-select" required>
@@ -177,8 +187,6 @@ async function openKanbanEditModal(id, cardEl){
                 <option value="Others">Others</option>
               </select>
             </div>
-          </div>
-          <div class="custom-modal-row">
             <div class="custom-modal-col">
               <label class="custom-modal-label">Type</label>
               <select name="type" id="k_edit_type" class="custom-modal-select">
@@ -190,9 +198,35 @@ async function openKanbanEditModal(id, cardEl){
                 <option value="Feature Request">Feature Request</option>
               </select>
             </div>
+          </div>
+          <div class="custom-modal-row">
+            <div class="custom-modal-col">
+              <label class="custom-modal-label">Customer</label>
+              <input type="text" name="customer" id="k_edit_customer" class="custom-modal-input">
+            </div>
+            <div class="custom-modal-col">
+              <label class="custom-modal-label">Project</label>
+              <input type="text" name="project" id="k_edit_project" class="custom-modal-input">
+            </div>
+          </div>
+          <div class="custom-modal-row">
+            <div class="custom-modal-col">
+              <label class="custom-modal-label">Completed Date</label>
+              <input type="date" name="due_date" id="k_edit_due_date" class="custom-modal-input">
+            </div>
+            <div class="custom-modal-col">
+              <label class="custom-modal-label">CNC Number</label>
+              <input type="text" name="cnc_number" id="k_edit_cnc_number" class="custom-modal-input">
+            </div>
+          </div>
+          <div class="custom-modal-row">
             <div class="custom-modal-col">
               <label class="custom-modal-label">Description</label>
               <textarea name="description" id="k_edit_description" class="custom-modal-textarea" rows="3"></textarea>
+            </div>
+            <div class="custom-modal-col">
+              <label class="custom-modal-label">Action / Solution</label>
+              <textarea name="action_solution" id="k_edit_action_solution" class="custom-modal-textarea" rows="3"></textarea>
             </div>
           </div>
         </div>
@@ -203,18 +237,32 @@ async function openKanbanEditModal(id, cardEl){
         </form>
       </div>`;
       document.body.appendChild(modalEl);
+      firstCreate = true;
       document.getElementById('kanbanEditForm').addEventListener('submit', async function(ev){
         ev.preventDefault();
-        const payload = {
+          const toISO = (v)=>{
+            if(!v) return '';
+            // support dd/mm/yyyy input
+            var m=v.match(/^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/);
+            if(m){ return m[3] + '-' + m[2] + '-' + m[1]; }
+            return v; // assume yyyy-mm-dd
+          };
+          const payload = {
           id: document.getElementById('k_edit_id').value,
           no: document.getElementById('k_edit_no').value,
           status: document.getElementById('k_edit_status').value,
-          information_date: document.getElementById('k_edit_information_date').value,
+          information_date: toISO(document.getElementById('k_edit_information_date').value),
           priority: document.getElementById('k_edit_priority').value,
+          user_position: document.getElementById('k_edit_user_position') ? document.getElementById('k_edit_user_position').value : '',
           department: document.getElementById('k_edit_department').value,
           application: document.getElementById('k_edit_application').value,
           type: document.getElementById('k_edit_type').value,
-          description: document.getElementById('k_edit_description').value
+          description: document.getElementById('k_edit_description').value,
+          action_solution: document.getElementById('k_edit_action_solution') ? document.getElementById('k_edit_action_solution').value : '',
+          customer: document.getElementById('k_edit_customer') ? document.getElementById('k_edit_customer').value : '',
+          project: document.getElementById('k_edit_project') ? document.getElementById('k_edit_project').value : '',
+          due_date: document.getElementById('k_edit_due_date') ? toISO(document.getElementById('k_edit_due_date').value) : '',
+          cnc_number: document.getElementById('k_edit_cnc_number') ? document.getElementById('k_edit_cnc_number').value : ''
         };
         try{
           const resp = await fetch('update_activity_detail.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
@@ -233,6 +281,21 @@ async function openKanbanEditModal(id, cardEl){
             }
             const descEl = cardEl.querySelector('.text-truncate');
             if(descEl){ descEl.textContent = payload.description; }
+            // Action / Solution text
+            let asEl = cardEl.querySelector('.action-solution');
+            if(!asEl && payload.action_solution){
+              asEl = document.createElement('div');
+              asEl.className = 'action-solution text-truncate';
+              cardEl.insertBefore(asEl, cardEl.querySelector('.meta'));
+            }
+            if(asEl){
+              if(payload.action_solution){
+                asEl.textContent = 'Action / Solution: ' + payload.action_solution;
+                asEl.title = payload.action_solution;
+              } else {
+                asEl.remove();
+              }
+            }
             cardEl.classList.remove('accent-urgent','accent-normal','accent-low');
             const pri = (payload.priority||'Normal').toLowerCase();
             const accent = ['urgent','normal','low'].includes(pri) ? 'accent-'+pri : 'accent-normal';
@@ -252,22 +315,41 @@ async function openKanbanEditModal(id, cardEl){
         }
       });
     }
+    // tampilkan modal segera
+    modalEl.style.display = 'block';
+    modalEl.style.visibility = 'visible';
+    modalEl.style.opacity = '1';
+    var loadingEl = document.getElementById('k_edit_loading');
+    if(loadingEl){ loadingEl.style.display = 'block'; }
+
+    // fetch dan isi data
+    const res = await fetch('get_activity.php?id=' + encodeURIComponent(id));
+    if(!res.ok){ throw new Error('Gagal mengambil data'); }
+    const data = await res.json();
+    if(!data || !data.success){ throw new Error(data && data.message ? data.message : 'Gagal mengambil data'); }
+    const a = data.activity || {};
 
     document.getElementById('k_edit_id').value = a.id||id;
     document.getElementById('k_edit_no').value = a.no||'';
     document.getElementById('k_edit_status').value = a.status||'Open';
     document.getElementById('k_edit_information_date').value = a.information_date ? (a.information_date.substring(0,10)) : '';
     document.getElementById('k_edit_priority').value = a.priority||'Normal';
+    if(a.user_position) { var up = document.getElementById('k_edit_user_position'); if(up){ up.value = a.user_position; } }
+    if(a.customer) { var cus = document.getElementById('k_edit_customer'); if(cus){ cus.value = a.customer; } }
+    if(a.project) { var prj = document.getElementById('k_edit_project'); if(prj){ prj.value = a.project; } }
+    if(a.due_date) { var dd = document.getElementById('k_edit_due_date'); if(dd){ dd.value = (a.due_date.substring(0,10)); } }
+    if(a.cnc_number) { var cnc = document.getElementById('k_edit_cnc_number'); if(cnc){ cnc.value = a.cnc_number; } }
     if(a.department) document.getElementById('k_edit_department').value = a.department;
     if(a.application) document.getElementById('k_edit_application').value = a.application;
     if(a.type) document.getElementById('k_edit_type').value = a.type;
     document.getElementById('k_edit_description').value = a.description||'';
+    var asField = document.getElementById('k_edit_action_solution');
+    if(asField){ asField.value = a.action_solution||''; }
 
-    modalEl.style.display = 'block';
-    modalEl.style.visibility = 'visible';
-    modalEl.style.opacity = '1';
+    if(loadingEl){ loadingEl.style.display = 'none'; }
   }catch(e){
     console.error(e);
+    // tetap tampil, tapi beritahu error
     if(window.logoNotificationManager){ window.logoNotificationManager.showActivityError('Gagal membuka form edit!', 4000); }
   }
 }
@@ -292,6 +374,7 @@ SCRIPT;
 .kanban-header{padding:12px 14px;font-weight:700;background:linear-gradient(135deg,var(--brand-accent-strong,#6BB2C8),var(--brand-accent,#90C5D8));color:#fff}
 .kanban-cards{padding:12px;display:flex;flex-direction:column;gap:12px}
 .kanban-card{position:relative;background:linear-gradient(180deg,#ffffff, #f8fafc);border:1px solid #e5e7eb;border-radius:14px;padding:12px 12px 10px 16px;cursor:grab;box-shadow:0 10px 24px rgba(2,6,23,.06);transition:transform .18s ease, box-shadow .18s ease}
+.kanban-card{user-select:none;-webkit-user-select:none;-ms-user-select:none}
 .kanban-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-top-left-radius:14px;border-bottom-left-radius:14px;background:var(--accent,#90C5D8)}
 .kanban-card:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(2,6,23,.12)}
 .kanban-title{display:flex;align-items:center;gap:8px;font-weight:700;color:#0f172a}
@@ -300,6 +383,7 @@ SCRIPT;
 .badge.type{background:#f0fdf4;color:#14532d;border-color:#bbf7d0}
 .badge.pri{background:#eff6ff;color:#1e40af;border-color:#bfdbfe}
 .meta{font-size:12px;color:#64748b;display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.action-solution{font-size:12px;color:#475569;margin-top:6px}
 .accent-urgent{--accent:#ef4444}
 .accent-normal{--accent:#3b82f6}
 .accent-low{--accent:#f59e0b}
@@ -314,6 +398,25 @@ SCRIPT;
 [data-theme="dark"] .meta{color:#9ca3af}
 @media(max-width:1200px){.kanban-board{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:768px){.kanban-board{grid-template-columns:1fr}}
+
+/* Minimal modal styles (agar modal terlihat di Kanban) */
+.custom-modal-overlay{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.6);display:none;opacity:0;visibility:hidden;transition:opacity .2s ease}
+.custom-modal{position:relative;margin:40px auto;max-width:900px;background:var(--glass-bg, #fff);border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 20px 60px rgba(2,6,23,.25)}
+.custom-modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(0,0,0,.06)}
+.custom-modal-title{margin:0;font-weight:700}
+.custom-modal-close{border:none;background:transparent;font-size:24px;line-height:1;cursor:pointer}
+.custom-modal-body{padding:16px 20px}
+.custom-modal-row{display:flex;gap:12px;margin-bottom:12px}
+.custom-modal-col{flex:1}
+.custom-modal-label{display:block;margin-bottom:6px;font-weight:600}
+.custom-modal-input,.custom-modal-select,.custom-modal-textarea{width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff}
+.custom-modal-footer{display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid rgba(0,0,0,.06)}
+.custom-btn{border:none;border-radius:10px;padding:10px 14px;cursor:pointer}
+.custom-btn-primary{background:linear-gradient(135deg,var(--brand-accent-strong,#6BB2C8),var(--brand-accent,#90C5D8));color:#fff}
+.custom-btn-secondary{background:#e5e7eb;color:#111827}
+[data-theme="dark"] .custom-modal{background:#1f2937;border-color:#374151}
+[data-theme="dark"] .custom-modal-input,[data-theme="dark"] .custom-modal-select,[data-theme="dark"] .custom-modal-textarea{background:#0b1220;border-color:#334155;color:#e5e7eb}
+[data-theme="dark"] .custom-modal-label{color:#e5e7eb}
 </style>
 
 <div class="dashboard-main-body">
@@ -336,7 +439,7 @@ SCRIPT;
               $pri = strtolower($c['priority'] ?? 'normal');
               $accent = in_array($pri,['urgent','normal','low']) ? 'accent-'.$pri : 'accent-normal';
             ?>
-            <div class="kanban-card <?= $accent ?>" draggable="true" data-id="<?= (int)$c['id'] ?>">
+            <div class="kanban-card <?= $accent ?>" draggable="true" data-id="<?= (int)$c['id'] ?>" ondblclick="openKanbanEditModal('<?= (int)$c['id'] ?>', this)">
               <div class="kanban-title">
                 <span><?= htmlspecialchars($c['no']) ?></span>
                 <span class="badge type" title="Type"><?= htmlspecialchars($c['type']) ?></span>
@@ -344,7 +447,10 @@ SCRIPT;
                 <span class="badge pri" title="Priority"><?= htmlspecialchars($c['priority']) ?></span>
               </div>
               <div class="text-truncate mt-1" title="<?= htmlspecialchars($c['description']) ?>"><?= htmlspecialchars($c['description']) ?></div>
-              <div class="meta"><span><?= htmlspecialchars($c['department']) ?></span><span><?= $c['information_date']?date('d M Y',strtotime($c['information_date'])):'-' ?></span></div>
+              <?php $as = $c['action_solution'] ?? ''; if($as !== ''): ?>
+              <div class="action-solution text-truncate" title="<?= htmlspecialchars($as) ?>">Action / Solution: <?= htmlspecialchars($as) ?></div>
+              <?php endif; ?>
+              <div class="meta"><span><?= htmlspecialchars($c['user_position'] ?? '-') ?></span><span><?= htmlspecialchars($c['department']) ?></span><span><?= $c['information_date']?date('d M Y',strtotime($c['information_date'])):'-' ?></span></div>
             </div>
           <?php endforeach; ?>
         </div>
