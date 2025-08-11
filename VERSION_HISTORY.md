@@ -1,6 +1,20 @@
 # Version History - Ultimate Website
 
-## Version 2.2.3 - Current (August 2025)
+## Version 2.2.4 - Current (August 2025)
+### 🎯 New: Activities Kanban View
+- Halaman baru `activity_kanban.php` dengan 5 kolom status (Open/On Progress/Need Requirement/Done/Cancel)
+- Drag & drop antar kolom; update status via `update_activity_status.php`
+- Desain kartu modern: aksen warna berdasarkan priority, badge Type/App/Priority, dark-mode ready
+- Switch View dari List ↔ Kanban di `activity.php`
+
+### 🔧 Technical
+- Files Added: `activity_kanban.php`, `update_activity_status.php`
+- Files Modified: `activity.php`
+- Behavior: Notifikasi kapsul saat pemindahan status
+
+---
+
+## Version 2.2.3 - Previous (August 2025)
 ### 🎯 Improvements
 - Konsistensi tema Light/Dark di seluruh website (navbar, card/table header, tombol)
 - Dark mode Activities disesuaikan: tabel, badge, modal edit, dan filter
