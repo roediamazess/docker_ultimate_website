@@ -1,3 +1,24 @@
+// Prevent double-load on pages that already include this file
+if (!window.__activityNotificationsLoaded) {
+window.__activityNotificationsLoaded = true;
+
+// Simple helper to show toast under logo (fallback if global manager not available)
+window.showActivityToast = function(message, type = 'info', timeout = 3000) {
+  if (window.logoNotificationManager) {
+    switch (type) {
+      case 'success': return window.logoNotificationManager.showActivityUpdated(message, timeout);
+      case 'error': return window.logoNotificationManager.showActivityError(message, timeout);
+      default: return window.logoNotificationManager.showActivityUpdated(message, timeout);
+    }
+  }
+  // Fallback minimal toast
+  const toast = document.createElement('div');
+  toast.textContent = message;
+  toast.style.cssText = 'position:fixed; top:16px; left:16px; z-index:99999; background:#0ea5e9; color:#fff; padding:10px 14px; border-radius:9999px; box-shadow:0 6px 20px rgba(0,0,0,.2); font-weight:600;';
+  document.body.appendChild(toast);
+  setTimeout(()=> { if (toast.parentNode) toast.parentNode.removeChild(toast); }, timeout);
+};
+
 /**
  * Activity Notification Handler
  * Menangani notifikasi untuk operasi activity (add, update)
@@ -7,6 +28,8 @@
  * @version 1.0.0
  */
 
+// Guard class re-declaration
+if (!window.ActivityNotificationHandler) {
 class ActivityNotificationHandler {
     constructor() {
         this.init();
@@ -301,30 +324,31 @@ class ActivityNotificationHandler {
     }
 }
 
-// Initialize when DOM is ready
-let activityNotificationHandler;
+window.ActivityNotificationHandler = ActivityNotificationHandler;
+}
 
-document.addEventListener('DOMContentLoaded', function() {
-    activityNotificationHandler = new ActivityNotificationHandler();
-    
-    // Make it globally available
-    window.activityNotificationHandler = activityNotificationHandler;
-    
-    // Global functions for manual triggering
-    window.showActivityNotification = (type, message, data) => {
-        if (activityNotificationHandler) {
-            activityNotificationHandler.triggerActivityNotification(type, message, data);
-        }
-    };
-    
-    window.clearActivityNotification = () => {
-        if (activityNotificationHandler) {
-            activityNotificationHandler.clearNotification();
-        }
-    };
-});
+// Initialize when DOM is ready (singleton)
+if (!window.activityNotificationHandler) {
+  document.addEventListener('DOMContentLoaded', function() {
+      if (!window.activityNotificationHandler) {
+          window.activityNotificationHandler = new window.ActivityNotificationHandler();
+      }
+      // Global functions for manual triggering
+      window.showActivityNotification = (type, message, data) => {
+          if (window.activityNotificationHandler) {
+              window.activityNotificationHandler.triggerActivityNotification(type, message, data);
+          }
+      };
+      window.clearActivityNotification = () => {
+          if (window.activityNotificationHandler) {
+              window.activityNotificationHandler.clearNotification();
+          }
+      };
+  });
+}
 
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ActivityNotificationHandler;
+    module.exports = window.ActivityNotificationHandler;
+}
 }

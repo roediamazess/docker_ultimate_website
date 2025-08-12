@@ -765,6 +765,7 @@ SCRIPT;
     <div class="d-flex gap-2">
       <a href="activity.php" class="btn btn-secondary">List View</a>
       <a href="activity_kanban.php" class="btn btn-primary">Kanban View</a>
+      <a href="activity_gantt.php" class="btn btn-secondary">Gantt Chart</a>
     </div>
   </div>
 

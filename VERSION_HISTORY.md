@@ -1,3 +1,10 @@
+\n## v2.4.5 (2025-08-12)
+- Tambah `Gantt Chart` view (`activity_gantt.php`) dengan sumber data langsung dari tabel `activities` (no, description, status, type, priority, information_date → start, due_date → end) dan grouping per Type.
+- Persist tanggal hasil drag/resize: optimasi only-diff + debounce (400ms) + batch ke endpoint baru `update_activity_dates_batch.php` (transaksi DB). Aturan tetap: `due_date >= information_date`.
+- Quick Edit dari Gantt: modal kecil untuk ubah `status`, `priority`, `type` via endpoint baru `update_activity_fields.php` (whitelist & partial update).
+- Integrasi notifikasi di bawah logo untuk sukses/gagal (helper `assets/js/activity-notifications.js` + guard anti double-load).
+- Penyesuaian dark theme pada Gantt (background, border, teks, weekend, bar shadow).
+- Navigasi: tombol “Gantt Chart” ditambahkan pada `activity.php` dan `activity_kanban.php`.
 # Version History - Ultimate Website
 
 ## Version 2.4.3 - Auth UX Polish: Ripple Login, Favicon, Scenic Backgrounds

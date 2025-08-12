@@ -276,6 +276,7 @@ $script = ($script ?? '')
                     <div class="d-flex justify-content-end p-3"><div class="d-flex gap-2">
                         <a href="activity.php" class="btn btn-primary">List View</a>
                         <a href="activity_kanban.php" class="btn btn-secondary">Kanban View</a>
+                        <a href="activity_gantt.php" class="btn btn-secondary">Gantt Chart</a>
                     </div></div>
                 <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
                         <div class="d-flex align-items-center gap-2">
