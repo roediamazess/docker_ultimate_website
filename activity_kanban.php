@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize card click events
   initCardEvents();
-
+  
   // Initialize modal event listeners
   initModalEventListeners();
   
@@ -102,7 +102,7 @@ function initCardEvents() {
     console.log(`Setting up card ${index + 1}:`, card.dataset.id);
     
     card.addEventListener('dblclick', function(e) {
-      e.preventDefault();
+          e.preventDefault();
       e.stopPropagation();
       
       const cardId = this.dataset.id;
@@ -155,7 +155,7 @@ function openEditModal(activityId) {
   // Create modal HTML
   const modalHTML = `
     <div id="editActivityModal" class="custom-modal-overlay" style="display: flex; opacity: 1; visibility: visible;">
-      <div class="custom-modal" style="max-width: 900px; width: 90%; margin: 20px auto;">
+      <div class="custom-modal" style="max-width: 800px; width: 90%; margin: 20px auto;">
         <div class="custom-modal-header">
           <h5 class="custom-modal-title">Edit Activity</h5>
           <button type="button" class="custom-modal-close" onclick="closeEditModal()">&times;</button>
@@ -166,45 +166,45 @@ function openEditModal(activityId) {
             <form id="editActivityForm" method="post" action="update_activity.php">
               <input type="hidden" name="id" id="edit_id">
               
-              <div class="custom-modal-row">
-                <div class="custom-modal-col">
-                  <label class="custom-modal-label">No</label>
+          <div class="custom-modal-row">
+            <div class="custom-modal-col">
+              <label class="custom-modal-label">No</label>
                   <input type="number" name="no" id="edit_no" class="custom-modal-input" readonly>
-                </div>
-                <div class="custom-modal-col">
-                  <label class="custom-modal-label">Status *</label>
+            </div>
+            <div class="custom-modal-col">
+              <label class="custom-modal-label">Status *</label>
                   <select name="status" id="edit_status" class="custom-modal-select" required>
-                    <option value="Open">Open</option>
-                    <option value="On Progress">On Progress</option>
-                    <option value="Need Requirement">Need Requirement</option>
-                    <option value="Done">Done</option>
-                    <option value="Cancel">Cancel</option>
-                  </select>
-                </div>
-              </div>
+                <option value="Open">Open</option>
+                <option value="On Progress">On Progress</option>
+                <option value="Need Requirement">Need Requirement</option>
+                <option value="Done">Done</option>
+                <option value="Cancel">Cancel</option>
+              </select>
+            </div>
+          </div>
               
-              <div class="custom-modal-row">
-                <div class="custom-modal-col">
-                  <label class="custom-modal-label">Information Date *</label>
+          <div class="custom-modal-row">
+            <div class="custom-modal-col">
+              <label class="custom-modal-label">Information Date *</label>
                   <input type="date" name="information_date" id="edit_information_date" class="custom-modal-input" required>
-                </div>
-                <div class="custom-modal-col">
-                  <label class="custom-modal-label">Priority *</label>
+            </div>
+            <div class="custom-modal-col">
+              <label class="custom-modal-label">Priority *</label>
                   <select name="priority" id="edit_priority" class="custom-modal-select" required>
                     <option value="Urgent">Urgent</option>
                     <option value="Normal">Normal</option>
                     <option value="Low">Low</option>
-                  </select>
-                </div>
-              </div>
+              </select>
+            </div>
+          </div>
               
-              <div class="custom-modal-row">
-                <div class="custom-modal-col">
-                  <label class="custom-modal-label">User Position</label>
+          <div class="custom-modal-row">
+            <div class="custom-modal-col">
+              <label class="custom-modal-label">User Position</label>
                   <input type="text" name="user_position" id="edit_user_position" class="custom-modal-input">
-                </div>
-                <div class="custom-modal-col">
-                  <label class="custom-modal-label">Department</label>
+            </div>
+            <div class="custom-modal-col">
+              <label class="custom-modal-label">Department</label>
                   <select name="department" id="edit_department" class="custom-modal-select">
                     <option value="">Select Department</option>
                     <option value="Food & Beverage">Food & Beverage</option>
@@ -218,16 +218,16 @@ function openEditModal(activityId) {
                     <option value="Accounting">Accounting</option>
                     <option value="Executive Office">Executive Office</option>
                   </select>
-                </div>
-              </div>
+            </div>
+          </div>
               
-              <div class="custom-modal-row">
-                <div class="custom-modal-col">
-                  <label class="custom-modal-label">Application *</label>
+          <div class="custom-modal-row">
+            <div class="custom-modal-col">
+              <label class="custom-modal-label">Application *</label>
                   <select name="application" id="edit_application" class="custom-modal-select" required>
                     <option value="">-</option>
-                    <option value="Power FO">Power FO</option>
-                    <option value="My POS">My POS</option>
+                <option value="Power FO">Power FO</option>
+                <option value="My POS">My POS</option>
                     <option value="My MGR">My MGR</option>
                     <option value="Power AR">Power AR</option>
                     <option value="Power INV">Power INV</option>
@@ -260,20 +260,20 @@ function openEditModal(activityId) {
                     <option value="Self Check In">Self Check In</option>
                     <option value="Check In Desk">Check In Desk</option>
                     <option value="Others">Others</option>
-                  </select>
-                </div>
-                <div class="custom-modal-col">
-                  <label class="custom-modal-label">Type</label>
+              </select>
+            </div>
+            <div class="custom-modal-col">
+              <label class="custom-modal-label">Type</label>
                   <select name="type" id="edit_type" class="custom-modal-select">
                     <option value="Setup">Setup</option>
                     <option value="Question">Question</option>
-                    <option value="Issue">Issue</option>
+                <option value="Issue">Issue</option>
                     <option value="Report Issue">Report Issue</option>
                     <option value="Report Request">Report Request</option>
                     <option value="Feature Request">Feature Request</option>
-                  </select>
-                </div>
-              </div>
+              </select>
+            </div>
+          </div>
               
               <div class="custom-modal-row">
                 <div class="custom-modal-col">
@@ -297,12 +297,12 @@ function openEditModal(activityId) {
                 </div>
               </div>
               
-              <div class="custom-modal-row">
+          <div class="custom-modal-row">
                 <div class="custom-modal-col" style="grid-column: 1 / -1;">
                   <label class="custom-modal-label">Description</label>
                   <textarea name="description" id="edit_description" class="custom-modal-textarea" rows="3"></textarea>
-                </div>
-              </div>
+            </div>
+          </div>
               
               <div class="custom-modal-row">
                 <div class="custom-modal-col" style="grid-column: 1 / -1;">
@@ -314,8 +314,12 @@ function openEditModal(activityId) {
           </div>
         </div>
         <div class="custom-modal-footer">
-          <button type="button" class="custom-btn custom-btn-primary" onclick="submitEditForm()">Update</button>
-          <button type="button" class="custom-btn custom-btn-secondary" onclick="closeEditModal()">Close</button>
+          <div>
+            <button type="button" class="custom-btn custom-btn-primary" onclick="submitEditForm()">Update</button>
+          </div>
+          <div>
+            <button type="button" class="custom-btn custom-btn-secondary" onclick="closeEditModal()">Close</button>
+          </div>
         </div>
       </div>
     </div>
@@ -372,7 +376,7 @@ function loadActivityData(activityId) {
           loadingEl.textContent = 'Error: Failed to parse response';
           showError('Failed to load activity data: ' + parseError.message);
         }
-      } else {
+              } else {
         console.error('HTTP error:', xhr.status);
         console.error('Response text:', xhr.responseText);
         loadingEl.textContent = 'Error: HTTP ' + xhr.status;
@@ -467,7 +471,7 @@ function populateFormFields(data) {
           }
         }
       } else {
-        formField.value = value;
+      formField.value = value;
         populatedCount++;
         console.log(`✓ Set ${formFieldId} to:`, value);
       }
@@ -653,24 +657,24 @@ SCRIPT;
 .custom-modal{
   position:relative;
   margin:20px auto;
-  max-width:900px;
+  max-width:800px;
   width:90%;
   max-height:90vh;
   overflow-y:auto;
-  background:var(--glass-bg, #fff);
-  border:1px solid rgba(0,0,0,.08);
-  border-radius:14px;
-  box-shadow:0 20px 60px rgba(2,6,23,.25);
+  background:#fff;
+  border:1px solid #dee2e6;
+  border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.3);
 }
 .custom-modal-header{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:16px 20px;
-  border-bottom:1px solid rgba(0,0,0,.06);
-  background:linear-gradient(135deg,var(--brand-accent-strong,#6BB2C8),var(--brand-accent,#90C5D8));
-  color:#fff;
-  border-radius:14px 14px 0 0;
+  padding:20px 24px;
+  border-bottom:1px solid #dee2e6;
+  background:#f8f9fa;
+  color:inherit;
+  border-radius:8px 8px 0 0;
 }
 .custom-modal-title{
   margin:0;
@@ -691,11 +695,7 @@ SCRIPT;
 .custom-modal-close:hover{
   background-color:rgba(255,255,255,.2);
 }
-.custom-modal-body{
-  padding:20px;
-  max-height:70vh;
-  overflow-y:auto;
-}
+.custom-modal-body{ padding:24px; max-height:72vh; overflow-y:auto; }
 .custom-modal-row{
   display:flex;
   gap:16px;
@@ -738,48 +738,12 @@ SCRIPT;
   min-height:80px;
   font-family:inherit;
 }
-.custom-modal-footer{
-  display:flex;
-  gap:12px;
-  justify-content:flex-end;
-  padding:16px 20px;
-  border-top:1px solid rgba(0,0,0,.06);
-  background:#f9fafb;
-  border-radius:0 0 14px 14px;
-}
-.custom-btn{
-  border:none;
-  border-radius:14px; /* match list */
-  padding:10px 16px; /* match list */
-  cursor:pointer;
-  font-weight:600;
-  font-size:14px;
-  transition:all .2s;
-}
-.custom-btn-primary{
-  background:linear-gradient(135deg,var(--login-primary-start) 0%, var(--login-primary-end) 100%) !important;
-  color:#fff;
-  border:none;
-  border-radius:14px;
-  box-shadow:0 12px 28px rgba(102,126,234,0.35) !important;
-}
-.custom-btn-primary:hover{
-  transform:translateY(-2px);
-  box-shadow:0 8px 25px rgba(107,178,200,.3);
-}
-.custom-btn-primary:disabled{
-  opacity:0.6;
-  cursor:not-allowed;
-  transform:none;
-  box-shadow:none;
-}
-.custom-btn-secondary{
-  background:#374151; /* dark slate to match list dark mode */
-  color:#e5e7eb;
-  border:1px solid #4b5563;
-  border-radius:14px;
-}
-.custom-btn-secondary:hover{ background:#4b5563; transform:translateY(-1px); }
+.custom-modal-footer{ padding:20px 24px; border-top:1px solid #dee2e6; background:#f8f9fa; border-radius:0 0 8px 8px; display:flex; gap:10px; justify-content:flex-end; }
+.custom-btn{ padding:10px 20px; border:none; border-radius:4px; font-size:14px; font-weight:500; cursor:pointer; transition:all .2s ease; }
+.custom-btn-primary{ background-color:#007bff; color:#fff; }
+.custom-btn-primary:hover{ background-color:#0056b3; }
+.custom-btn-secondary{ background-color:#6c757d; color:#fff; }
+.custom-btn-secondary:hover{ background-color:#545b62; }
 [data-theme="dark"] .custom-modal{background:#1f2937;border-color:#374151}
 [data-theme="dark"] .custom-modal-input,
 [data-theme="dark"] .custom-modal-select,
@@ -801,7 +765,6 @@ SCRIPT;
     <div class="d-flex gap-2">
       <a href="activity.php" class="btn btn-secondary">List View</a>
       <a href="activity_kanban.php" class="btn btn-primary">Kanban View</a>
-      <a href="activity_gantt.php" class="btn btn-secondary">Gantt Chart</a>
     </div>
   </div>
 
@@ -836,4 +799,5 @@ SCRIPT;
 </div>
 
 <?php include './partials/layouts/layoutBottom.php'; ?>
+
 

@@ -1,6 +1,6 @@
 <?php
-// Set timezone untuk UTC (database consistency)
-date_default_timezone_set('UTC');
+// Set timezone ke Asia/Jakarta agar tanggal default mengikuti WIB
+date_default_timezone_set('Asia/Jakarta');
 
 $host = 'localhost';
 $db   = 'ultimate_website';

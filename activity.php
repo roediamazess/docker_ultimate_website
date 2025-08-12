@@ -26,6 +26,27 @@ function csrf_verify() {
 
 $message = '';
 
+// Helper: hitung default due date berdasarkan Information Date dan Type
+function compute_default_due_date(?string $informationDate, ?string $type): ?string {
+    if (empty($informationDate)) { return null; }
+    $offsetByType = [
+        'Issue' => 0,
+        'Setup' => 2,
+        'Question' => 1,
+        'Report Issue' => 2,
+        'Report Request' => 7,
+        'Feature Request' => 30,
+    ];
+    $offsetDays = $offsetByType[$type ?? ''] ?? 0;
+    try {
+        $dt = new DateTime($informationDate);
+        if ($offsetDays !== 0) { $dt->modify("+{$offsetDays} days"); }
+        return $dt->format('Y-m-d');
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
 // Create Activity
 if (isset($_POST['create'])) {
     if (!csrf_verify()) {
@@ -33,18 +54,31 @@ if (isset($_POST['create'])) {
         $message_type = 'error';
         $notification_type = 'error';
     } else {
+        // Default Information Date ke hari ini jika kosong (berlaku hanya untuk CREATE)
+        $informationDate = !empty($_POST['information_date']) ? $_POST['information_date'] : date('Y-m-d');
+        $typeVal = $_POST['type'] ?? '';
+        $dueDateInput = isset($_POST['due_date']) ? trim((string)$_POST['due_date']) : '';
+        // Edit: jangan override due date; jika kosong biarkan NULL (tetap sesuai terakhir tersimpan jika tidak diubah)
+        $dueDate = $dueDateInput !== '' ? $dueDateInput : null;
+        if (!empty($informationDate) && !empty($dueDate)) {
+            try {
+                $inf = new DateTime($informationDate);
+                $due = new DateTime($dueDate);
+                if ($due < $inf) { $dueDate = $inf->format('Y-m-d'); }
+            } catch (Exception $e) { }
+        }
         $stmt = $pdo->prepare('INSERT INTO activities (project_id, no, information_date, user_position, department, application, type, description, action_solution, due_date, status, cnc_number, priority, customer, project, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
             $_POST['project_id'] ?? null,
             $_POST['no'] ?? null,
-            $_POST['information_date'] ?? null,
+            $informationDate,
             $_POST['user_position'],
             $_POST['department'],
             $_POST['application'],
-            $_POST['type'],
+            $typeVal,
             $_POST['description'],
             $_POST['action_solution'],
-            $_POST['due_date'] ?: null,
+            $dueDate ?: null,
             $_POST['status'],
             $_POST['cnc_number'],
             $_POST['priority'] ?? 'Normal',
@@ -68,6 +102,16 @@ if (isset($_POST['update'])) {
         $notification_type = 'error';
     } else {
         $informationDate = !empty($_POST['information_date']) ? $_POST['information_date'] : null;
+        $typeVal = $_POST['type'] ?? '';
+        $dueDateInput = isset($_POST['due_date']) ? trim((string)$_POST['due_date']) : '';
+        $dueDate = $dueDateInput !== '' ? $dueDateInput : compute_default_due_date($informationDate, $typeVal);
+        if (!empty($informationDate) && !empty($dueDate)) {
+            try {
+                $inf = new DateTime($informationDate);
+                $due = new DateTime($dueDate);
+                if ($due < $inf) { $dueDate = $inf->format('Y-m-d'); }
+            } catch (Exception $e) { }
+        }
         $stmt = $pdo->prepare('UPDATE activities SET project_id=?, no=?, information_date=?, user_position=?, department=?, application=?, type=?, description=?, action_solution=?, due_date=?, status=?, cnc_number=?, priority=?, customer=?, project=? WHERE id=?');
         $stmt->execute([
             $_POST['project_id'] ?? null,
@@ -76,10 +120,10 @@ if (isset($_POST['update'])) {
             $_POST['user_position'],
             $_POST['department'],
             $_POST['application'],
-            $_POST['type'],
+            $typeVal,
             $_POST['description'],
             $_POST['action_solution'],
-            $_POST['due_date'] ?: null,
+            $dueDate ?: null,
             $_POST['status'],
             $_POST['cnc_number'],
             $_POST['priority'] ?? 'Normal',
@@ -126,7 +170,7 @@ $sort_column = $_GET['sort'] ?? 'no';
 $sort_order = $_GET['order'] ?? 'asc';
 
 // Validasi kolom sorting yang diizinkan
-$allowed_sort_columns = ['no', 'information_date', 'priority', 'user_position', 'department', 'application', 'type', 'description', 'action_solution', 'status'];
+$allowed_sort_columns = ['no', 'information_date', 'due_date', 'priority', 'user_position', 'department', 'application', 'type', 'description', 'action_solution', 'status'];
 if (!in_array($sort_column, $allowed_sort_columns)) {
     $sort_column = 'no';
 }
@@ -184,7 +228,7 @@ $total_activities = $count_stmt->fetchColumn();
 $total_pages = ceil($total_activities / $limit);
 
 // Get activities with pagination and sorting - hanya kolom yang diperlukan untuk display
-$sql = "SELECT a.no, a.information_date, a.priority, a.user_position, a.department, a.application, a.type, a.description, a.action_solution, a.status, a.id FROM activities a $where_clause ORDER BY a.$sort_column $sort_order LIMIT $limit OFFSET $offset";
+$sql = "SELECT a.no, a.information_date, a.due_date, a.priority, a.user_position, a.department, a.application, a.type, a.description, a.action_solution, a.status, a.id FROM activities a $where_clause ORDER BY a.$sort_column $sort_order LIMIT $limit OFFSET $offset";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -232,7 +276,6 @@ $script = ($script ?? '')
                     <div class="d-flex justify-content-end p-3"><div class="d-flex gap-2">
                         <a href="activity.php" class="btn btn-primary">List View</a>
                         <a href="activity_kanban.php" class="btn btn-secondary">Kanban View</a>
-                        <a href="activity_gantt.php" class="btn btn-secondary">Gantt Chart</a>
                     </div></div>
                 <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
                         <div class="d-flex align-items-center gap-2">
@@ -359,7 +402,7 @@ $script = ($script ?? '')
                                 <div class="custom-modal-row">
                                     <div class="custom-modal-col">
                                         <label class="custom-modal-label">Information Date *</label>
-                                        <input type="date" name="information_date" class="custom-modal-input" value="<?= date('Y-m-d') ?>" required>
+                                        <input type="date" id="create_information_date" name="information_date" class="custom-modal-input" value="<?= date('Y-m-d') ?>" required>
                                     </div>
                                     <div class="custom-modal-col">
                                         <label class="custom-modal-label">Priority *</label>
@@ -433,7 +476,7 @@ $script = ($script ?? '')
                                     </div>
                                     <div class="custom-modal-col">
                                         <label class="custom-modal-label">Type</label>
-                                        <select name="type" class="custom-modal-select">
+                                        <select id="create_type" name="type" class="custom-modal-select">
                                             <option value="Setup">Setup</option>
                                             <option value="Question">Question</option>
                                             <option value="Issue">Issue</option>
@@ -455,8 +498,8 @@ $script = ($script ?? '')
                                 </div>
                                 <div class="custom-modal-row">
                                     <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Completed Date</label>
-                                        <input type="date" name="due_date" class="custom-modal-input">
+                                        <label class="custom-modal-label">Due Date</label>
+                                        <input type="date" id="create_due_date" name="due_date" class="custom-modal-input">
                                     </div>
                                     <div class="custom-modal-col">
                                         <label class="custom-modal-label">CNC Number</label>
@@ -529,27 +572,6 @@ $script = ($script ?? '')
                         }
                         
 
-                        
-
-                        
-
-                        
-
-                        
-                        /* Center align NO column header */
-                        .table th:nth-child(1) .table-header {
-                            text-align: center;
-                        }
-                        
-                        /* Center align Information Date header */
-                        .table th:nth-child(2) .table-header {
-                            text-align: center;
-                        }
-                        
-                        /* Center align Status header */
-                        .table th:nth-child(10) .table-header {
-                            text-align: center;
-                        }
                         
 
                         
@@ -650,10 +672,10 @@ $script = ($script ?? '')
                             max-width: 130px;
                         }
                         
-                        .table th:nth-child(4) {
-                            width: 180px;
-                            min-width: 180px;
-                            max-width: 180px;
+                        .table th:nth-child(4) { /* Due Date */
+                            width: 140px;
+                            min-width: 140px;
+                            max-width: 140px;
                         }
                         
                         .table th:nth-child(5) {
@@ -701,7 +723,7 @@ $script = ($script ?? '')
                             text-align: center;
                         }
                         
-                        .table td:nth-child(4) {
+                        .table td:nth-child(4) { /* Due Date */
                             text-align: left;
                         }
                         
@@ -1200,6 +1222,9 @@ $script = ($script ?? '')
                                     <div class="table-header">Priority</div>
                                 </th>
                                 <th scope="col">
+                                    <div class="table-header">Due Date</div>
+                                </th>
+                                <th scope="col">
                                     <div class="table-header">User &amp; Position</div>
                                 </th>
                                 <th scope="col">
@@ -1249,6 +1274,7 @@ $script = ($script ?? '')
                                     ?>
                                     <span class="priority-badge <?= $priority_class ?> px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($a['priority'] ?? 'Normal') ?></span>
                                 </td>
+                                <td data-label="Due Date"><?= $a['due_date'] ? date('d M Y', strtotime($a['due_date'])) : '-' ?></td>
                                 <td data-label="User & Position"><?= htmlspecialchars($a['user_position'] ?: '-') ?></td>
                                 <td data-label="Department"><?= htmlspecialchars($a['department'] ?: '-') ?></td>
                                 <td data-label="Application"><?= htmlspecialchars($a['application'] ?: '-') ?></td>
@@ -1500,7 +1526,7 @@ document.querySelectorAll('.activity-row').forEach(function(row) {
                       </div>
                   <div class="custom-modal-row">
                     <div class="custom-modal-col">
-                      <label class="custom-modal-label">Completed Date</label>
+                      <label class="custom-modal-label">Due Date</label>
                       <input type="date" name="due_date" id="edit_due_date" class="custom-modal-input">
                       </div>
                     <div class="custom-modal-col">
@@ -1537,6 +1563,24 @@ document.querySelectorAll('.activity-row').forEach(function(row) {
         document.getElementById('edit_type').value = type;
         document.getElementById('edit_status').value = status;
         document.getElementById('edit_information_date').value = infoDate ? infoDate.substring(0,10) : '';
+        // Enforce min for due date in edit modal as well
+        try {
+            const dueEl = document.getElementById('edit_due_date');
+            const infoEl = document.getElementById('edit_information_date');
+            if (dueEl && infoEl && infoEl.value) {
+                dueEl.min = infoEl.value;
+                if (dueEl.value && dueEl.value < infoEl.value) {
+                    dueEl.value = infoEl.value;
+                }
+                infoEl.addEventListener('change', function(){
+                    if (!this.value) return;
+                    dueEl.min = this.value;
+                    if (dueEl.value && dueEl.value < this.value) {
+                        dueEl.value = this.value;
+                    }
+                });
+            }
+        } catch(e) { console.warn(e); }
         document.getElementById('edit_description').value = description;
         document.getElementById('edit_action_solution').value = actionSolution;
         document.getElementById('edit_priority').value = priority;
@@ -1612,5 +1656,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Activity Table Enhancement Script -->
 <script src="assets/js/activity-table.js"></script>
+<script>
+// Close Create/Edit modals with ESC for convenience
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' || e.key === 'Esc') {
+    try {
+      const editModal = document.getElementById('editActivityModal');
+      if (editModal && editModal.style.display !== 'none' && editModal.style.visibility !== 'hidden') {
+        closeEditModal();
+      }
+      const createModal = document.getElementById('createActivityModal');
+      if (createModal && createModal.style.display !== 'none' && createModal.style.visibility !== 'hidden') {
+        closeCreateModal();
+      }
+    } catch (err) { console.warn(err); }
+  }
+});
+</script>
 
 <?php include './partials/layouts/layoutBottom.php'; ?>

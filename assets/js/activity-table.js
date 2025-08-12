@@ -9,6 +9,76 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize filter form enhancements
     initFilterForm();
+
+    // Auto-calc Due Date on Create modal
+    const infoInput = document.getElementById('create_information_date');
+    const typeSelect = document.getElementById('create_type');
+    const dueInput = document.getElementById('create_due_date');
+
+    function computeOffsetByType(type) {
+        switch (type) {
+            case 'Issue': return 0;
+            case 'Setup': return 2;
+            case 'Question': return 1;
+            case 'Report Issue': return 2;
+            case 'Report Request': return 7;
+            case 'Feature Request': return 30;
+            default: return 0;
+        }
+    }
+
+    function formatISO(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    function recalcDueDate() {
+        if (!infoInput || !dueInput || !typeSelect) return;
+        const infoVal = infoInput.value;
+        const typeVal = typeSelect.value;
+        if (!infoVal) return;
+        const base = new Date(infoVal);
+        if (isNaN(base.getTime())) return;
+        const offset = computeOffsetByType(typeVal);
+        const due = new Date(base);
+        due.setDate(due.getDate() + offset);
+        const min = formatISO(base);
+        dueInput.min = min;
+
+        const userEdited = dueInput.dataset.userEdited === 'true';
+        // Jika belum diedit manual, set otomatis nilai due date
+        if (!userEdited) {
+            dueInput.value = formatISO(due);
+        }
+        // Tetap paksa minimal: due >= information_date
+        if (dueInput.value) {
+            const chosen = new Date(dueInput.value);
+            if (chosen < base) {
+                dueInput.value = min;
+            }
+        }
+    }
+
+    if (infoInput && typeSelect && dueInput) {
+        // Inisialisasi pertama kali
+        recalcDueDate();
+        infoInput.addEventListener('change', recalcDueDate);
+        typeSelect.addEventListener('change', recalcDueDate);
+        dueInput.addEventListener('change', function() {
+            if (!infoInput.value || !dueInput.value) return;
+            const base = new Date(infoInput.value);
+            const chosen = new Date(dueInput.value);
+            if (chosen < base) {
+                dueInput.value = formatISO(base);
+            }
+        });
+        // Menandai bahwa user telah mengubah due date secara manual
+        dueInput.addEventListener('input', function() {
+            this.dataset.userEdited = 'true';
+        });
+    }
 });
 
 /**
