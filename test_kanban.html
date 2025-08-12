@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Kanban</title>
+    <style>
+        .kanban-card {
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .kanban-card:hover {
+            background: #f0f0f0;
+        }
+        .custom-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.5);
+            display: none;
+        }
+        .custom-modal {
+            background: white;
+            margin: 50px auto;
+            padding: 20px;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+        .custom-modal input,
+        .custom-modal select,
+        .custom-modal textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .custom-modal button {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .custom-btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .custom-btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Kanban Double Click</h1>
+    
+    <div class="kanban-card" data-id="123">
+        <h3>Test Card 1</h3>
+        <p>Double click me to open modal</p>
+    </div>
+    
+    <div class="kanban-card" data-id="456">
+        <h3>Test Card 2</h3>
+        <p>Double click me to open modal</p>
+    </div>
+
+    <script>
+        // Test functions
+        function showSuccess(message) {
+            alert('Success: ' + message);
+        }
+        
+        function showError(message) {
+            alert('Error: ' + message);
+        }
+        
+        function closeEditModal() {
+            const modal = document.getElementById('editActivityModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        function openEditModal(activityId) {
+            console.log('Opening edit modal for activity:', activityId);
+            
+            if (!activityId) {
+                showError('Invalid activity ID');
+                return;
+            }
+            
+            // Remove existing modal if any
+            const existingModal = document.getElementById('editActivityModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Create modal HTML
+            const modalHTML = `
+                <div id="editActivityModal" class="custom-modal-overlay" style="display: block;">
+                    <div class="custom-modal">
+                        <h3>Edit Activity ${activityId}</h3>
+                        <form>
+                            <label>Status:</label>
+                            <select name="status">
+                                <option value="Open">Open</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Done">Done</option>
+                            </select>
+                            
+                            <label>Description:</label>
+                            <textarea name="description" rows="3"></textarea>
+                            
+                            <div style="margin-top: 20px;">
+                                <button type="button" class="custom-btn custom-btn-secondary" onclick="closeEditModal()">Cancel</button>
+                                <button type="button" class="custom-btn custom-btn-primary" onclick="showSuccess('Activity updated!')">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            // Insert modal into DOM
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            console.log('Modal created successfully');
+        }
+        
+        // Initialize card events
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing test kanban...');
+            
+            const cards = document.querySelectorAll('.kanban-card');
+            console.log('Found', cards.length, 'test cards');
+            
+            cards.forEach(function(card, index) {
+                console.log(`Setting up test card ${index + 1}:`, card.dataset.id);
+                
+                card.addEventListener('dblclick', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const cardId = this.dataset.id;
+                    console.log('Double click on test card:', cardId);
+                    
+                    if (cardId) {
+                        openEditModal(cardId);
+                    } else {
+                        console.error('Test card has no data-id attribute');
+                        showError('Test card ID tidak valid');
+                    }
+                });
+            });
+            
+            console.log('Test kanban initialized successfully');
+        });
+    </script>
+</body>
+</html>

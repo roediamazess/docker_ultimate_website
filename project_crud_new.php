@@ -208,7 +208,7 @@ try {
 
             <div class="card">
                 <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
-                    <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center gap-2">
                         <span class="fw-semibold">Show</span>
                         <form method="get" class="d-inline">
                             <select class="form-select form-select-sm w-auto" name="limit" onchange="this.form.submit()">
@@ -220,7 +220,7 @@ try {
                             <?php if ($filter_status) echo '<input type="hidden" name="filter_status" value="'.htmlspecialchars($filter_status).'">'; ?>
                             <?php if ($filter_type) echo '<input type="hidden" name="filter_type" value="'.htmlspecialchars($filter_type).'">'; ?>
                         </form>
-                    </div>
+                        </div>
                     <button type="button" class="btn btn-sm btn-primary-600 d-flex align-items-center gap-2" onclick="showCreateForm()">
                         <iconify-icon icon="solar:add-circle-outline" class="icon"></iconify-icon>
                         Create Project

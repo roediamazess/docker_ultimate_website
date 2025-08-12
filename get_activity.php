@@ -8,14 +8,20 @@ header('Content-Type: application/json');
 
 try {
     $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-    if ($id <= 0) { throw new Exception('Invalid ID'); }
+    if ($id <= 0) { 
+        throw new Exception('Invalid ID'); 
+    }
 
     $stmt = $pdo->prepare("SELECT id, no, information_date, priority, user_position, department, application, type, description, action_solution, customer, project, due_date, cnc_number, status FROM activities WHERE id = ?");
     $stmt->execute([$id]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$row) { throw new Exception('Data tidak ditemukan'); }
+    
+    if (!$row) { 
+        throw new Error('Data tidak ditemukan'); 
+    }
 
-    echo json_encode(['success' => true, 'activity' => $row]);
+    echo json_encode(['success' => true, 'data' => $row]);
+    
 } catch (Throwable $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Kanban Edit Form</title>
+    <style>
+        .kanban-card {
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .kanban-card:hover {
+            background: #f0f0f0;
+        }
+        .custom-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.5);
+            display: none;
+        }
+        .custom-modal {
+            background: white;
+            margin: 50px auto;
+            padding: 20px;
+            max-width: 800px;
+            border-radius: 8px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .custom-modal-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .custom-modal-col {
+            flex: 1;
+        }
+        .custom-modal-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .custom-modal-input,
+        .custom-modal-select,
+        .custom-modal-textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .custom-modal-textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        .custom-modal button {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .custom-btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .custom-btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .custom-modal-footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Kanban Edit Form - All Fields</h1>
+    
+    <div class="kanban-card" data-id="123">
+        <h3>Test Card 1</h3>
+        <p>Double click me to open edit modal with all fields</p>
+    </div>
+
+    <script>
+        // Test functions
+        function showSuccess(message) {
+            alert('Success: ' + message);
+        }
+        
+        function showError(message) {
+            alert('Error: ' + message);
+        }
+        
+        function closeEditModal() {
+            const modal = document.getElementById('editActivityModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        function openEditModal(activityId) {
+            console.log('Opening edit modal for activity:', activityId);
+            
+            if (!activityId) {
+                showError('Invalid activity ID');
+                return;
+            }
+            
+            // Remove existing modal if any
+            const existingModal = document.getElementById('editActivityModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Create modal HTML with all fields
+            const modalHTML = `
+                <div id="editActivityModal" class="custom-modal-overlay" style="display: block;">
+                    <div class="custom-modal">
+                        <h3>Edit Activity ${activityId}</h3>
+                        <form id="editActivityForm">
+                            <div class="custom-modal-row">
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">No</label>
+                                    <input type="number" name="no" id="edit_no" class="custom-modal-input" readonly value="123">
+                                </div>
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Status *</label>
+                                    <select name="status" id="edit_status" class="custom-modal-select" required>
+                                        <option value="Open">Open</option>
+                                        <option value="On Progress">On Progress</option>
+                                        <option value="Need Requirement">Need Requirement</option>
+                                        <option value="Done">Done</option>
+                                        <option value="Cancel">Cancel</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="custom-modal-row">
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Information Date *</label>
+                                    <input type="date" name="information_date" id="edit_information_date" class="custom-modal-input" required>
+                                </div>
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Priority *</label>
+                                    <select name="priority" id="edit_priority" class="custom-modal-select" required>
+                                        <option value="Low">Low</option>
+                                        <option value="Normal">Normal</option>
+                                        <option value="Urgent">Urgent</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="custom-modal-row">
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">User Position</label>
+                                    <input type="text" name="user_position" id="edit_user_position" class="custom-modal-input">
+                                </div>
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Department</label>
+                                    <select name="department" id="edit_department" class="custom-modal-select">
+                                        <option value="">-</option>
+                                        <option value="Front Office">Front Office</option>
+                                        <option value="Housekeeping">Housekeeping</option>
+                                        <option value="Food & Beverage">Food & Beverage</option>
+                                        <option value="Engineering">Engineering</option>
+                                        <option value="Sales & Marketing">Sales & Marketing</option>
+                                        <option value="IT / EDP">IT / EDP</option>
+                                        <option value="Accounting">Accounting</option>
+                                        <option value="Executive Office">Executive Office</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="custom-modal-row">
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Application *</label>
+                                    <select name="application" id="edit_application" class="custom-modal-select" required>
+                                        <option value="">-</option>
+                                        <option value="Power FO">Power FO</option>
+                                        <option value="My POS">My POS</option>
+                                        <option value="My MGR">My MGR</option>
+                                        <option value="Power AR">Power AR</option>
+                                        <option value="Power INV">Power INV</option>
+                                        <option value="Power AP">Power AP</option>
+                                        <option value="Power GL">Power GL</option>
+                                        <option value="Keylock">Keylock</option>
+                                        <option value="PABX">PABX</option>
+                                        <option value="DIM">DIM</option>
+                                        <option value="Dynamic Room Rate">Dynamic Room Rate</option>
+                                        <option value="Channel Manager">Channel Manager</option>
+                                        <option value="PB1">PB1</option>
+                                        <option value="Power SIGN">Power SIGN</option>
+                                        <option value="Multi Properties">Multi Properties</option>
+                                        <option value="Scanner ID">Scanner ID</option>
+                                        <option value="IPOS">IPOS</option>
+                                        <option value="Power Runner">Power Runner</option>
+                                        <option value="Power RA">Power RA</option>
+                                        <option value="Power ME">Power ME</option>
+                                        <option value="ECOS">ECOS</option>
+                                        <option value="Cloud WS">Cloud WS</option>
+                                        <option value="Power GO">Power GO</option>
+                                        <option value="Dashpad">Dashpad</option>
+                                        <option value="IPTV">IPTV</option>
+                                        <option value="HSIA">HSIA</option>
+                                        <option value="SGI">SGI</option>
+                                        <option value="Guest Survey">Guest Survey</option>
+                                        <option value="Loyalty Management">Loyalty Management</option>
+                                        <option value="AccPac">AccPac</option>
+                                        <option value="GL Consolidation">GL Consolidation</option>
+                                        <option value="Self Check In">Self Check In</option>
+                                        <option value="Check In Desk">Check In Desk</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                </div>
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Type</label>
+                                    <select name="type" id="edit_type" class="custom-modal-select">
+                                        <option value="Setup">Setup</option>
+                                        <option value="Question">Question</option>
+                                        <option value="Issue">Issue</option>
+                                        <option value="Report Issue">Report Issue</option>
+                                        <option value="Report Request">Report Request</option>
+                                        <option value="Feature Request">Feature Request</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="custom-modal-row">
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Customer</label>
+                                    <input type="text" name="customer" id="edit_customer" class="custom-modal-input">
+                                </div>
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Project</label>
+                                    <input type="text" name="project" id="edit_project" class="custom-modal-input">
+                                </div>
+                            </div>
+                            
+                            <div class="custom-modal-row">
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Due Date</label>
+                                    <input type="date" name="due_date" id="edit_due_date" class="custom-modal-input">
+                                </div>
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">CNC Number</label>
+                                    <input type="text" name="cnc_number" id="edit_cnc_number" class="custom-modal-input">
+                                </div>
+                            </div>
+                            
+                            <div class="custom-modal-row">
+                                <div class="custom-modal-col" style="grid-column: 1 / -1;">
+                                    <label class="custom-modal-label">Description</label>
+                                    <textarea name="description" id="edit_description" class="custom-modal-textarea" rows="3"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="custom-modal-row">
+                                <div class="custom-modal-col" style="grid-column: 1 / -1;">
+                                    <label class="custom-modal-label">Action Solution</label>
+                                    <textarea name="action_solution" id="edit_action_solution" class="custom-modal-textarea" rows="3"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="custom-modal-footer">
+                                <button type="button" class="custom-btn custom-btn-secondary" onclick="closeEditModal()">Cancel</button>
+                                <button type="button" class="custom-btn custom-btn-primary" onclick="testFormData()">Test Form Data</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            // Insert modal into DOM
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Set some test data
+            document.getElementById('edit_information_date').value = '2024-01-15';
+            document.getElementById('edit_priority').value = 'Normal';
+            document.getElementById('edit_user_position').value = 'Manager';
+            document.getElementById('edit_department').value = 'IT / EDP';
+            document.getElementById('edit_application').value = 'Power FO';
+            document.getElementById('edit_type').value = 'Issue';
+            document.getElementById('edit_customer').value = 'Test Customer';
+            document.getElementById('edit_project').value = 'Test Project';
+            document.getElementById('edit_due_date').value = '2024-02-15';
+            document.getElementById('edit_cnc_number').value = 'CNC-001';
+            document.getElementById('edit_description').value = 'This is a test description for the activity.';
+            document.getElementById('edit_action_solution').value = 'This is a test action solution.';
+            
+            console.log('Modal created successfully with all fields');
+        }
+        
+        function testFormData() {
+            const form = document.getElementById('editActivityForm');
+            const formData = new FormData(form);
+            
+            console.log('Form data:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+            
+            showSuccess('Form data logged to console. Check Developer Tools (F12) > Console');
+        }
+        
+        // Initialize card events
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing test kanban edit form...');
+            
+            const cards = document.querySelectorAll('.kanban-card');
+            console.log('Found', cards.length, 'test cards');
+            
+            cards.forEach(function(card, index) {
+                console.log(`Setting up test card ${index + 1}:`, card.dataset.id);
+                
+                card.addEventListener('dblclick', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const cardId = this.dataset.id;
+                    console.log('Double click on test card:', cardId);
+                    
+                    if (cardId) {
+                        openEditModal(cardId);
+                    } else {
+                        console.error('Test card has no data-id attribute');
+                        showError('Test card ID tidak valid');
+                    }
+                });
+            });
+            
+            console.log('Test kanban edit form initialized successfully');
+        });
+    </script>
+</body>
+</html>

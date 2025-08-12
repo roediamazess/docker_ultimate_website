@@ -101,10 +101,10 @@ class ActivityNotificationHandler {
             this.showActivityNotification('updated', e.detail);
         });
         
-        
-        document.addEventListener('activityError', (e) => {
-            this.showActivityNotification('error', e.detail);
-        });
+        // REMOVED ERROR EVENT LISTENER TO PREVENT AUTOMATIC ERROR NOTIFICATIONS
+        // document.addEventListener('activityError', (e) => {
+        //     this.showActivityNotification('error', e.detail);
+        // });
     }
     
     /**
@@ -161,12 +161,14 @@ class ActivityNotificationHandler {
                     this.showActivityNotification('created', data);
                 } else if (data.action === 'update' || data.action === 'edit') {
                     this.showActivityNotification('updated', data);
-            } else {
-                this.showActivityNotification('error', data);
+                }
             }
+            // REMOVED ERROR NOTIFICATION TO PREVENT UNWANTED ERROR MESSAGES
+            // else {
+            //     this.showActivityNotification('error', data);
+            // }
         }
     }
-}
     
     /**
      * Process response text
@@ -181,9 +183,11 @@ class ActivityNotificationHandler {
             } else if (text.includes('updated') || text.includes('diperbarui')) {
                 this.showActivityNotification('updated', { message: 'Activity updated successfully' });
             }
-        } else if (text.includes('error') || text.includes('gagal')) {
-            this.showActivityNotification('error', { message: 'Operation failed' });
         }
+        // COMMENTED OUT AUTOMATIC ERROR DETECTION TO PREVENT UNWANTED ERROR NOTIFICATIONS
+        // else if (text.includes('error') || text.includes('gagal')) {
+        //     this.showActivityNotification('error', { message: 'Operation failed' });
+        // }
     }
     
     /**
@@ -236,9 +240,10 @@ class ActivityNotificationHandler {
             case 'update':
                 window.logoNotificationManager.showActivityUpdated(message, duration);
                 break;
-            case 'error':
-                window.logoNotificationManager.showActivityError(message, duration);
-                break;
+            // REMOVED ERROR NOTIFICATION TO PREVENT UNWANTED ERROR MESSAGES
+            // case 'error':
+            //     window.logoNotificationManager.showActivityError(message, duration);
+            //     break;
             default:
                 window.logoNotificationManager.showActivityUpdate(message, duration);
         }
@@ -271,8 +276,9 @@ class ActivityNotificationHandler {
         
         const defaultMessages = {
             'created': 'Activity created successfully! 🎉',
-            'updated': 'Activity updated successfully! ✨',
-            'error': 'Operation failed. Please try again! ❌'
+            'updated': 'Activity updated successfully! ✨'
+            // REMOVED ERROR MESSAGE TO PREVENT ERROR NOTIFICATIONS
+            // 'error': 'Operation failed. Please try again! ❌'
         };
         
         return defaultMessages[type] || 'Operation completed!';

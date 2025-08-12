@@ -561,10 +561,10 @@ function testActivityNotifications() {
             logoNotificationManager.showActivityCanceled('Test: Activity canceled successfully! ❌');
         }, 5000);
         
-        // Test activity error
-        setTimeout(() => {
-            logoNotificationManager.showActivityError('Test: Operation failed! ❌');
-        }, 7000);
+        // Test activity error - COMMENTED OUT TO PREVENT AUTOMATIC ERROR NOTIFICATIONS
+        // setTimeout(() => {
+        //     logoNotificationManager.showActivityError('Test: Operation failed! ❌');
+        // }, 7000);
     } else {
         console.warn('LogoNotificationManager not available');
     }

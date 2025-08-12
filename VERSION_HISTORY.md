@@ -1,5 +1,27 @@
 # Version History - Ultimate Website
 
+## Version 2.4.1 - Kanban Edit Modal Parity & Bug Fixes
+**Date:** August 2025
+
+### 🎨 UI/UX Alignment
+- Menyamakan modal Edit Activity pada Kanban dengan List View (lebar, grid 2 kolom, header gradient, dark mode).
+- Menyeragamkan tombol footer: urutan di kanan (Update, Close), padding `10px 16px`, radius `8px`, dan warna sesuai tema.
+- Menyamakan bentuk tombol agar identik dengan list (bukan kapsul; sudut 8px, bayangan lembut).
+
+### 🐛 Bug Fixes
+- Memperbaiki error update (HTTP 500) saat `Completed Date` kosong dengan menyimpan sebagai `NULL` di database.
+- Meningkatkan validasi dan error handling pada submit (logging dan feedback UI).
+- Memastikan pemetaan field edit sesuai activity detail (application, type, customer, project, due_date, cnc_number, action_solution).
+
+### 📄 Files Touched
+- `activity_kanban.php` (modal markup, JS handling, CSS modal & tombol)
+- `get_activity.php` (penyesuaian key response `data`)
+- `update_activity.php` (handling `due_date` kosong → `NULL`, update kolom terkait)
+- `assets/css/theme-override.css` (menggunakan variabel tema yang sudah ada)
+- File uji: `test_kanban_simple.html`, `test_kanban_edit.html`
+
+---
+
 ## Version 2.4.0 (Current) - Complete UI/UX Standardization and Database Schema Refactoring
 **Date:** December 2024  
 **Commit:** e41e55d
