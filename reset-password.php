@@ -21,7 +21,8 @@ $token = $_GET['token'] ?? '';
 if (!empty($token)) {
     // Use current timestamp instead of NOW() for better timezone consistency
     $current_time = date('Y-m-d H:i:s');
-    $sql = "SELECT id, email, display_name, reset_token, reset_expires FROM users WHERE reset_token = ? AND reset_expires > ?";
+    // Schema baru: gunakan user_id sebagai id; tidak bergantung pada display_name
+    $sql = "SELECT user_id AS id, email, reset_token, reset_expires FROM users WHERE reset_token = ? AND reset_expires > ?";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$token, $current_time]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -199,6 +200,12 @@ if ($user) {
             padding-right: 50px;
         }
 
+        /* Hide default password reveal/clear icons (Edge/IE) to avoid double eyes */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear { display: none; width: 0; height: 0; }
+        input[type="password"]::-webkit-clear-button { display: none; }
+        input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidden; display: none; }
+
         .form-input:focus {
             outline: none;
             border-color: #667eea;
@@ -343,7 +350,6 @@ if ($user) {
         <?php if ($user && !$error && !$success): ?>
             <div style="background: rgba(102, 126, 234, 0.1); border: 1px solid #667eea; border-radius: 8px; padding: 12px; margin-bottom: 20px; text-align: center;">
                 <strong>Reset Password for:</strong><br>
-                <iconify-icon icon="solar:user-outline" style="margin-right: 4px;"></iconify-icon> <?php echo htmlspecialchars($user['display_name']); ?><br>
                 <iconify-icon icon="solar:letter-outline" style="margin-right: 4px;"></iconify-icon> <?php echo htmlspecialchars($user['email']); ?>
             </div>
 

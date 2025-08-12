@@ -221,6 +221,13 @@ if (isset($_POST['login'])) {
             padding-right: 50px;
         }
 
+        /* Hide default password reveal/clear icons (Edge/IE) */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear { display: none; width: 0; height: 0; }
+        /* Extra safety for legacy webkit variants (mostly not needed) */
+        input[type="password"]::-webkit-clear-button { display: none; }
+        input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidden; display: none; }
+
         .form-input:focus {
             outline: none;
             border-color: #667eea;

@@ -1,5 +1,21 @@
 # Version History - Ultimate Website
 
+## Version 2.4.2 - Password Reset Fixes, User Schema Alignment, UI Polish
+**Date:** August 2025
+
+### ✅ Fixes & Changes
+- Forgot Password: tampilkan error eksplisit jika email tidak terdaftar.
+- Reset Password: perbaikan query agar kompatibel schema baru (gunakan `user_id`, hilangkan ketergantungan `display_name`).
+- Konsistensi `users`: ganti referensi `id` → `user_id` di beberapa file terkait reset/login & utility.
+- UI: hilangkan ikon “mata” ganda pada input password (Edge/IE/varian webkit) di login dan reset password; hanya satu ikon toggle custom di kanan.
+- Cleanup: hapus file test/debug yang tidak digunakan agar tidak mengganggu produksi.
+
+### 📄 Files Touched
+- `forgot-password.php`, `reset-password.php`, `login_simple.php`
+- Utility/debug yang dirapikan atau dihapus
+
+---
+
 ## Version 2.4.1 - Kanban Edit Modal Parity & Bug Fixes
 **Date:** August 2025
 

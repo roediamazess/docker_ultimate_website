@@ -45,15 +45,14 @@ if (isset($_POST['test_login'])) {
 
 // Show all users
 echo "<h3>Available Users:</h3>";
-$users = $pdo->query("SELECT id, email, display_name, role FROM users")->fetchAll();
+$users = $pdo->query("SELECT user_id, email, role FROM users ORDER BY created_at DESC")->fetchAll();
 echo "<table border='1'>";
-echo "<tr><th>ID</th><th>Email</th><th>Name</th><th>Role</th></tr>";
+echo "<tr><th>User ID</th><th>Email</th><th>Role</th></tr>";
 foreach ($users as $u) {
     echo "<tr>";
-    echo "<td>" . $u['id'] . "</td>";
-    echo "<td>" . $u['email'] . "</td>";
-    echo "<td>" . $u['display_name'] . "</td>";
-    echo "<td>" . $u['role'] . "</td>";
+    echo "<td>" . htmlspecialchars($u['user_id']) . "</td>";
+    echo "<td>" . htmlspecialchars($u['email']) . "</td>";
+    echo "<td>" . htmlspecialchars($u['role']) . "</td>";
     echo "</tr>";
 }
 echo "</table>";

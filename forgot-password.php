@@ -41,7 +41,8 @@ if (isset($_POST['reset_password'])) {
         } else {
             // Cek apakah email ada di database
             // Schema users terbaru tidak memiliki kolom integer `id`. Gunakan `user_id` dan alias sebagai `id` untuk kompatibilitas.
-            $sql = "SELECT user_id AS id, email, display_name FROM users WHERE email = ?";
+            // Ambil minimal kolom yang pasti ada
+            $sql = "SELECT user_id AS id, email FROM users WHERE email = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -77,8 +78,8 @@ if (isset($_POST['reset_password'])) {
                     $error = 'Terjadi kesalahan sistem. Silakan coba lagi.';
                 }
             } else {
-                // Don't reveal if email exists or not
-                $success = "Jika email terdaftar, link reset password akan dikirim ke email Anda.";
+                // Tampilkan informasi eksplisit bahwa email tidak terdaftar
+                $error = "Email tidak terdaftar!";
             }
             
             // Increment attempts
