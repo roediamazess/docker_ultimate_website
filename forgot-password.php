@@ -40,7 +40,8 @@ if (isset($_POST['reset_password'])) {
             $error = 'Format email tidak valid!';
         } else {
             // Cek apakah email ada di database
-            $sql = "SELECT id, email, display_name FROM users WHERE email = ?";
+            // Schema users terbaru tidak memiliki kolom integer `id`. Gunakan `user_id` dan alias sebagai `id` untuk kompatibilitas.
+            $sql = "SELECT user_id AS id, email, display_name FROM users WHERE email = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -59,7 +60,8 @@ if (isset($_POST['reset_password'])) {
                     require_once 'send_email.php';
                     
                     // Kirim email reset yang sebenarnya
-                    if (sendPasswordResetEmail($email, $reset_token, $user['display_name'])) {
+                    $recipientName = $user['display_name'] ?? '';
+                    if (sendPasswordResetEmail($email, $reset_token, $recipientName)) {
                         // Convert UTC ke local time untuk display
                         $reset_expires_local = convertUTCToLocal($reset_expires_utc);
                         
