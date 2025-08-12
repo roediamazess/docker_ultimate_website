@@ -7,6 +7,8 @@ require_once 'db.php';
 
 $error = '';
 $success = '';
+$login_success = false;
+$redirect_to = 'index.php';
 
 if (isset($_POST['login'])) {
     $email = trim($_POST['email'] ?? '');
@@ -31,7 +33,7 @@ if (isset($_POST['login'])) {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($user && password_verify($password, $user['password'])) {
-                // Login sukses
+                // Login sukses (keamanan dan session tetap berjalan seperti biasa)
                 session_regenerate_id(true);
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['user_email'] = $user['email'];
@@ -42,9 +44,9 @@ if (isset($_POST['login'])) {
                 // Clear login attempts
                 unset($_SESSION[$attempt_key]);
                 
-                $success = 'Login berhasil! Redirecting...';
-                header('Location: index.php');
-                exit;
+                // Tampilkan animasi lalu redirect via JS
+                $login_success = true;
+                $success = 'Login berhasil!';
             } else {
                 // Increment failed attempts
                 $_SESSION[$attempt_key] = $attempts + 1;
@@ -54,10 +56,10 @@ if (isset($_POST['login'])) {
     }
 }
 
-            // Default values - akan diupdate oleh JavaScript
-            // Adjusted for Indonesian time context
-            $timeOfDay = 'Gaes!';
-            $bgClass = 'morning';
+// Default values - akan diupdate oleh JavaScript
+// Adjusted for Indonesian time context
+$timeOfDay = 'Gaes!';
+$bgClass = 'morning';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -65,6 +67,8 @@ if (isset($_POST['login'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Ultimate Website</title>
+    <link rel="icon" type="image/png" href="assets/images/company/logo.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="assets/images/company/logo.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link href="assets/css/login-backgrounds.css" rel="stylesheet">
@@ -74,259 +78,69 @@ if (isset($_POST['login'])) {
             --login-primary-start:#667eea; /* purple-blue */
             --login-primary-end:#764ba2;   /* purple */
             --login-accent:#90C5D8;        /* brand accent */
+            --ripple-color-light:#ffffff;
+            --ripple-color-dark:#1e293b;
+            --dash-text-1-light:#1e293b;
+            --dash-text-2-light:#64748b;
+            --dash-text-1-dark:#ffffff;
+            --dash-text-2-dark:#d1d5db;
         }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            overflow: hidden;
-            height: 100vh;
-        }
-
-        .login-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .background-animation {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            transition: all 1s ease-in-out;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        /* Modern gradient glow overlay */
-        .background-animation::after{
-            content:"";
-            position:absolute; inset:0;
-            pointer-events:none;
-            background:
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; height: 100vh; }
+        .login-container { position: relative; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .background-animation { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; transition: all 1s ease-in-out; background-size: cover; background-position: center; background-repeat: no-repeat; }
+        .background-animation::after{ content:""; position:absolute; inset:0; pointer-events:none; background:
               radial-gradient(800px 400px at 10% 10%, rgba(144,197,216,.20), transparent 60%),
               radial-gradient(700px 350px at 90% 20%, rgba(118,75,162,.15), transparent 60%),
               radial-gradient(700px 350px at 20% 80%, rgba(102,126,234,.18), transparent 60%);
-            mix-blend-mode: screen;
-            animation: bgFloat 14s ease-in-out infinite alternate;
-        }
-
-        @keyframes bgFloat{
-            0%{transform: translate3d(0,0,0) scale(1);} 
-            100%{transform: translate3d(0,-15px,0) scale(1.02);} 
-        }
-
-        .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 48px 32px 32px 32px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 400px;
-            width: 90%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            animation: popIn .6s cubic-bezier(.2,.8,.2,1) both;
-        }
-
+            mix-blend-mode: screen; animation: bgFloat 14s ease-in-out infinite alternate; }
+        @keyframes bgFloat{ 0%{transform: translate3d(0,0,0) scale(1);} 100%{transform: translate3d(0,-15px,0) scale(1.02);} }
+        .login-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border-radius: 24px; padding: 48px 32px 32px 32px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); max-width: 400px; width: 90%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; animation: popIn .6s cubic-bezier(.2,.8,.2,1) both; }
         @keyframes popIn{from{opacity:0; transform: translate(-50%, -46%) scale(.96);} to{opacity:1; transform: translate(-50%, -50%) scale(1);} }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-
-        .login-logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--login-primary-start) 0%, var(--login-primary-end) 100%);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 48px;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        }
-
-        .login-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 20px;
-        }
-
-        .login-subtitle {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 0;
-        }
-
-        .time-greeting {
-            background: linear-gradient(135deg, var(--login-primary-start) 0%, var(--login-primary-end) 100%);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 600;
-            display: inline-block;
-            margin-bottom: 28px;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .form-group {
-            margin-bottom: 24px;
-            position: relative;
-        }
-
-        .form-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #e1e5e9;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.8);
-        }
-
-        .form-input[type="password"] {
-            padding-right: 50px;
-        }
-
+        .login-header { text-align: center; margin-bottom: 28px; }
+        .login-logo { width: 80px; height: 80px; background: linear-gradient(135deg, var(--login-primary-start) 0%, var(--login-primary-end) 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 48px; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3); }
+        .login-title { font-size: 28px; font-weight: 700; color: #1a1a1a; margin-bottom: 20px; }
+        .login-subtitle { font-size: 16px; color: #666; margin-bottom: 0; }
+        .time-greeting { background: linear-gradient(135deg, var(--login-primary-start) 0%, var(--login-primary-end) 100%); color: white; padding: 12px 24px; border-radius: 50px; font-size: 14px; font-weight: 600; display: inline-block; margin-bottom: 28px; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
+        .form-group { margin-bottom: 24px; position: relative; }
+        .form-label { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; display: block; }
+        .form-input { width: 100%; padding: 16px 20px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 16px; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.8); }
+        .form-input[type="password"] { padding-right: 50px; }
         /* Hide default password reveal/clear icons (Edge/IE) */
-        input[type="password"]::-ms-reveal,
-        input[type="password"]::-ms-clear { display: none; width: 0; height: 0; }
-        /* Extra safety for legacy webkit variants (mostly not needed) */
+        input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear { display: none; width: 0; height: 0; }
         input[type="password"]::-webkit-clear-button { display: none; }
         input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidden; display: none; }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-            background: white;
-        }
-
-        .input-icon {
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 20px;
-            width: 20px;
-            pointer-events: none;
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 20px;
-            width: 20px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 0;
-            transition: color 0.3s ease;
-        }
-
-        .password-toggle:hover {
-            color: #667eea;
-        }
-
-        .password-toggle:focus {
-            outline: none;
-            color: #667eea;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, var(--login-primary-start) 0%, var(--login-primary-end) 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            margin-bottom: 24px;
-            position: relative; overflow: hidden;
-        }
-
-        .login-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 12px 28px rgba(102, 126, 234, 0.45);
-        }
-
+        .form-input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); background: white; }
+        .input-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #999; font-size: 18px; display: flex; align-items: center; justify-content: center; height: 20px; width: 20px; pointer-events: none; }
+        .password-toggle { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #999; font-size: 18px; display: flex; align-items: center; justify-content: center; height: 20px; width: 20px; cursor: pointer; background: none; border: none; padding: 0; transition: color 0.3s ease; }
+        .password-toggle:hover { color: #667eea; }
+        .password-toggle:focus { outline: none; color: #667eea; }
+        .login-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--login-primary-start) 0%, var(--login-primary-end) 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.25s ease; margin-bottom: 24px; position: relative; overflow: hidden; }
+        .login-btn:hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(102, 126, 234, 0.45); }
         .login-btn:active { transform: translateY(0); }
-
-        /* subtle shine animation */
-        .login-btn::after{
-            content:""; position:absolute; inset:0; background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.35) 30%, transparent 60%);
-            transform: translateX(-120%);
-        }
+        .login-btn::after{ content:""; position:absolute; inset:0; background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.35) 30%, transparent 60%); transform: translateX(-120%); }
         .login-btn:hover::after{ transform: translateX(120%); transition: transform .9s ease; }
-
-        .error-message {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 14px;
-            margin-bottom: 16px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
-        }
-
-        .success-message {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 14px;
-            margin-bottom: 16px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        .error-message { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%); color: white; padding: 12px 16px; border-radius: 12px; font-size: 14px; margin-bottom: 16px; text-align: center; box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3); }
+        .success-message { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 12px 16px; border-radius: 12px; font-size: 14px; margin-bottom: 16px; text-align: center; box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3); }
+        /* Overlay animasi sukses */
+        .screen-container{ position:fixed; inset:0; display:flex; justify-content:center; align-items:center; z-index:9999; pointer-events:none; }
+        .screen-container .home-screen{ position:absolute; opacity:0; transform:translateY(20px); transition:transform .6s 1.2s cubic-bezier(.16,1,.3,1), opacity .6s 1.2s ease-in; text-align:center }
+        .screen-container .success-title{ font-size:56px; font-weight:800; margin:0 }
+        .screen-container .success-subtitle{ font-size:20px; margin-top:8px }
+        .ripple-effect{ position:absolute; top:50%; left:50%; width:250vmax; height:250vmax; border-radius:50%; background-color: var(--ripple-color-light); transform:translate(-50%,-50%) scale(0) }
+        html[data-theme="dark"] .ripple-effect{ background-color: var(--ripple-color-dark) }
+        html[data-theme="light"] .ripple-effect{ background-color: var(--ripple-color-light) }
+        html[data-theme="light"] .success-title{ color:var(--dash-text-1-light) }
+        html[data-theme="light"] .success-subtitle{ color:var(--dash-text-2-light) }
+        html[data-theme="dark"] .success-title{ color:var(--dash-text-1-dark) }
+        html[data-theme="dark"] .success-subtitle{ color:var(--dash-text-2-dark) }
+        .screen-container.is-unlocked .home-screen{ transform:translateY(0); opacity:1 }
+        .screen-container.is-unlocked .ripple-effect{ animation:ripple-animation 1.5s cubic-bezier(.22,1,.36,1) forwards }
+        @keyframes ripple-animation{ from{ transform:translate(-50%,-50%) scale(0) } to{ transform:translate(-50%,-50%) scale(1) } }
+        @media (prefers-reduced-motion: reduce){
+            .screen-container.is-unlocked .ripple-effect{ animation:none; transform:translate(-50%,-50%) scale(1) }
+            .screen-container .home-screen{ transition:none; opacity:1; transform:none }
         }
     </style>
     
@@ -342,56 +156,25 @@ if (isset($_POST['login'])) {
             let bgClass = '';
             
             // Adjusted time ranges for better Indonesian context
-            if (hour >= 5 && hour < 11) {
-                timeOfDay = 'Pagi Gaes!';
-                bgClass = 'morning';
-            } else if (hour >= 11 && hour < 16) {
-                timeOfDay = 'Siang Gaes!';
-                bgClass = 'afternoon';
-            } else if (hour >= 16 && hour < 19) {
-                timeOfDay = 'Sore Gaes!';
-                bgClass = 'evening';
-            } else {
-                timeOfDay = 'Malam Gaes!';
-                bgClass = 'night';
-            }
+            if (hour >= 5 && hour < 11) { timeOfDay = 'Pagi Gaes!'; bgClass = 'morning'; }
+            else if (hour >= 11 && hour < 16) { timeOfDay = 'Siang Gaes!'; bgClass = 'afternoon'; }
+            else if (hour >= 16 && hour < 19) { timeOfDay = 'Sore Gaes!'; bgClass = 'evening'; }
+            else { timeOfDay = 'Malam Gaes!'; bgClass = 'night'; }
             
-            // Update greeting text
-            if (timeOfDayElement) {
-                timeOfDayElement.textContent = timeOfDay;
-            }
-            
-            // Update background
+            if (timeOfDayElement) { timeOfDayElement.textContent = timeOfDay; }
             if (backgroundElement) {
-                // Remove all time-based classes
-                backgroundElement.classList.remove('morning', 'afternoon', 'evening', 'night');
-                // Add new class
+                backgroundElement.classList.remove('morning','afternoon','evening','night');
                 backgroundElement.classList.add(bgClass);
             }
-            
-            console.log(`Waktu lokal: ${hour}:${now.getMinutes()} - ${timeOfDay} (${bgClass})`);
         }
-        
-        // Update saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', function() {
-            updateTimeBasedContent();
-            
-            // Update setiap menit untuk memastikan akurasi
-            setInterval(updateTimeBasedContent, 60000);
-        });
+        document.addEventListener('DOMContentLoaded', function(){ updateTimeBasedContent(); setInterval(updateTimeBasedContent, 60000); });
 
         // Toggle password visibility
-        function togglePassword() {
+        function togglePassword(){
             const passwordInput = document.getElementById('password');
             const passwordIcon = document.getElementById('password-icon');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                passwordIcon.setAttribute('icon', 'solar:eye-closed-outline');
-            } else {
-                passwordInput.type = 'password';
-                passwordIcon.setAttribute('icon', 'solar:eye-outline');
-            }
+            if (passwordInput.type === 'password') { passwordInput.type = 'text'; passwordIcon.setAttribute('icon','solar:eye-closed-outline'); }
+            else { passwordInput.type = 'password'; passwordIcon.setAttribute('icon','solar:eye-outline'); }
         }
     </script>
 </head>
@@ -404,26 +187,18 @@ if (isset($_POST['login'])) {
         <div class="login-card">
             <div class="login-header">
                 <div class="login-logo" style="background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 auto 48px !important;">
-                    <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 120px; width: auto; max-width: 200px; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; cursor: pointer; display: block;" onmouseover="this.style.animation='spin 2s linear infinite'" onmouseout="this.style.animation='none'; this.style.transform='rotate(0deg)'">
+                    <img src="assets/images/company/logo.png" alt="PPSolution Logo" style="height: 120px; width: auto; max-width: 200px; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; cursor: pointer; display: block;" onmouseover="this.style.animation='spin 2s linear infinite'" onmouseout="this.style.animation='none'; this.style.transform='rotate(0deg)';">
                 </div>
                 <h1 class="login-title">Welcome Back! 👋</h1>
-                <div class="time-greeting" id="timeGreeting">
-                    Selamat <span id="timeOfDay">Gaes!</span>
-                </div>
+                <div class="time-greeting" id="timeGreeting">Selamat <span id="timeOfDay">Gaes!</span></div>
             </div>
 
             <?php if ($error): ?>
-            <div class="error-message">
-                <iconify-icon icon="solar:danger-triangle-outline" style="margin-right: 8px;"></iconify-icon>
-                <?= htmlspecialchars($error) ?>
-            </div>
+            <div class="error-message"><iconify-icon icon="solar:danger-triangle-outline" style="margin-right: 8px;"></iconify-icon><?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
 
-            <?php if ($success): ?>
-            <div class="success-message">
-                <iconify-icon icon="solar:check-circle-outline" style="margin-right: 8px;"></iconify-icon>
-                <?= htmlspecialchars($success) ?>
-            </div>
+            <?php if ($success && !$login_success): ?>
+            <div class="success-message"><iconify-icon icon="solar:check-circle-outline" style="margin-right: 8px;"></iconify-icon><?= htmlspecialchars($success) ?></div>
             <?php endif; ?>
 
             <form method="post">
@@ -439,9 +214,7 @@ if (isset($_POST['login'])) {
                     </button>
                 </div>
 
-                <button type="submit" name="login" class="login-btn">
-                    Login
-                </button>
+                <button type="submit" name="login" class="login-btn">Login</button>
             </form>
 
             <div style="margin-top: 24px; text-align: center;">
@@ -451,5 +224,33 @@ if (isset($_POST['login'])) {
             </div>
         </div>
     </div>
+
+    <?php if ($login_success): ?>
+    <!-- Overlay animasi sukses -->
+    <div id="loginSuccessAnimation" class="screen-container" style="display:flex;">
+        <div class="ripple-effect"></div>
+    </div>
+    <script>
+    (function(){
+        const container = document.getElementById('loginSuccessAnimation');
+        if (!container) return;
+        // Terapkan warna background solid agar transisi mulus
+        const theme = document.documentElement.getAttribute('data-theme') || 'light';
+        document.body.style.backgroundImage = 'none';
+        document.body.style.backgroundColor = (theme === 'dark') ? getComputedStyle(document.documentElement).getPropertyValue('--ripple-color-dark').trim() : getComputedStyle(document.documentElement).getPropertyValue('--ripple-color-light').trim();
+        // Jalankan animasi
+        container.classList.add('is-unlocked');
+        // Redirect setelah animasi selesai
+        const ripple = container.querySelector('.ripple-effect');
+        const redirectTo = <?= json_encode($redirect_to) ?>;
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!ripple || prefersReduced) {
+            window.location.href = redirectTo;
+        } else {
+            ripple.addEventListener('animationend', function(){ window.location.href = redirectTo; }, { once: true });
+        }
+    })();
+    </script>
+    <?php endif; ?>
 </body>
 </html> 

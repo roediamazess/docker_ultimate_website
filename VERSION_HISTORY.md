@@ -1,5 +1,22 @@
 # Version History - Ultimate Website
 
+## Version 2.4.3 - Auth UX Polish: Ripple Login, Favicon, Scenic Backgrounds
+**Date:** August 2025
+
+### ✨ UX Improvements
+- Login sukses: animasi ripple overlay dengan redirect otomatis setelah animasi selesai (durasi saat ini: 1.5s, sinkron via `animationend`).
+- Favicon/Tab icon ditambahkan pada halaman auth (`login_simple.php`, `forgot-password.php`, `reset-password.php`).
+- Background pemandangan dikembalikan dan dipoles: setiap waktu (pagi/siang/sore/malam) memakai foto landscape + overlay gradient agar teks tetap terbaca.
+- Kompatibel dengan dark/light theme yang sudah ada; overlay mengikuti `data-theme`.
+
+### 📄 Files Touched
+- `login_simple.php`
+- `forgot-password.php`
+- `reset-password.php`
+- `assets/css/login-backgrounds.css`
+
+---
+
 ## Version 2.4.2 - Password Reset Fixes, User Schema Alignment, UI Polish
 **Date:** August 2025
 
