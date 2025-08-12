@@ -185,7 +185,6 @@ class ActivityNotificationHandler {
             this.showActivityNotification('error', { message: 'Operation failed' });
         }
     }
-}
     
     /**
      * Check if response is activity-related
@@ -215,7 +214,6 @@ class ActivityNotificationHandler {
         
         return false;
     }
-}
     
     /**
      * Show activity notification
@@ -245,8 +243,7 @@ class ActivityNotificationHandler {
                 window.logoNotificationManager.showActivityUpdate(message, duration);
         }
     }
-}
-
+    
     /**
      * Show loading notification
      */

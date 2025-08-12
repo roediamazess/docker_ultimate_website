@@ -26,10 +26,10 @@ if (isset($_POST['test_login'])) {
             echo "<p>✅ Password correct!</p>";
             
             // Set session
-            $_SESSION['user_id'] = $user['id'];
+                            $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_role'] = $user['role'];
-            $_SESSION['user_display_name'] = $user['display_name'];
+                            $_SESSION['user_display_name'] = $user['user_id'];
             
             echo "<p>✅ Session created!</p>";
             echo "<p>Session data: " . print_r($_SESSION, true) . "</p>";

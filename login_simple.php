@@ -33,10 +33,10 @@ if (isset($_POST['login'])) {
             if ($user && password_verify($password, $user['password'])) {
                 // Login sukses
                 session_regenerate_id(true);
-                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_role'] = $user['role'];
-                $_SESSION['user_display_name'] = $user['display_name'];
+                $_SESSION['user_display_name'] = $user['user_id'];
                 $_SESSION['login_time'] = time();
                 
                 // Clear login attempts
@@ -55,6 +55,7 @@ if (isset($_POST['login'])) {
 }
 
             // Default values - akan diupdate oleh JavaScript
+            // Adjusted for Indonesian time context
             $timeOfDay = 'Gaes!';
             $bgClass = 'morning';
 ?>
@@ -333,13 +334,14 @@ if (isset($_POST['login'])) {
             let timeOfDay = '';
             let bgClass = '';
             
-            if (hour >= 3 && hour < 10) {
+            // Adjusted time ranges for better Indonesian context
+            if (hour >= 5 && hour < 11) {
                 timeOfDay = 'Pagi Gaes!';
                 bgClass = 'morning';
-            } else if (hour >= 10 && hour < 15) {
+            } else if (hour >= 11 && hour < 16) {
                 timeOfDay = 'Siang Gaes!';
                 bgClass = 'afternoon';
-            } else if (hour >= 15 && hour < 18) {
+            } else if (hour >= 16 && hour < 19) {
                 timeOfDay = 'Sore Gaes!';
                 bgClass = 'evening';
             } else {

@@ -34,10 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user && password_verify($password, $user['password'])) {
         // Set session
         session_regenerate_id(true);
-        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_role'] = $user['role'];
-        $_SESSION['user_display_name'] = $user['display_name'];
+                        $_SESSION['user_display_name'] = $user['user_id'];
         // Hapus attempt login sukses dari IP ini (opsional, tidak wajib)
         $pdo->prepare('DELETE FROM login_attempts WHERE ip = ?')->execute([$ip]);
         // Redirect sesuai role

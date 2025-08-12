@@ -97,10 +97,10 @@ include './partials/layouts/layoutHorizontal.php'
                             <option>Inactive</option>
                         </select>
                     </div>
-                    <a href="add-user.php" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2" onclick="showCreateUserModal()">
                         <iconify-icon icon="ic:baseline-plus" class="icon text-xl line-height-1"></iconify-icon>
                         Add New User
-                    </a>
+                    </button>
                 </div>
                 <div class="card-body p-24">
                     <div class="table-responsive scroll-sm">
@@ -203,6 +203,107 @@ include './partials/layouts/layoutHorizontal.php'
                     </div>
                 </div>
             </div>
+
+            <!-- Create User Modal - Custom Modal (reuse markup same as add-user.php) -->
+            <style>
+            .custom-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; align-items: center; justify-content: center; z-index: 1050; }
+            .custom-modal { width: min(980px, 96vw); background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+            .custom-modal-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%); color: #fff; }
+            .custom-modal-title { margin: 0; font-size: 18px; font-weight: 600; }
+            .custom-modal-close { background: transparent; border: 0; color: #fff; font-size: 22px; cursor: pointer; line-height: 1; }
+            .custom-modal-body { padding: 20px; }
+            .custom-modal-footer { padding: 14px 20px; background: #f8fafc; display: flex; gap: 10px; justify-content: flex-end; }
+            .custom-modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
+            .custom-modal-col { display: flex; flex-direction: column; gap: 6px; }
+            .custom-modal-label { font-weight: 600; font-size: 12px; color: #111827; }
+            .custom-modal-input, .custom-modal-select, .custom-modal-textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff; }
+            .custom-modal-input:focus, .custom-modal-select:focus, .custom-modal-textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+            .custom-btn { padding: 10px 14px; border-radius: 8px; border: 0; cursor: pointer; font-weight: 600; }
+            .custom-btn-primary { background: #2563eb; color: #fff; }
+            .custom-btn-secondary { background: #374151; color: #fff; }
+            [data-theme="dark"] .custom-modal { background: #111827; color: #e5e7eb; border: 1px solid #374151; }
+            [data-theme="dark"] .custom-modal-header { background: linear-gradient(135deg, #0b1220 0%, #111827 100%); }
+            [data-theme="dark"] .custom-modal-footer { background: #0b1220; }
+            [data-theme="dark"] .custom-modal-input, [data-theme="dark"] .custom-modal-select, [data-theme="dark"] .custom-modal-textarea { background: #0b1220; border-color: #374151; color: #e5e7eb; }
+            [data-theme="dark"] .custom-modal-label { color: #e5e7eb; }
+            @media (max-width: 768px) { .custom-modal-row { grid-template-columns: 1fr; } }
+            </style>
+            <div class="custom-modal-overlay" id="createUserModal" style="display:none;">
+                <div class="custom-modal">
+                    <div class="custom-modal-header">
+                        <h5 class="custom-modal-title">Add User</h5>
+                        <button type="button" class="custom-modal-close" onclick="closeCreateUserModal()">&times;</button>
+                    </div>
+                    <form action="user_crud.php" method="post" id="createUserForm">
+                        <div class="custom-modal-body">
+                            <?= csrf_field() ?>
+                            <div class="custom-modal-row">
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Display Name *</label>
+                                    <input type="text" name="display_name" class="custom-modal-input" required>
+                                </div>
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Full Name *</label>
+                                    <input type="text" name="full_name" class="custom-modal-input" required>
+                                </div>
+                            </div>
+                            <div class="custom-modal-row">
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Email *</label>
+                                    <input type="email" name="email" class="custom-modal-input" required>
+                                </div>
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Password *</label>
+                                    <input type="password" name="password" class="custom-modal-input" required>
+                                </div>
+                            </div>
+                            <div class="custom-modal-row">
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Tier *</label>
+                                    <select name="tier" class="custom-modal-select" required>
+                                        <option value="">Select Tier</option>
+                                        <option value="New Born">New Born</option>
+                                        <option value="Tier 1">Tier 1</option>
+                                        <option value="Tier 2">Tier 2</option>
+                                        <option value="Tier 3">Tier 3</option>
+                                    </select>
+                                </div>
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Role *</label>
+                                    <select name="role" class="custom-modal-select" required>
+                                        <option value="">Select Role</option>
+                                        <option value="Administrator">Administrator</option>
+                                        <option value="Management">Management</option>
+                                        <option value="Admin Office">Admin Office</option>
+                                        <option value="User">User</option>
+                                        <option value="Client">Client</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="custom-modal-row">
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Start Work</label>
+                                    <input type="date" name="start_work" class="custom-modal-input">
+                                </div>
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Redirect After Save</label>
+                                    <input type="text" name="redirect_to" class="custom-modal-input" value="users-list.php">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="custom-modal-footer">
+                            <button type="submit" name="create" class="custom-btn custom-btn-primary">Save</button>
+                            <button type="button" class="custom-btn custom-btn-secondary" onclick="closeCreateUserModal()">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <script>
+            function showCreateUserModal(){ document.getElementById('createUserModal').style.display='flex'; }
+            function closeCreateUserModal(){ document.getElementById('createUserModal').style.display='none'; }
+            document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ closeCreateUserModal(); }});
+            </script>
         </div>
 
 <?php include './partials/layouts/layoutBottom.php' ?>

@@ -193,7 +193,7 @@
                         <a href="users-list.php"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Users List</a>
                     </li>
                     <li>
-                        <a href="users-grid.php"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Users Grid</a>
+                        <a href="users.php"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Users Grid</a>
                     </li>
                     <li>
                         <a href="add-user.php"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add User</a>
@@ -236,7 +236,7 @@
             </li>
             
             <li>
-                <a href="project_crud.php">
+                <a href="project.php">
                     <iconify-icon icon="solar:folder-outline" class="menu-icon"></iconify-icon>
                     <span>Project List</span>
                 </a>

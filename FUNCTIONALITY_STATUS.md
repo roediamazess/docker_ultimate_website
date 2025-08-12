@@ -188,7 +188,7 @@ const radius = Math.hypot(farthestX - originX, farthestY - originY);
 ### **CRUD Files**
 - ✅ `user_crud.php` - User management
 - ✅ `customer_crud.php` - Customer management
-- ✅ `project_crud.php` - Project management
+- ✅ `project.php` - Project management
 - ✅ `activity_crud.php` - Activity management
 
 ### **Utility Files**

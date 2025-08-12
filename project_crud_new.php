@@ -135,7 +135,9 @@ if (isset($_POST['delete'])) {
 
 // Pagination dan filtering
 $page = max(1, intval($_GET['page'] ?? 1));
-$limit = 10;
+// Allow user-controlled page size to match Activity list
+$limit = intval($_GET['limit'] ?? 10);
+if (!in_array($limit, [10, 15, 20], true)) { $limit = 10; }
 $offset = ($page - 1) * $limit;
 
 $search = trim($_GET['search'] ?? '');
@@ -175,6 +177,15 @@ $sql = "SELECT * FROM projects $where_clause ORDER BY created_at DESC LIMIT $lim
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get distinct project types for filter dropdown (PostgreSQL enum-safe)
+$type_rows = [];
+try {
+    $stmtType = $pdo->query("SELECT DISTINCT CAST(type AS TEXT) AS type FROM projects WHERE type IS NOT NULL AND CAST(type AS TEXT) <> '' ORDER BY type");
+    $type_rows = $stmtType->fetchAll(PDO::FETCH_COLUMN);
+} catch (PDOException $e) {
+    $type_rows = [];
+}
 ?>
 
 <?php include './partials/layouts/layoutHorizontal.php'; ?>
@@ -197,32 +208,23 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             <div class="card">
                 <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
-                    <div class="d-flex flex-wrap align-items-center gap-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <span>Show</span>
-                            <select class="form-select form-select-sm w-auto">
-                                <option>10</option>
-                                <option>15</option>
-                                <option>20</option>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-semibold">Show</span>
+                        <form method="get" class="d-inline">
+                            <select class="form-select form-select-sm w-auto" name="limit" onchange="this.form.submit()">
+                                <option value="10" <?= $limit===10?'selected':''; ?>>10</option>
+                                <option value="15" <?= $limit===15?'selected':''; ?>>15</option>
+                                <option value="20" <?= $limit===20?'selected':''; ?>>20</option>
                             </select>
-                        </div>
-                        <div class="icon-field">
-                            <input type="text" name="search" class="form-control form-control-sm w-auto" placeholder="Search" value="<?= htmlspecialchars($search) ?>">
-                            <span class="icon">
-                                <iconify-icon icon="ion:search-outline"></iconify-icon>
-                            </span>
-                        </div>
+                            <?php if ($search) echo '<input type="hidden" name="search" value="'.htmlspecialchars($search).'">'; ?>
+                            <?php if ($filter_status) echo '<input type="hidden" name="filter_status" value="'.htmlspecialchars($filter_status).'">'; ?>
+                            <?php if ($filter_type) echo '<input type="hidden" name="filter_type" value="'.htmlspecialchars($filter_type).'">'; ?>
+                        </form>
                     </div>
-                    <div class="d-flex flex-wrap align-items-center gap-3">
-                        <select class="form-select form-select-sm w-auto" name="filter_status">
-                            <option value="">All Status</option>
-                            <option value="Planning" <?= $filter_status === 'Planning' ? 'selected' : '' ?>>Planning</option>
-                            <option value="In Progress" <?= $filter_status === 'In Progress' ? 'selected' : '' ?>>In Progress</option>
-                            <option value="Completed" <?= $filter_status === 'Completed' ? 'selected' : '' ?>>Completed</option>
-                            <option value="On Hold" <?= $filter_status === 'On Hold' ? 'selected' : '' ?>>On Hold</option>
-                        </select>
-                        <a href="#" onclick="showCreateForm()" class="btn btn-sm btn-primary-600"><i class="ri-add-line"></i> Create Project</a>
-                    </div>
+                    <button type="button" class="btn btn-sm btn-primary-600 d-flex align-items-center gap-2" onclick="showCreateForm()">
+                        <iconify-icon icon="solar:add-circle-outline" class="icon"></iconify-icon>
+                        Create Project
+                    </button>
                 </div>
                 <div class="card-body">
                     <?php if ($message): ?>
@@ -278,37 +280,84 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </form>
                     </div>
 
-                    <table class="table bordered-table mb-0">
+                    <!-- Filter Section -->
+                    <div class="filter-section" style="margin-bottom:16px;">
+                        <form method="get" class="filter-form">
+                            <div class="filter-row" style="display:flex; flex-wrap:wrap; gap:16px;">
+                                <div class="filter-group" style="min-width:240px; flex:1;">
+                                    <label class="filter-label">Search</label>
+                                    <div class="icon-field">
+                                        <input type="text" name="search" class="form-control" placeholder="Search projects..." value="<?= htmlspecialchars($search) ?>">
+                                        <span class="icon">
+                                            <iconify-icon icon="ion:search-outline"></iconify-icon>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="filter-group" style="min-width:200px;">
+                                    <label class="filter-label">Status</label>
+                                    <select class="form-select" name="filter_status">
+                                        <option value="">All Status</option>
+                                        <option value="Planning" <?= $filter_status === 'Planning' ? 'selected' : '' ?>>Planning</option>
+                                        <option value="In Progress" <?= $filter_status === 'In Progress' ? 'selected' : '' ?>>In Progress</option>
+                                        <option value="Completed" <?= $filter_status === 'Completed' ? 'selected' : '' ?>>Completed</option>
+                                        <option value="On Hold" <?= $filter_status === 'On Hold' ? 'selected' : '' ?>>On Hold</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group" style="min-width:200px;">
+                                    <label class="filter-label">Type</label>
+                                    <select class="form-select" name="filter_type">
+                                        <option value="">All Type</option>
+                                        <?php foreach ($type_rows as $t): ?>
+                                            <option value="<?= htmlspecialchars($t) ?>" <?= $filter_type === $t ? 'selected' : '' ?>><?= htmlspecialchars($t) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2" style="margin-top:12px;">
+                                <button type="submit" class="btn-apply btn btn-sm btn-primary-600">Apply Filters</button>
+                                <a href="project_crud_new.php" class="btn-reset btn btn-sm btn-secondary">Reset</a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <table class="table table-striped mb-0">
                         <thead>
                             <tr>
-                                <th scope="col">
-                                    <div class="form-check style-check d-flex align-items-center">
-                                        <input class="form-check-input" type="checkbox" value="" id="checkAll">
-                                        <label class="form-check-label" for="checkAll">
-                                            S.L
-                                        </label>
-                                    </div>
-                                </th>
-                                <th scope="col">Project</th>
-                                <th scope="col">Hotel Name</th>
-                                <th scope="col">Duration</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">PIC</th>
-                                <th scope="col">Action</th>
+                                <th scope="col"><div class="table-header">No</div></th>
+                                <th scope="col"><div class="table-header">Project</div></th>
+                                <th scope="col"><div class="table-header">Hotel Name</div></th>
+                                <th scope="col"><div class="table-header">Duration</div></th>
+                                <th scope="col"><div class="table-header">Status</div></th>
+                                <th scope="col"><div class="table-header">PIC</div></th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($projects as $index => $p): ?>
-                            <tr>
-                                <td>
-                                    <div class="form-check style-check d-flex align-items-center">
-                                        <input class="form-check-input" type="checkbox" value="<?= $p['id'] ?>" id="check<?= $p['id'] ?>">
-                                        <label class="form-check-label" for="check<?= $p['id'] ?>">
-                                            <?= str_pad($index + 1 + $offset, 2, '0', STR_PAD_LEFT) ?>
-                                        </label>
-                                    </div>
-                                </td>
-                                <td>
+                            <tr class="project-row"
+                                data-id="<?= $p['id'] ?>"
+                                data-project_id="<?= htmlspecialchars($p['project_id'] ?? '') ?>"
+                                data-project_name="<?= htmlspecialchars($p['project_name'] ?? '') ?>"
+                                data-hotel_name="<?= htmlspecialchars($p['hotel_name'] ?? '') ?>"
+                                data-pic="<?= htmlspecialchars($p['pic'] ?? '') ?>"
+                                data-status="<?= htmlspecialchars($p['status'] ?? '') ?>"
+                                data-type="<?= htmlspecialchars($p['type'] ?? '') ?>"
+                                data-start_date="<?= htmlspecialchars($p['start_date'] ?? '') ?>"
+                                data-end_date="<?= htmlspecialchars($p['end_date'] ?? '') ?>"
+                                data-project_info="<?= htmlspecialchars($p['project_info'] ?? '') ?>"
+                                data-assignment="<?= htmlspecialchars($p['assignment'] ?? '') ?>"
+                                data-req_pic="<?= htmlspecialchars($p['req_pic'] ?? '') ?>"
+                                data-handover_report="<?= htmlspecialchars($p['handover_report'] ?? '') ?>"
+                                data-handover_days="<?= htmlspecialchars($p['handover_days'] ?? '') ?>"
+                                data-ketertiban_admin="<?= htmlspecialchars($p['ketertiban_admin'] ?? '') ?>"
+                                data-point_ach="<?= htmlspecialchars($p['point_ach'] ?? '') ?>"
+                                data-point_req="<?= htmlspecialchars($p['point_req'] ?? '') ?>"
+                                data-percent_point="<?= htmlspecialchars($p['percent_point'] ?? '') ?>"
+                                data-month="<?= htmlspecialchars($p['month'] ?? '') ?>"
+                                data-quarter="<?= htmlspecialchars($p['quarter'] ?? '') ?>"
+                                data-week_number="<?= htmlspecialchars($p['week_number'] ?? '') ?>"
+                            >
+                                <td data-label="No"><?= str_pad($index + 1 + $offset, 2, '0', STR_PAD_LEFT) ?></td>
+                                <td data-label="Project">
                                     <div class="d-flex align-items-center">
                                         <img src="assets/images/avatar/avatar3.png" alt="" class="flex-shrink-0 me-12 radius-8" style="width:40px;height:40px;">
                                         <div class="flex-grow-1">
@@ -317,8 +366,8 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         </div>
                                     </div>
                                 </td>
-                                <td><?= htmlspecialchars($p['hotel_name'] ?: '-') ?></td>
-                                <td>
+                                <td data-label="Hotel Name"><?= htmlspecialchars($p['hotel_name'] ?: '-') ?></td>
+                                <td data-label="Duration">
                                     <?php if ($p['start_date'] && $p['end_date']): ?>
                                         <?= date('d M', strtotime($p['start_date'])) ?> - <?= date('d M Y', strtotime($p['end_date'])) ?>
                                         <br><small class="text-secondary-light"><?= $p['total_days'] ?> days</small>
@@ -326,7 +375,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         -
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td data-label="Status">
                                     <?php
                                     $status_colors = [
                                         'Planning' => 'bg-warning-focus text-warning-main',
@@ -336,21 +385,97 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     ];
                                     $color_class = $status_colors[$p['status']] ?? 'bg-neutral-200 text-neutral-600';
                                     ?>
-                                    <span class="<?= $color_class ?> px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($p['status']) ?></span>
+                                    <span class="status-badge <?= $color_class ?> px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($p['status']) ?></span>
                                 </td>
-                                <td><?= htmlspecialchars($p['pic'] ?: '-') ?></td>
-                                <td>
-                                    <a href="javascript:void(0)" onclick="editProject(<?= $p['id'] ?>)" class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
-                                        <iconify-icon icon="lucide:edit"></iconify-icon>
-                                    </a>
-                                    <a href="javascript:void(0)" onclick="deleteProject(<?= $p['id'] ?>)" class="w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
-                                        <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
-                                    </a>
-                                </td>
+                                <td data-label="PIC"><?= htmlspecialchars($p['pic'] ?: '-') ?></td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
+
+                    <!-- Edit Project Modal (Bootstrap) -->
+                    <div class="modal fade" id="editProjectModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Edit Project</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form method="post">
+                                    <div class="modal-body">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="id" id="edit_id">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Project ID</label>
+                                                <input type="text" name="project_id" id="edit_project_id" class="form-control">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Project Name</label>
+                                                <input type="text" name="project_name" id="edit_project_name" class="form-control">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Hotel Name</label>
+                                                <input type="text" name="hotel_name" id="edit_hotel_name" class="form-control">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">PIC</label>
+                                                <input type="text" name="pic" id="edit_pic" class="form-control">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Status</label>
+                                                <select name="status" id="edit_status" class="form-select">
+                                                    <option value="Planning">Planning</option>
+                                                    <option value="In Progress">In Progress</option>
+                                                    <option value="Completed">Completed</option>
+                                                    <option value="On Hold">On Hold</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Type</label>
+                                                <select name="type" id="edit_type" class="form-select">
+                                                    <option value="">-</option>
+                                                    <?php foreach ($type_rows as $t): ?>
+                                                        <option value="<?= htmlspecialchars($t) ?>"><?= htmlspecialchars($t) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Start Date</label>
+                                                <input type="date" name="start_date" id="edit_start_date" class="form-control">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">End Date</label>
+                                                <input type="date" name="end_date" id="edit_end_date" class="form-control">
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Project Info</label>
+                                                <textarea name="project_info" id="edit_project_info" class="form-control" rows="3"></textarea>
+                                            </div>
+
+                                            <!-- Hidden fields to avoid undefined index on update -->
+                                            <input type="hidden" name="assignment" id="edit_assignment">
+                                            <input type="hidden" name="req_pic" id="edit_req_pic">
+                                            <input type="hidden" name="handover_report" id="edit_handover_report">
+                                            <input type="hidden" name="handover_days" id="edit_handover_days">
+                                            <input type="hidden" name="ketertiban_admin" id="edit_ketertiban_admin">
+                                            <input type="hidden" name="point_ach" id="edit_point_ach">
+                                            <input type="hidden" name="point_req" id="edit_point_req">
+                                            <input type="hidden" name="percent_point" id="edit_percent_point">
+                                            <input type="hidden" name="month" id="edit_month">
+                                            <input type="hidden" name="quarter" id="edit_quarter">
+                                            <input type="hidden" name="week_number" id="edit_week_number">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" name="update" value="1" class="btn btn-primary">Save</button>
+                                        <button type="button" class="btn btn-danger" id="btnDeleteProject">Delete</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Pagination -->
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
@@ -375,6 +500,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
 
+<script src="assets/js/activity-table.js"></script>
 <script>
 function showCreateForm() {
     document.getElementById('createProjectForm').style.display = 'block';
@@ -382,10 +508,6 @@ function showCreateForm() {
 
 function hideCreateForm() {
     document.getElementById('createProjectForm').style.display = 'none';
-}
-
-function editProject(projectId) {
-    alert('Edit project functionality to be implemented');
 }
 
 function deleteProject(projectId) {
@@ -401,6 +523,48 @@ function deleteProject(projectId) {
         form.submit();
     }
 }
+
+// Row click to open edit modal (same behavior as Activity List)
+document.addEventListener('DOMContentLoaded', function() {
+    const rows = document.querySelectorAll('.project-row');
+    const modalEl = document.getElementById('editProjectModal');
+    let bsModal = null;
+    if (modalEl && window.bootstrap) {
+        bsModal = new bootstrap.Modal(modalEl);
+    }
+
+    rows.forEach(function(row){
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function(){
+            const get = (name) => row.getAttribute('data-' + name) || '';
+            document.getElementById('edit_id').value = get('id');
+            document.getElementById('edit_project_id').value = get('project_id');
+            document.getElementById('edit_project_name').value = get('project_name');
+            document.getElementById('edit_hotel_name').value = get('hotel_name');
+            document.getElementById('edit_pic').value = get('pic');
+            document.getElementById('edit_status').value = get('status');
+            document.getElementById('edit_type').value = get('type');
+            document.getElementById('edit_start_date').value = get('start_date');
+            document.getElementById('edit_end_date').value = get('end_date');
+            document.getElementById('edit_project_info').value = get('project_info');
+            const hiddenIds = ['assignment','req_pic','handover_report','handover_days','ketertiban_admin','point_ach','point_req','percent_point','month','quarter','week_number'];
+            hiddenIds.forEach(id => {
+                const el = document.getElementById('edit_' + id);
+                if (el) el.value = get(id);
+            });
+
+            const btnDelete = document.getElementById('btnDeleteProject');
+            if (btnDelete) {
+                btnDelete.onclick = function(){
+                    deleteProject(get('id'));
+                };
+            }
+
+            if (bsModal) { bsModal.show(); }
+            else if (modalEl) { modalEl.style.display = 'block'; }
+        });
+    });
+});
 </script>
 
 <?php include './partials/layouts/layoutBottom.php'; ?>

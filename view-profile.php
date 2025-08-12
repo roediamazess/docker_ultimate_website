@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_photo'])) {
             
             if (move_uploaded_file($file['tmp_name'], $filepath)) {
                 // Update database with photo path
-                $stmt = $pdo->prepare("UPDATE users SET profile_photo = ? WHERE id = ?");
+                $stmt = $pdo->prepare("UPDATE users SET profile_photo = ? WHERE user_id = ?");
                 if ($stmt->execute([$filepath, $user_id])) {
                     $message = 'Foto profil berhasil diupload!';
                 } else {
@@ -65,13 +65,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         $error = 'Nama lengkap dan email wajib diisi.';
     } else {
         // Check if email already exists for other users
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+        $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = ? AND user_id != ?");
         $stmt->execute([$email, $user_id]);
         if ($stmt->fetch()) {
             $error = 'Email sudah digunakan oleh user lain.';
         } else {
             // Update basic info (excluding display_name - only admin can change it)
-            $stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, tier = ?, role = ?, start_work = ? WHERE id = ?");
+            $stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, tier = ?, role = ?, start_work = ? WHERE user_id = ?");
             if ($stmt->execute([$full_name, $email, $tier, $role, $start_work, $user_id])) {
                 $message = 'Profil berhasil diupdate!';
                 
@@ -89,13 +89,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             $error = 'Password baru dan konfirmasi password tidak cocok.';
         } else {
             // Verify current password
-            $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT password FROM users WHERE user_id = ?");
             $stmt->execute([$user_id]);
             $user = $stmt->fetch();
             
             if ($user && password_verify($current_password, $user['password'])) {
                 $new_password_hash = password_hash($new_password, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+                $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE user_id = ?");
                 if ($stmt->execute([$new_password_hash, $user_id])) {
                     $message .= ' Password berhasil diubah!';
                 } else {
@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 }
 
 // Get user data
-$stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE user_id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

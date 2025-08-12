@@ -314,7 +314,7 @@ if (isset($_POST['delete'])) {
         <option value="Rejected" <?= $filter_status==='Rejected'?'selected':'' ?>>Rejected</option>
     </select>
     <button type="submit">Cari</button>
-    <a href="project_crud.php">Reset</a>
+    <a href="project.php">Reset</a>
 </form>
 <div style="overflow-x:auto; max-width:100vw; margin-bottom:16px;">
 <table border="1" cellpadding="4" style="min-width:900px;">

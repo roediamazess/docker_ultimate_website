@@ -19,10 +19,10 @@ if (isset($_POST['login'])) {
     if ($user && password_verify($password, $user['password'])) {
         // Login sukses
         session_regenerate_id(true);
-        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_role'] = $user['role'];
-        $_SESSION['user_display_name'] = $user['display_name'];
+                        $_SESSION['user_display_name'] = $user['user_id'];
         
         $success = 'Login berhasil! Redirecting...';
         echo "<script>setTimeout(function(){ window.location.href = 'index.php'; }, 2000);</script>";

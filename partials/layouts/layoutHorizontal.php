@@ -320,18 +320,11 @@
                         </ul>
                     </li>
 
-                    <li class="nav-item dropdown" data-debug="dropdown-item">
-                        <a href="javascript:void(0)" class="nav-link" data-debug="dropdown-link">
+                    <li class="nav-item" data-debug="nav-item">
+                        <a href="users.php" class="nav-link">
                             <iconify-icon icon="solar:users-group-rounded-outline" class="nav-icon"></iconify-icon>
                             <span>Users</span>
-                            <iconify-icon icon="solar:alt-arrow-down-outline" class="dropdown-arrow"></iconify-icon>
                         </a>
-                        <ul class="dropdown-menu" data-debug="dropdown-menu">
-                            <li><a href="users-grid.php">Users Grid</a></li>
-                            <li><a href="users-list.php">Users List</a></li>
-                            <li><a href="add-user-form.php">Add User</a></li>
-                            <li><a href="view-profile.php">View Profile</a></li>
-                        </ul>
                     </li>
 
                     <li class="nav-item" data-debug="nav-item">
@@ -342,7 +335,7 @@
                     </li>
 
                     <li class="nav-item" data-debug="nav-item">
-                        <a href="project_crud.php" class="nav-link">
+                        <a href="project.php" class="nav-link">
                             <iconify-icon icon="solar:folder-with-files-outline" class="nav-icon"></iconify-icon>
                             <span>Projects</span>
                         </a>
@@ -375,7 +368,7 @@
                             $user_id = $_SESSION['user_id'] ?? null;
                             $profile_photo = null;
                             if ($user_id) {
-                                $stmt = $pdo->prepare("SELECT profile_photo FROM users WHERE id = ?");
+                                $stmt = $pdo->prepare("SELECT profile_photo FROM users WHERE user_id = ?");
                                 $stmt->execute([$user_id]);
                                 $user_data = $stmt->fetch();
                                 $profile_photo = $user_data['profile_photo'] ?? null;

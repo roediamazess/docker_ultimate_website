@@ -22,7 +22,7 @@ Fatal error: Cannot redeclare get_current_user_role() (previously declared in C:
 - `log_view.php` - Added `require_once 'access_control.php';`
 
 ### 2. Automated Fixes (via fix_require_login.php)
-- `users-grid.php` - Added `require_once 'access_control.php';`
+- `users.php` - Added `require_once 'access_control.php';`
 - `users-list.php` - Added `require_once 'access_control.php';`
 - `view-profile.php` - Already correct
 - `test-functionality.php` - Already correct
