@@ -229,7 +229,7 @@
             </li>
             
             <li>
-                <a href="customer_crud.php">
+                <a href="customer.php">
                     <iconify-icon icon="solar:buildings-2-outline" class="menu-icon"></iconify-icon>
                     <span>Customer List</span>
                 </a>

@@ -328,7 +328,7 @@
                     </li>
 
                     <li class="nav-item" data-debug="nav-item">
-                        <a href="customer_crud.php" class="nav-link">
+                        <a href="customer.php" class="nav-link">
                             <iconify-icon icon="solar:users-group-two-rounded-outline" class="nav-icon"></iconify-icon>
                             <span>Customers</span>
                         </a>
