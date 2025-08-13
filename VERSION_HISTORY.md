@@ -1,4 +1,14 @@
-\n## v2.4.5 (2025-08-12)
+## v2.4.6 (2025-08-13)
+- Gantt: penyelarasan tampilan agar seragam dengan List/Kanban
+  - Header: pindahkan keterangan bulan ke tengah; rapikan toolbar; hilangkan pinggiran terang (sinkronisasi background global dan card wrapper).
+  - “Wrap Description” dipindah ke atas tombol “Hari Ini”; toggle diperkecil; tambah badge ON/OFF; preferensi disimpan (localStorage); aksesibilitas (role switch, aria-checked, keyboard).
+  - Penanda “Hari Ini”: highlight pada header dan grid, plus garis vertikal tipis di kolom hari ini.
+  - Warna bar mengikuti status seperti List View: Open (oranye), On Progress (biru), Need Requirement (ungu), Done (hijau), Cancel (merah).
+  - Perbaikan: `Need Requirement` sebelumnya abu-abu → kini ungu sesuai desain.
+- Kanban: header/kerangka diseragamkan dengan List; tone kolom diredupkan di dark mode agar konsisten.
+
+
+## v2.4.5 (2025-08-12)
 - Tambah `Gantt Chart` view (`activity_gantt.php`) dengan sumber data langsung dari tabel `activities` (no, description, status, type, priority, information_date → start, due_date → end) dan grouping per Type.
 - Persist tanggal hasil drag/resize: optimasi only-diff + debounce (400ms) + batch ke endpoint baru `update_activity_dates_batch.php` (transaksi DB). Aturan tetap: `due_date >= information_date`.
 - Quick Edit dari Gantt: modal kecil untuk ubah `status`, `priority`, `type` via endpoint baru `update_activity_fields.php` (whitelist & partial update).

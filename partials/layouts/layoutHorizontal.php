@@ -9,10 +9,10 @@
     var saved = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', saved);
     if (saved === 'dark') {
-      // Hindari kilat putih sebelum CSS termuat
-      document.documentElement.style.backgroundColor = '#0c1445';
-      // body mungkin belum ada saat ini; aman jika ada
-      if (document.body) document.body.style.backgroundColor = '#0c1445';
+      // Hindari kilat terang sebelum CSS termuat (samakan dengan Activity List)
+      var darkBg = '#0b1220';
+      document.documentElement.style.backgroundColor = darkBg;
+      if (document.body) document.body.style.backgroundColor = darkBg;
     }
   } catch (e) {}
 })();
@@ -21,6 +21,29 @@
 <?php include './partials/head.php' ?>
 
 <style>
+/* Sinkronisasi background global agar tidak ada pinggiran terang */
+html[data-theme="dark"], body[data-theme="dark"] { background-color: #0b1220 !important; }
+html[data-theme="light"], body[data-theme="light"] { background-color: #f8fafc !important; }
+
+/* Paksa semua wrapper halaman mengikuti warna tema (mengatasi style lain) */
+html[data-theme="dark"] body,
+html[data-theme="dark"] .main-content,
+html[data-theme="dark"] .content-wrapper,
+html[data-theme="dark"] .dashboard-main-body,
+html[data-theme="dark"] .content,
+html[data-theme="dark"] #root {
+    background-color: #0b1220 !important;
+    background-image: none !important;
+}
+html[data-theme="light"] body,
+html[data-theme="light"] .main-content,
+html[data-theme="light"] .content-wrapper,
+html[data-theme="light"] .dashboard-main-body,
+html[data-theme="light"] .content,
+html[data-theme="light"] #root {
+    background-color: #f8fafc !important;
+    background-image: none !important;
+}
 /* Inline CSS to ensure theme toggle is visible */
 #themeToggle {
     width: 40px !important;

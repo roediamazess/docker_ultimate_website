@@ -9,9 +9,9 @@ $stmt = $pdo->query("SELECT id, no, description, status, type, priority, informa
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $tasks = array_map(function($r){
-  $start = $r['information_date'] ?: date('Y-m-d');
-  $end = $r['due_date'] ?: $start;
-  if (strtotime($end) < strtotime($start)) { $end = $start; }
+    $start = $r['information_date'] ?: date('Y-m-d');
+    $end = $r['due_date'] ?: $start;
+    if (strtotime($end) < strtotime($start)) { $end = $start; }
   return [
     'id' => (int)$r['id'],
     'no' => (int)$r['no'],
@@ -19,9 +19,9 @@ $tasks = array_map(function($r){
     'status' => (string)($r['status'] ?? 'Open'),
     'type' => (string)($r['type'] ?? 'Issue'),
     'priority' => (string)($r['priority'] ?? 'Normal'),
-    'start' => $start,
-    'end' => $end,
-  ];
+        'start' => $start,
+        'end' => $end,
+    ];
 }, $rows);
 ?>
 <?php include './partials/layouts/layoutHorizontal.php'; ?>
@@ -34,25 +34,51 @@ $tasks = array_map(function($r){
     <title>Gantt Chart Interaktif (Dikelompokkan)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
+<style>
         body { font-family: 'Inter', sans-serif; }
+        /* Force page background match list (fix outer light area) */
+        body { background-color:#f8fafc !important; }
+        body[data-theme="dark"] { background-color:#0b1220 !important; }
+        body[data-theme="dark"] .dashboard-main-body,
+        body[data-theme="dark"] .container,
+        body[data-theme="dark"] .content-wrapper,
+        body[data-theme="dark"] .main-content,
+        body[data-theme="dark"] .content {
+            background-color:#0b1220 !important;
+        }
         .gantt-grid { display: grid; grid-template-columns: 450px 1fr; }
         @media (max-width: 768px) { .gantt-grid { grid-template-columns: 350px 1fr; } }
         .timeline-grid-bg { display: grid; grid-template-columns: repeat(var(--total-days), minmax(40px, 1fr)); }
-        .gantt-bar { position: absolute; height: 65%; top: 50%; transform: translateY(-50%); background-color: #3b82f6; border-radius: 0.375rem; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background-color 0.2s; cursor: move; }
-        .gantt-bar:hover { background-color: #2563eb; }
+        .gantt-bar { position: absolute; height: 65%; top: 50%; transform: translateY(-50%); border-radius: 0.375rem; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: filter 0.2s; cursor: move; }
+        .gantt-bar:hover { filter: brightness(0.95); }
+        /* Status colors (seragam dengan list view: warning/info/secondary/success/danger) */
+        .status-open{ background-color:#f59e0b; }
+        .status-onprogress{ background-color:#3b82f6; }
+        .status-need{ background-color:#7c3aed; }
+        .status-done{ background-color:#10b981; }
+        .status-cancel{ background-color:#ef4444; }
+        .status-default{ background-color:#94a3b8; }
+        [data-theme="dark"] .status-need{ background-color:#6d28d9; }
         .resize-handle { position: absolute; top: 0; bottom: 0; width: 8px; cursor: ew-resize; z-index: 10; }
         .resize-handle-left { left: 0; }
         .resize-handle-right { right: 0; }
-        .gantt-row:hover .task-cell, .gantt-row:hover .timeline-cell { background-color: #f0f9ff; }
+        .gantt-row:hover .task-cell, .gantt-row:hover .timeline-cell { background-color: #f8fafc; }
         .tooltip { visibility: hidden; opacity: 0; transition: opacity 0.3s; }
         .has-tooltip:hover .tooltip { visibility: visible; opacity: 1; }
         .timeline-container::-webkit-scrollbar { height: 8px; }
         .timeline-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
         .timeline-container::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
         .timeline-container::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        /* Gantt container card (follow outer .card; internal border/shadow removed to match list) */
+        .gantt-card { background:transparent; border:0; box-shadow:none; }
+        /* soften grid borders to avoid bright edges */
+        .timeline-grid-bg > div { border-left:1px solid #e5e7eb !important; }
         .saturday-bg { background-color: #fce7f3; }
         .sunday-bg { background-color: #fee2e2; }
+        /* Today highlight */
+        .today-col { background-color: rgba(59,130,246,.12) !important; }
+        .today-line { position:absolute; top:0; bottom:0; width:2px; background:#3b82f6; opacity:.55; pointer-events:none; }
+        .today-badge { display:inline-block; margin-top:2px; font-size:10px; font-weight:700; color:#fff; padding:2px 6px; border-radius:9999px; background:linear-gradient(135deg,#667eea 0%, #764ba2 100%); }
         /* Dark mode support (ikuti data-theme) */
         [data-theme="dark"] .bg-white { background-color: #111827 !important; }
         [data-theme="dark"] .text-slate-900 { color: #e5e7eb !important; }
@@ -61,55 +87,109 @@ $tasks = array_map(function($r){
         [data-theme="dark"] .text-slate-600 { color: #cbd5e1 !important; }
         [data-theme="dark"] .text-slate-500 { color: #94a3b8 !important; }
         [data-theme="dark"] .bg-slate-50 { background-color: #0b1220 !important; }
-        [data-theme="dark"] .bg-slate-100 { background-color: #0f172a !important; }
-        [data-theme="dark"] .border-slate-200 { border-color: #334155 !important; }
-        [data-theme="dark"] .saturday-bg { background-color: rgba(236,72,153,.15); }
-        [data-theme="dark"] .sunday-bg { background-color: rgba(239,68,68,.15); }
+        [data-theme="dark"] .bg-slate-100 { background-color: #0e1526 !important; }
+        [data-theme="dark"] .border-slate-200 { border-color: #1f2937 !important; }
+        [data-theme="dark"] .saturday-bg { background-color: rgba(236,72,153,.08); }
+        [data-theme="dark"] .sunday-bg { background-color: rgba(239,68,68,.08); }
         [data-theme="dark"] .gantt-bar { box-shadow: 0 2px 6px rgba(0,0,0,.5); }
-        .toggle-checkbox:checked { right: 0; border-color: #3b82f6; transform: translateX(100%); }
-        .toggle-checkbox:checked + .toggle-label { background-color: #3b82f6; }
+        [data-theme="dark"] .today-col { background-color: rgba(59,130,246,.18) !important; }
+        /* Dark theme: remove inner border/shadow; use outer .card like list */
+        [data-theme="dark"] .gantt-card { background:transparent !important; border-color:transparent !important; box-shadow:none !important; }
+        /* Redupkan garis grid agar tidak menyala */
+        [data-theme="dark"] .timeline-grid-bg > div { border-left:1px solid #152133 !important; }
+        [data-theme="dark"] .timeline-container::-webkit-scrollbar-track { background:#111827; }
+        [data-theme="dark"] .timeline-container::-webkit-scrollbar-thumb { background:#374151; }
+        [data-theme="dark"] .timeline-container::-webkit-scrollbar-thumb:hover { background:#4b5563; }
+        [data-theme="dark"] .gantt-row:hover .task-cell, 
+        [data-theme="dark"] .gantt-row:hover .timeline-cell { background-color: rgba(255,255,255,.04); }
+        /* Quick Edit modal dark-mode tweaks */
+        [data-theme="dark"] .qe-card { background-color:#0f172a !important; border-color:#334155 !important; color:#e5e7eb !important; }
+        [data-theme="dark"] .qe-card .qe-sub { color:#94a3b8 !important; }
+        [data-theme="dark"] .qe-card select { background-color:#111827 !important; color:#e5e7eb !important; border-color:#374151 !important; }
+        [data-theme="dark"] .qe-card button#qe_cancel { background:#6b7280 !important; color:#fff !important; }
+        /* Toggle normalization to prevent overflow/covered thumb */
+        .toggle-wrap{ position:relative; width:40px; height:20px; }
+        .toggle-label{ position:absolute; inset:0; width:100%; height:100%; border-radius:9999px; background-color:#cbd5e1; }
+        .toggle-checkbox{ position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:9999px; background:#fff; border:2px solid #fff; appearance:none; box-shadow:0 1px 2px rgba(0,0,0,.15); z-index:1; transition:left .2s ease; }
+        .toggle-checkbox:checked{ left:22px; border-color:#3b82f6; }
+        .toggle-checkbox:checked + .toggle-label{ background-color:#3b82f6; }
+        /* Status badge for toggle */
+        .wrap-badge{ display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; padding:2px 8px; border-radius:9999px; border:1px solid #e5e7eb; color:#334155; background:#f1f5f9; }
+        .wrap-badge.on{ background:linear-gradient(135deg,#667eea 0%, #764ba2 100%); color:#fff; border-color:transparent; box-shadow:0 6px 16px rgba(102,126,234,.25); }
+        .info-trigger{ position:relative; display:none !important; align-items:center; justify-content:center; width:18px; height:18px; border-radius:9999px; background:#334155; color:#fff; font-size:12px; cursor:default; }
+        .info-trigger:hover .info-tip{ opacity:1; visibility:visible; transform:translateY(-2px); }
+        .info-tip{ position:absolute; bottom:125%; left:50%; transform:translateX(-50%); background:#111827; color:#e5e7eb; font-size:11px; padding:6px 8px; border-radius:6px; white-space:nowrap; opacity:0; visibility:hidden; transition:all .15s ease; pointer-events:none; box-shadow:0 6px 16px rgba(0,0,0,.3); }
+        [data-theme="light"] .info-tip{ background:#0f172a; color:#e5e7eb; }
         .collapse-icon { transition: transform 0.2s ease-in-out; }
         .collapsed .collapse-icon { transform: rotate(-90deg); }
+    </style>
+    <style>
+    /* Page-level card tone override to match Activity List */
+    [data-theme="dark"] .card { background-color:#0f172a !important; border:1px solid #1e293b !important; box-shadow:0 1px 2px rgba(0,0,0,.35) !important; }
     </style>
     <script>const SERVER_TASKS = <?php echo json_encode($tasks, JSON_UNESCAPED_UNICODE); ?>;</script>
 </head>
 <body class="bg-slate-50 text-slate-800" data-theme="<?php echo htmlspecialchars($_COOKIE['theme'] ?? 'light'); ?>">
 
-    <div class="container mx-auto p-4 md:p-8">
-        <header class="mb-6">
-            <h1 class="text-3xl font-bold text-slate-900">Project Timeline</h1>
-            <p class="text-slate-500 mt-1">Gantt Chart Interaktif untuk Manajemen Tugas</p>
-        </header>
+    <div class="dashboard-main-body">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
+            <h6 class="fw-semibold mb-0">Activity Gantt</h6>
+            <ul class="d-flex align-items-center gap-2">
+                <li class="fw-medium">
+                    <a href="index.php" class="d-flex align-items-center gap-1 hover-text-primary">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        Dashboard
+                    </a>
+                </li>
+                <li>-</li>
+                <li class="fw-medium">Activity Gantt</li>
+            </ul>
+        </div>
 
-        <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="p-4 border-b border-slate-200 flex items-center justify-between flex-wrap gap-4">
-                <div class="flex items-center gap-2">
-                    <button id="today-btn" class="px-3 py-1.5 text-sm font-medium bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition">Hari Ini</button>
-                    <button id="prev-month-btn" class="px-3 py-1.5 text-sm font-medium bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition">&lt;</button>
-                    <button id="next-month-btn" class="px-3 py-1.5 text-sm font-medium bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition">&gt;</button>
+        <div class="card" style="<?php echo ((isset($_COOKIE['theme']) && $_COOKIE['theme']==='dark') ? 'background-color:#0f172a;border:1px solid #1e293b;box-shadow:0 1px 2px rgba(0,0,0,.35);' : 'background-color:#f8fafc;border:1px solid #e5e7eb;box-shadow:0 1px 2px rgba(0,0,0,.06);'); ?>">
+            <div class="d-flex justify-content-end p-3"><div class="d-flex gap-2">
+                <a href="activity.php" class="btn btn-secondary">List View</a>
+                <a href="activity_kanban.php" class="btn btn-secondary">Kanban View</a>
+                <a href="activity_gantt.php" class="btn btn-primary">Gantt Chart</a>
+            </div></div>
+            <div class="card-body">
+        
+        <div class="gantt-card rounded-xl overflow-hidden">
+            <div class="p-3 border-b border-slate-200">
+                <div class="w-full text-center mb-2">
+                    <span id="month-year-display" class="text-sm font-semibold text-slate-600"></span>
                 </div>
-                <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-2">
-                        <label for="wrap-toggle" class="text-sm font-medium text-slate-600 select-none cursor-pointer">Wrap Description</label>
-                        <div class="relative inline-block w-10 mr-2 align-middle select-none">
-                            <input type="checkbox" name="wrap-toggle" id="wrap-toggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 appearance-none cursor-pointer transition-transform duration-200 ease-in-out"/>
-                            <label for="wrap-toggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                <div class="flex items-start justify-between flex-wrap gap-3">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <label for="wrap-toggle" class="text-sm font-medium text-slate-600 select-none cursor-pointer">Wrap Description</label>
+                            <div class="toggle-wrap mr-2 align-middle select-none">
+                                <input type="checkbox" role="switch" aria-checked="false" aria-label="Toggle wrap description" tabindex="0" name="wrap-toggle" id="wrap-toggle" class="toggle-checkbox cursor-pointer"/>
+                                <label for="wrap-toggle" class="toggle-label cursor-pointer"></label>
+                            </div>
+                            <span id="wrap-status" class="wrap-badge">OFF</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="today-btn" class="px-3 py-1.5 text-sm font-medium bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition leading-none">Hari Ini</button>
+                            <button id="prev-month-btn" class="px-3 py-1.5 text-sm font-medium bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition">&lt;</button>
+                            <button id="next-month-btn" class="px-3 py-1.5 text-sm font-medium bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition">&gt;</button>
                         </div>
                     </div>
-                    <span id="month-year-display" class="text-sm font-medium text-slate-600 w-28 text-center"></span>
                 </div>
             </div>
 
             <div>
                 <div class="gantt-grid grid w-full sticky top-0 bg-slate-100 z-10 border-b border-slate-200">
-                    <div class="flex items-center h-16 px-4 border-r border-slate-200">
+                    <div class="flex items-center h-12 px-4 border-r border-slate-200">
                         <h3 class="font-semibold text-slate-600 uppercase text-sm">Deskripsi Tugas</h3>
                     </div>
                     <div class="timeline-container overflow-x-auto">
-                        <div id="timeline-dates" class="timeline-grid-bg h-16"></div>
+                        <div id="timeline-dates" class="timeline-grid-bg h-12"></div>
                     </div>
                 </div>
                 <div id="gantt-body"></div>
+            </div>
+        </div>
             </div>
         </div>
     </div>
@@ -131,6 +211,7 @@ $tasks = array_map(function($r){
             const ganttBodyEl = document.getElementById('gantt-body');
             const monthYearDisplay = document.getElementById('month-year-display');
             const wrapToggle = document.getElementById('wrap-toggle');
+            const wrapStatus = document.getElementById('wrap-status');
             const todayBtn = document.getElementById('today-btn');
             const prevMonthBtn = document.getElementById('prev-month-btn');
             const nextMonthBtn = document.getElementById('next-month-btn');
@@ -144,7 +225,13 @@ $tasks = array_map(function($r){
                 const timelineStartDate = new Date(date.getFullYear(), date.getMonth(), 1);
                 const timelineEndDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
-                const statusColors = { 'Open': 'bg-blue-500', 'On Progress': 'bg-orange-500', 'Need Requirement': 'bg-yellow-500', 'Done': 'bg-green-500', 'Cancel': 'bg-slate-400' };
+                const statusColors = {
+                    'Open': 'status-open',
+                    'On Progress': 'status-onprogress',
+                    'Need Requirement': 'status-need',
+                    'Done': 'status-done',
+                    'Cancel': 'status-cancel'
+                };
                 const priorityPills = { 'Low': 'bg-slate-200 text-slate-600', 'Normal': 'bg-sky-200 text-sky-700', 'Urgent': 'bg-red-200 text-red-700' };
                 const typeIcons = {
                     'Issue': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bug-fill text-red-500" viewBox="0 0 16 16"><path d="M4.978.855a.5.5 0 1 0-.956.29l.41 1.352A4.985 4.985 0 0 0 3 6h10a4.985 4.985 0 0 0-1.432-3.503l.41-1.352a.5.5 0 1 0-.956-.29l-.291.956A4.978 4.978 0 0 0 8 1a4.979 4.979 0 0 0-2.731.811l-.29-.956z"/><path d="M13 6v1H8.5v8.975A5 5 0 0 0 13 11h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 1 0 1 0v-.5a1.5 1.5 0 0 0-1.5-1.5H13V9h1.5a.5.5 0 0 0 0-1H13V7h.5A1.5 1.5 0 0 0 15 5.5V5a.5.5 0 0 0-1 0v.5a.5.5 0 0 1-.5.5H13zm-5.5 9.975V7H3V6h-.5a.5.5 0 0 1-.5-.5V5a.5.5 0 0 0-1 0v.5A1.5 1.5 0 0 0 2.5 7H3v1H1.5a.5.5 0 0 0 0 1H3v2h-.5A1.5 1.5 0 0 0 1 11.5V12a.5.5 0 0 0 1 0v-.5a.5.5 0 0 1 .5-.5H3a5 5 0 0 0 4.5 4.975z"/></svg>`,
@@ -168,6 +255,8 @@ $tasks = array_map(function($r){
                 
                 monthYearDisplay.textContent = timelineStartDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
 
+                let todayIndex = -1;
+                const todayISO = new Date(); todayISO.setHours(0,0,0,0);
                 for (let i = 0; i < totalDays; i++) {
                     const date = new Date(timelineStartDate);
                     date.setDate(date.getDate() + i);
@@ -177,11 +266,16 @@ $tasks = array_map(function($r){
                     
                     const dateCell = document.createElement('div');
                     dateCell.className = 'flex flex-col items-center justify-center h-16 text-center border-l border-slate-200';
-                    
+                    // mark today
+                    const checkDate = new Date(date); checkDate.setHours(0,0,0,0);
+                    if (checkDate.getTime() === todayISO.getTime()) {
+                        dateCell.classList.add('today-col');
+                        todayIndex = i;
+                    }
                     if (dayOfWeek === 6) { dateCell.classList.add('saturday-bg'); } 
                     else if (dayOfWeek === 0) { dateCell.classList.add('sunday-bg'); }
 
-                    dateCell.innerHTML = `<span class="text-xs text-slate-500">${dayName}</span><span class="font-semibold text-slate-700 mt-1">${day}</span>`;
+                    dateCell.innerHTML = `<span class="text-xs text-slate-500">${dayName}</span><span class="font-semibold text-slate-700 mt-1">${day}</span>` + (checkDate.getTime()===todayISO.getTime()?`<span class="today-badge">Today</span>`:'');
                     timelineDatesEl.appendChild(dateCell);
                 }
 
@@ -246,11 +340,22 @@ $tasks = array_map(function($r){
                             const dayOfWeek = date.getDay();
                             const gridCell = document.createElement('div');
                             gridCell.className = 'border-l border-slate-200/70 h-full';
+                            const checkDate = new Date(date); checkDate.setHours(0,0,0,0);
+                            if (todayIndex === i) { gridCell.classList.add('today-col'); }
                             if (dayOfWeek === 6) { gridCell.classList.add('saturday-bg'); } 
                             else if (dayOfWeek === 0) { gridCell.classList.add('sunday-bg'); }
                             timelineGridBg.appendChild(gridCell);
                         }
                         timelineCell.appendChild(timelineGridBg);
+
+                        // today vertical line overlay
+                        if (todayIndex >= 0) {
+                            const line = document.createElement('div');
+                            line.className = 'today-line';
+                            const leftPercent = (todayIndex / totalDays) * 100;
+                            line.style.left = `calc(${leftPercent}% + 1px)`;
+                            timelineCell.appendChild(line);
+                        }
 
                         const taskStartDate = new Date(task.start + 'T00:00:00');
                         const taskEndDate = new Date(task.end + 'T00:00:00');
@@ -259,7 +364,7 @@ $tasks = array_map(function($r){
 
                         if (startOffset >= 0 && startOffset < totalDays) {
                             const ganttBar = document.createElement('div');
-                            ganttBar.className = `gantt-bar has-tooltip ${statusColors[task.status] || 'bg-slate-500'}`;
+                            ganttBar.className = `gantt-bar has-tooltip ${statusColors[task.status] || 'status-default'}`;
                             ganttBar.style.left = `calc(${startOffset / totalDays * 100}% + 1px)`;
                             ganttBar.style.width = `calc(${duration / totalDays * 100}% - 2px)`;
                             
@@ -339,30 +444,36 @@ $tasks = array_map(function($r){
             function openQuickEditModal(task){
                 const overlay = document.createElement('div');
                 overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;display:flex;align-items:center;justify-content:center;';
+
+                const escapeHtml = (str) => String(str || '')
+                    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                    .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+
                 overlay.innerHTML = `
-                  <div style="background:#fff; border:1px solid #dee2e6; border-radius:8px; width:360px; padding:16px;">
-                    <h3 style="margin:0 0 12px 0; font-weight:700; font-size:16px;">Quick Edit</h3>
-                    <div style="display:flex; gap:8px; margin-bottom:8px;">
+                  <div class="qe-card" style="background:#fff; border:1px solid #dee2e6; border-radius:8px; width:380px; padding:16px; box-shadow:0 12px 28px rgba(0,0,0,.18);">
+                    <h3 style="margin:0 0 4px 0; font-weight:800; font-size:20px; text-align:center;">Quick Edit</h3>
+                    <div class="qe-sub" style="text-align:center; color:#6b7280; font-size:12px; margin-bottom:12px;">No: <strong>${escapeHtml(task.no)}</strong></div>
+                    <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
                       <label style="width:90px; font-weight:600;">Status</label>
-                      <select id="qe_status" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                      <select id="qe_status" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:6px;">
                         <option>Open</option>
                         <option>On Progress</option>
                         <option>Need Requirement</option>
                         <option>Done</option>
                         <option>Cancel</option>
                       </select>
-                    </div>
-                    <div style="display:flex; gap:8px; margin-bottom:8px;">
+    </div>
+                    <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
                       <label style="width:90px; font-weight:600;">Priority</label>
-                      <select id="qe_priority" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                      <select id="qe_priority" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:6px;">
                         <option>Urgent</option>
                         <option selected>Normal</option>
                         <option>Low</option>
                       </select>
-                    </div>
-                    <div style="display:flex; gap:8px; margin-bottom:16px;">
+  </div>
+                    <div style="display:flex; gap:8px; margin-bottom:16px; align-items:center;">
                       <label style="width:90px; font-weight:600;">Type</label>
-                      <select id="qe_type" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                      <select id="qe_type" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:6px;">
                         <option>Setup</option>
                         <option>Question</option>
                         <option>Issue</option>
@@ -370,18 +481,26 @@ $tasks = array_map(function($r){
                         <option>Report Request</option>
                         <option>Feature Request</option>
                       </select>
-                    </div>
+      </div>
                     <div style="display:flex; justify-content:flex-end; gap:8px;">
-                      <button id="qe_cancel" style="padding:8px 12px; background:#6c757d; color:#fff; border:none; border-radius:4px;">Close</button>
-                      <button id="qe_save" style="padding:8px 12px; background:#007bff; color:#fff; border:none; border-radius:4px;">Save</button>
-                    </div>
+                      <button id="qe_save" style="padding:10px 16px; background:linear-gradient(135deg,#667eea 0%, #764ba2 100%); color:#fff; border:none; border-radius:8px; font-weight:600;">Update</button>
+                      <button id="qe_cancel" style="padding:10px 16px; background:#6b7280; color:#fff; border:none; border-radius:8px; font-weight:600;">Close</button>
+    </div>
                   </div>`;
                 document.body.appendChild(overlay);
                 const s = overlay.querySelector('#qe_status');
                 const p = overlay.querySelector('#qe_priority');
                 const t = overlay.querySelector('#qe_type');
                 s.value = task.status; p.value = task.priority; t.value = task.type;
-                overlay.querySelector('#qe_cancel').onclick = ()=> overlay.remove();
+
+                const closeOverlay = () => { document.removeEventListener('keydown', escHandler); overlay.remove(); };
+                const escHandler = (ev) => { if (ev.key === 'Escape') { closeOverlay(); } };
+                document.addEventListener('keydown', escHandler);
+                overlay.querySelector('#qe_cancel').onclick = closeOverlay;
+
+                // autofocus pada status untuk cepat navigasi keyboard
+                s.focus();
+
                 overlay.querySelector('#qe_save').onclick = ()=>{
                     fetch('update_activity_fields.php', {
                         method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin',
@@ -391,16 +510,47 @@ $tasks = array_map(function($r){
                         try { res = await r.clone().json(); } catch(_) {}
                         if (r.ok && (!res || res.success !== false)){
                             task.status = s.value; task.priority = p.value; task.type = t.value; // update local
-                            if (window.showActivityToast) window.showActivityToast('Data berhasil disimpan', 'success', 2500);
+                            const hasLogoNotif = (window.logoNotificationManager && typeof window.logoNotificationManager.isAvailable === 'function' && window.logoNotificationManager.isAvailable());
+                            if (!hasLogoNotif && window.showActivityToast) window.showActivityToast('Data berhasil disimpan', 'success', 2500);
                             renderGantt(currentDate);
                         } else {
                             if (window.showActivityToast) window.showActivityToast('Gagal menyimpan perubahan', 'error', 3500);
                         }
                     }).catch(()=>{
                         if (window.showActivityToast) window.showActivityToast('Jaringan bermasalah saat menyimpan', 'error', 3500);
-                    }).finally(()=> overlay.remove());
+                    }).finally(()=> closeOverlay());
                 };
             }
+
+            // Restore saved preference
+            try {
+                const savedWrap = localStorage.getItem('gantt_wrap_desc');
+                if (savedWrap !== null) {
+                    wrapToggle.checked = savedWrap === 'true';
+                    wrapToggle.setAttribute('aria-checked', String(wrapToggle.checked));
+                }
+            } catch (_) {}
+
+            function updateWrapStatusVisual(){
+                if (!wrapStatus) return;
+                if (wrapToggle.checked) {
+                    wrapStatus.textContent = 'ON';
+                    wrapStatus.classList.add('on');
+                } else {
+                    wrapStatus.textContent = 'OFF';
+                    wrapStatus.classList.remove('on');
+                }
+            }
+            updateWrapStatusVisual();
+
+            // Keyboard accessibility
+            wrapToggle.addEventListener('keydown', function(e){
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    wrapToggle.checked = !wrapToggle.checked;
+                    wrapToggle.dispatchEvent(new Event('change'));
+                }
+            });
 
             wrapToggle.addEventListener('change', function() {
                 const descriptions = document.querySelectorAll('.task-description');
@@ -408,6 +558,9 @@ $tasks = array_map(function($r){
                     desc.classList.toggle('truncate', !this.checked);
                     desc.classList.toggle('whitespace-normal', this.checked);
                 });
+                wrapToggle.setAttribute('aria-checked', String(wrapToggle.checked));
+                updateWrapStatusVisual();
+                try { localStorage.setItem('gantt_wrap_desc', String(wrapToggle.checked)); } catch(_) {}
             });
 
             todayBtn.addEventListener('click', () => { currentDate = new Date(); renderGantt(currentDate); });
@@ -442,7 +595,8 @@ $tasks = array_map(function($r){
                         if (r.ok && (!res || res.success !== false)) {
                             // Sync snapshot
                             changes.forEach(c => originalMap.set(c.id, { start: c.start, end: c.end }));
-                            if (window.showActivityToast) window.showActivityToast('Tanggal berhasil disimpan', 'success', 2500);
+                            const hasLogoNotif = (window.logoNotificationManager && typeof window.logoNotificationManager.isAvailable === 'function' && window.logoNotificationManager.isAvailable());
+                            if (!hasLogoNotif && window.showActivityToast) window.showActivityToast('Tanggal berhasil disimpan', 'success', 2500);
                         } else {
                             if (window.showActivityToast) window.showActivityToast('Gagal menyimpan tanggal', 'error', 3500);
                         }
@@ -457,8 +611,8 @@ $tasks = array_map(function($r){
             document.getElementById('gantt-body').addEventListener('mouseup', schedulePersist);
 
             renderGantt(currentDate);
-        });
-    </script>
+});
+</script>
     <script src="assets/js/activity-notifications.js"></script>
 
 </body>

@@ -614,7 +614,7 @@ SCRIPT;
 
 <style>
 .kanban-board{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
-.kanban-column{background:var(--glass-bg,rgba(255,255,255,.95));backdrop-filter:blur(10px);border:1px solid rgba(0,0,0,.06);border-radius:12px;overflow:hidden;min-height:60vh;display:flex;flex-direction:column}
+.kanban-column{background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;min-height:60vh;display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(0,0,0,.06)}
 .kanban-header{padding:12px 14px;font-weight:700;background:linear-gradient(135deg,var(--brand-accent-strong,#6BB2C8),var(--brand-accent,#90C5D8));color:#fff}
 .kanban-cards{padding:12px;display:flex;flex-direction:column;gap:12px}
 .kanban-card{position:relative;background:linear-gradient(180deg,#ffffff, #f8fafc);border:1px solid #e5e7eb;border-radius:14px;padding:12px 12px 10px 16px;cursor:grab;box-shadow:0 10px 24px rgba(2,6,23,.06);transition:transform .18s ease, box-shadow .18s ease}
@@ -632,7 +632,7 @@ SCRIPT;
 .accent-normal{--accent:#3b82f6}
 .accent-low{--accent:#f59e0b}
 .kanban-column.drag-over{outline:2px dashed var(--brand-accent-strong,#6BB2C8);outline-offset:-6px}
-[data-theme="dark"] .kanban-column{background:#1f2937;border-color:rgba(148,163,184,.18)}
+[data-theme="dark"] .kanban-column{background:#0f1220;border-color:#0b1220}
 [data-theme="dark"] .kanban-card{background:linear-gradient(180deg,#111827,#0b1220);border-color:#374151;color:#e5e7eb}
 [data-theme="dark"] .kanban-title{color:#e5e7eb}
 [data-theme="dark"] .badge{border-color:#334155}
@@ -760,42 +760,56 @@ SCRIPT;
 </style>
 
 <div class="dashboard-main-body">
-  <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
     <h6 class="fw-semibold mb-0">Activity Kanban</h6>
-    <div class="d-flex gap-2">
+    <ul class="d-flex align-items-center gap-2">
+      <li class="fw-medium">
+        <a href="index.php" class="d-flex align-items-center gap-1 hover-text-primary">
+          <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+          Dashboard
+        </a>
+      </li>
+      <li>-</li>
+      <li class="fw-medium">Activity Kanban</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="d-flex justify-content-end p-3"><div class="d-flex gap-2">
       <a href="activity.php" class="btn btn-secondary">List View</a>
       <a href="activity_kanban.php" class="btn btn-primary">Kanban View</a>
       <a href="activity_gantt.php" class="btn btn-secondary">Gantt Chart</a>
-    </div>
-  </div>
-
-  <div class="kanban-board">
-    <?php foreach($columns as $status => $cards): ?>
-      <div class="kanban-column" data-status="<?= htmlspecialchars($status) ?>" draggable="false">
-        <div class="kanban-header"><?= htmlspecialchars($status) ?></div>
-        <div class="kanban-cards">
-          <?php foreach($cards as $c): ?>
-            <?php 
-              $pri = strtolower($c['priority'] ?? 'normal');
-              $accent = in_array($pri,['urgent','normal','low']) ? 'accent-'.$pri : 'accent-normal';
-            ?>
-            <div class="kanban-card <?= $accent ?>" draggable="true" data-id="<?= (int)$c['id'] ?>">
-              <div class="kanban-title">
-                <span><?= htmlspecialchars($c['no']) ?></span>
-                <span class="badge type" title="Type"><?= htmlspecialchars($c['type']) ?></span>
-                <span class="badge app" title="Application"><?= htmlspecialchars($c['application']) ?></span>
-                <span class="badge pri" title="Priority"><?= htmlspecialchars($c['priority']) ?></span>
-              </div>
-              <div class="text-truncate mt-1" title="<?= htmlspecialchars($c['description']) ?>"><?= htmlspecialchars($c['description']) ?></div>
-              <?php $as = $c['action_solution'] ?? ''; if($as !== ''): ?>
-              <div class="action-solution text-truncate" title="<?= htmlspecialchars($as) ?>">Action / Solution: <?= htmlspecialchars($as) ?></div>
-              <?php endif; ?>
-              <div class="meta"><span><?= htmlspecialchars($c['user_position'] ?? '-') ?></span><span><?= htmlspecialchars($c['department']) ?></span><span><?= $c['information_date']?date('d M Y',strtotime($c['information_date'])):'-' ?></span></div>
+    </div></div>
+    <div class="card-body">
+      <div class="kanban-board">
+        <?php foreach($columns as $status => $cards): ?>
+          <div class="kanban-column" data-status="<?= htmlspecialchars($status) ?>" draggable="false">
+            <div class="kanban-header"><?= htmlspecialchars($status) ?></div>
+            <div class="kanban-cards">
+              <?php foreach($cards as $c): ?>
+                <?php 
+                  $pri = strtolower($c['priority'] ?? 'normal');
+                  $accent = in_array($pri,['urgent','normal','low']) ? 'accent-'.$pri : 'accent-normal';
+                ?>
+                <div class="kanban-card <?= $accent ?>" draggable="true" data-id="<?= (int)$c['id'] ?>">
+                  <div class="kanban-title">
+                    <span><?= htmlspecialchars($c['no']) ?></span>
+                    <span class="badge type" title="Type"><?= htmlspecialchars($c['type']) ?></span>
+                    <span class="badge app" title="Application"><?= htmlspecialchars($c['application']) ?></span>
+                    <span class="badge pri" title="Priority"><?= htmlspecialchars($c['priority']) ?></span>
+                  </div>
+                  <div class="text-truncate mt-1" title="<?= htmlspecialchars($c['description']) ?>"><?= htmlspecialchars($c['description']) ?></div>
+                  <?php $as = $c['action_solution'] ?? ''; if($as !== ''): ?>
+                  <div class="action-solution text-truncate" title="<?= htmlspecialchars($as) ?>">Action / Solution: <?= htmlspecialchars($as) ?></div>
+                  <?php endif; ?>
+                  <div class="meta"><span><?= htmlspecialchars($c['user_position'] ?? '-') ?></span><span><?= htmlspecialchars($c['department']) ?></span><span><?= $c['information_date']?date('d M Y',strtotime($c['information_date'])):'-' ?></span></div>
+                </div>
+              <?php endforeach; ?>
             </div>
-          <?php endforeach; ?>
-        </div>
+          </div>
+        <?php endforeach; ?>
       </div>
-    <?php endforeach; ?>
+    </div>
   </div>
 </div>
 
