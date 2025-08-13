@@ -1,3 +1,12 @@
+## v2.4.7 (2025-08-13)
+- Gantt (dark/light):
+  - Toggle tema sepenuhnya sinkron dengan global `html[data-theme]` (hapus atribusi `body`/cookie), dan re-render saat tema berubah.
+  - Footer tone & border-top diseragamkan dengan Activity; hilangkan perbedaan garis antar halaman.
+  - Wrap Description toggle di-scope (`#gantt-root`) agar tidak bertabrakan dengan toggle lain.
+  - Quick Edit: kontras dark mode ditingkatkan (background pekat, border jelas, shadow kuat, focus ring biru), tombol update pakai gradient brand.
+  - Warna bar status pakai gradient + shadow: Open, On Progress, Need Requirement, Done, Cancel. Khusus Done di dark diberi outline tipis agar lebih “angkat”.
+- Kanban: mengikuti tone wrapper global agar konsisten saat dark.
+
 ## v2.4.6 (2025-08-13)
 - Gantt: penyelarasan tampilan agar seragam dengan List/Kanban
   - Header: pindahkan keterangan bulan ke tengah; rapikan toolbar; hilangkan pinggiran terang (sinkronisasi background global dan card wrapper).

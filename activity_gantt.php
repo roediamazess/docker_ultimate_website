@@ -31,7 +31,6 @@ $tasks = array_map(function($r){
         html[data-theme="light"] body { background-color:#f8fafc !important; }
         html[data-theme="dark"] body { background-color:#0b1220 !important; }
         html[data-theme="dark"] .dashboard-main-body,
-        html[data-theme="dark"] .container,
         html[data-theme="dark"] .content-wrapper,
         html[data-theme="dark"] .main-content,
         html[data-theme="dark"] .content {
@@ -43,13 +42,15 @@ $tasks = array_map(function($r){
         .gantt-bar { position: absolute; height: 65%; top: 50%; transform: translateY(-50%); border-radius: 0.375rem; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: filter 0.2s; cursor: move; }
         .gantt-bar:hover { filter: brightness(0.95); }
         /* Status colors (seragam dengan list view: warning/info/secondary/success/danger) */
-        .status-open{ background-color:#f59e0b; }
-        .status-onprogress{ background-color:#3b82f6; }
-        .status-need{ background-color:#7c3aed; }
-        .status-done{ background-color:#10b981; }
-        .status-cancel{ background-color:#ef4444; }
+        .status-open{ background:linear-gradient(180deg,#f59e0b 0%,#d97706 100%); box-shadow:0 2px 6px rgba(245,158,11,.25); }
+        .status-onprogress{ background:linear-gradient(180deg,#3b82f6 0%,#2563eb 100%); box-shadow:0 2px 6px rgba(59,130,246,.25); }
+        .status-need{ background:linear-gradient(180deg,#7c3aed 0%,#6d28d9 100%); box-shadow:0 2px 6px rgba(124,58,237,.25); }
+        .status-done{ background:linear-gradient(180deg,#10b981 0%,#059669 100%); box-shadow:0 2px 6px rgba(16,185,129,.25); }
+        .status-cancel{ background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%); box-shadow:0 2px 6px rgba(239,68,68,.25); }
         .status-default{ background-color:#94a3b8; }
-        [data-theme="dark"] .status-need{ background-color:#6d28d9; }
+        [data-theme="dark"] .status-open{ background:linear-gradient(180deg,#d97706 0%,#92400e 100%) !important; box-shadow:0 2px 10px rgba(245,158,11,.35) !important; outline:1px solid rgba(245,158,11,.25); }
+        [data-theme="dark"] .status-onprogress{ background:linear-gradient(180deg,#1d4ed8 0%,#1e40af 100%) !important; box-shadow:0 2px 10px rgba(59,130,246,.35) !important; outline:1px solid rgba(59,130,246,.25); }
+        [data-theme="dark"] .status-need{ background:linear-gradient(180deg,#6d28d9 0%,#4c1d95 100%) !important; box-shadow:0 2px 10px rgba(124,58,237,.35) !important; outline:1px solid rgba(124,58,237,.25); }
         .resize-handle { position: absolute; top: 0; bottom: 0; width: 8px; cursor: ew-resize; z-index: 10; }
         .resize-handle-left { left: 0; }
         .resize-handle-right { right: 0; }
@@ -83,6 +84,8 @@ $tasks = array_map(function($r){
         [data-theme="dark"] .saturday-bg { background-color: rgba(236,72,153,.08); }
         [data-theme="dark"] .sunday-bg { background-color: rgba(239,68,68,.08); }
         [data-theme="dark"] .gantt-bar { box-shadow: 0 2px 6px rgba(0,0,0,.5); }
+        [data-theme="dark"] .status-done{ background:linear-gradient(180deg,#059669 0%,#065f46 100%) !important; box-shadow:0 2px 10px rgba(16,185,129,.35) !important; outline:1px solid rgba(16,185,129,.25); }
+        [data-theme="dark"] .status-cancel{ background:linear-gradient(180deg,#b91c1c 0%,#7f1d1d 100%) !important; box-shadow:0 2px 10px rgba(239,68,68,.35) !important; outline:1px solid rgba(239,68,68,.22); }
         [data-theme="dark"] .today-col { background-color: rgba(59,130,246,.18) !important; }
         /* Dark theme: remove inner border/shadow; use outer .card like list */
         [data-theme="dark"] .gantt-card { background:transparent !important; border-color:transparent !important; box-shadow:none !important; }
@@ -94,16 +97,23 @@ $tasks = array_map(function($r){
         [data-theme="dark"] .gantt-row:hover .task-cell, 
         [data-theme="dark"] .gantt-row:hover .timeline-cell { background-color: rgba(255,255,255,.04); }
         /* Quick Edit modal dark-mode tweaks */
-        [data-theme="dark"] .qe-card { background-color:#0f172a !important; border-color:#334155 !important; color:#e5e7eb !important; }
-        [data-theme="dark"] .qe-card .qe-sub { color:#94a3b8 !important; }
-        [data-theme="dark"] .qe-card select { background-color:#111827 !important; color:#e5e7eb !important; border-color:#374151 !important; }
-        [data-theme="dark"] .qe-card button#qe_cancel { background:#6b7280 !important; color:#fff !important; }
-        /* Toggle normalization to prevent overflow/covered thumb */
-        .toggle-wrap{ position:relative; width:40px; height:20px; }
-        .toggle-label{ position:absolute; inset:0; width:100%; height:100%; border-radius:9999px; background-color:#cbd5e1; }
-        .toggle-checkbox{ position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:9999px; background:#fff; border:2px solid #fff; appearance:none; box-shadow:0 1px 2px rgba(0,0,0,.15); z-index:1; transition:left .2s ease; }
-        .toggle-checkbox:checked{ left:22px; border-color:#3b82f6; }
-        .toggle-checkbox:checked + .toggle-label{ background-color:#3b82f6; }
+        [data-theme="dark"] .qe-card { background-color:#0f172a !important; border-color:#1e293b !important; color:#e5e7eb !important; box-shadow:0 24px 60px rgba(2,6,23,.7) !important; }
+        [data-theme="dark"] .qe-card .qe-sub { color:#9ca3af !important; }
+        [data-theme="dark"] .qe-card select { background-color:#111827 !important; color:#e5e7eb !important; border-color:#334155 !important; }
+        [data-theme="dark"] .qe-card select:focus { border-color:#3b82f6 !important; box-shadow:0 0 0 3px rgba(59,130,246,.25) !important; outline:none !important; }
+        [data-theme="dark"] .qe-card button#qe_cancel { background:#475569 !important; color:#fff !important; }
+
+        /* Quick edit trigger button style (visible on dark) */
+        .quick-edit-btn{ padding:6px 10px; font-size:12px; font-weight:700; border-radius:8px; background:#ffffff; color:#334155; border:1px solid #e5e7eb; box-shadow:0 2px 6px rgba(0,0,0,.08); }
+        .quick-edit-btn:hover{ background:#f1f5f9; }
+        [data-theme="dark"] .quick-edit-btn{ background:#0f172a; color:#e5e7eb; border:1px solid #334155; box-shadow:0 2px 10px rgba(2,6,23,.5); }
+        [data-theme="dark"] .quick-edit-btn:hover{ background:#111827; }
+        /* Wrap Description toggle (scoped to Gantt root to avoid class collision with footer/navbar) */
+        #gantt-root .wrap-toggle-wrap{ position:relative; width:40px; height:20px; }
+        #gantt-root .wrap-toggle-track{ position:absolute; inset:0; width:100%; height:100%; border-radius:9999px; background-color:#cbd5e1; }
+        #gantt-root .wrap-toggle-checkbox{ position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:9999px; background:#fff; border:2px solid #fff; appearance:none; box-shadow:0 1px 2px rgba(0,0,0,.15); z-index:1; transition:left .2s ease; }
+        #gantt-root .wrap-toggle-checkbox:checked{ left:22px; border-color:#3b82f6; }
+        #gantt-root .wrap-toggle-checkbox:checked + .wrap-toggle-track{ background-color:#3b82f6; }
         /* Status badge for toggle */
         .wrap-badge{ display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; padding:2px 8px; border-radius:9999px; border:1px solid #e5e7eb; color:#334155; background:#f1f5f9; }
         .wrap-badge.on{ background:linear-gradient(135deg,#667eea 0%, #764ba2 100%); color:#fff; border-color:transparent; box-shadow:0 6px 16px rgba(102,126,234,.25); }
@@ -121,7 +131,7 @@ $tasks = array_map(function($r){
     </style>
     <script>const SERVER_TASKS = <?php echo json_encode($tasks, JSON_UNESCAPED_UNICODE); ?>;</script>
 
-    <div class="dashboard-main-body">
+    <div class="dashboard-main-body" id="gantt-root">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
             <h6 class="fw-semibold mb-0">Activity Gantt</h6>
             <ul class="d-flex align-items-center gap-2">
@@ -153,9 +163,9 @@ $tasks = array_map(function($r){
                     <div class="flex flex-col gap-2">
                         <div class="flex items-center gap-2 select-none">
                             <label for="wrap-toggle" class="text-sm font-medium text-slate-600 select-none cursor-pointer">Wrap Description</label>
-                            <div class="toggle-wrap mr-2 align-middle select-none">
-                                <input type="checkbox" role="switch" aria-checked="false" aria-label="Toggle wrap description" tabindex="0" name="wrap-toggle" id="wrap-toggle" class="toggle-checkbox cursor-pointer"/>
-                                <label for="wrap-toggle" class="toggle-label cursor-pointer"></label>
+                            <div class="wrap-toggle-wrap mr-2 align-middle select-none">
+                                <input type="checkbox" role="switch" aria-checked="false" aria-label="Toggle wrap description" tabindex="0" name="wrap-toggle" id="wrap-toggle" class="wrap-toggle-checkbox cursor-pointer"/>
+                                <label for="wrap-toggle" class="wrap-toggle-track cursor-pointer"></label>
                             </div>
                             <span id="wrap-status" class="wrap-badge">OFF</span>
                         </div>
@@ -312,7 +322,7 @@ $tasks = array_map(function($r){
                         // Quick edit button
                         const quickBtn = document.createElement('button');
                         quickBtn.textContent = 'Edit';
-                        quickBtn.className = 'ml-2 px-2 py-1 text-xs bg-slate-200 rounded hover:bg-slate-300';
+                        quickBtn.className = 'ml-2 quick-edit-btn';
                         quickBtn.addEventListener('click', (ev) => {
                             ev.stopPropagation();
                             openQuickEditModal(task);
@@ -430,6 +440,14 @@ $tasks = array_map(function($r){
                 });
             };
 
+            // Force theme from localStorage on load (avoid stale cookie/body attribute conflicts)
+            try {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark' || savedTheme === 'light') {
+                    document.documentElement.setAttribute('data-theme', savedTheme);
+                }
+            } catch (_) {}
+
             // Quick Edit Modal for status/priority/type
             function openQuickEditModal(task){
                 const overlay = document.createElement('div');
@@ -440,12 +458,12 @@ $tasks = array_map(function($r){
                     .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 
                 overlay.innerHTML = `
-                  <div class="qe-card" style="background:#fff; border:1px solid #dee2e6; border-radius:8px; width:380px; padding:16px; box-shadow:0 12px 28px rgba(0,0,0,.18);">
-                    <h3 style="margin:0 0 4px 0; font-weight:800; font-size:20px; text-align:center;">Quick Edit</h3>
-                    <div class="qe-sub" style="text-align:center; color:#6b7280; font-size:12px; margin-bottom:12px;">No: <strong>${escapeHtml(task.no)}</strong></div>
-                    <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+                  <div class="qe-card" style="background:#fff; border:1px solid #e5e7eb; border-radius:10px; width:400px; padding:16px; box-shadow:0 16px 36px rgba(0,0,0,.18);">
+                    <h3 style="margin:0 0 6px 0; font-weight:800; font-size:20px; text-align:center;">Quick Edit</h3>
+                    <div class="qe-sub" style="text-align:center; color:#6b7280; font-size:12px; margin-bottom:14px;">No: <strong>${escapeHtml(task.no)}</strong></div>
+                    <div style="display:flex; gap:8px; margin-bottom:10px; align-items:center;">
                       <label style="width:90px; font-weight:600;">Status</label>
-                      <select id="qe_status" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                      <select id="qe_status" style="flex:1; padding:10px; border:1px solid #d1d5db; border-radius:8px; background:#fff;">
                         <option>Open</option>
                         <option>On Progress</option>
                         <option>Need Requirement</option>
@@ -453,9 +471,9 @@ $tasks = array_map(function($r){
                         <option>Cancel</option>
                       </select>
     </div>
-                    <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+                    <div style="display:flex; gap:8px; margin-bottom:10px; align-items:center;">
                       <label style="width:90px; font-weight:600;">Priority</label>
-                      <select id="qe_priority" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                      <select id="qe_priority" style="flex:1; padding:10px; border:1px solid #d1d5db; border-radius:8px; background:#fff;">
                         <option>Urgent</option>
                         <option selected>Normal</option>
                         <option>Low</option>
@@ -463,7 +481,7 @@ $tasks = array_map(function($r){
   </div>
                     <div style="display:flex; gap:8px; margin-bottom:16px; align-items:center;">
                       <label style="width:90px; font-weight:600;">Type</label>
-                      <select id="qe_type" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                      <select id="qe_type" style="flex:1; padding:10px; border:1px solid #d1d5db; border-radius:8px; background:#fff;">
                         <option>Setup</option>
                         <option>Question</option>
                         <option>Issue</option>
@@ -473,7 +491,7 @@ $tasks = array_map(function($r){
                       </select>
       </div>
                     <div style="display:flex; justify-content:flex-end; gap:8px;">
-                      <button id="qe_save" style="padding:10px 16px; background:linear-gradient(135deg,#667eea 0%, #764ba2 100%); color:#fff; border:none; border-radius:8px; font-weight:600;">Update</button>
+                      <button id="qe_save" style="padding:10px 16px; background:linear-gradient(135deg,#667eea 0%, #764ba2 100%); color:#fff; border:none; border-radius:8px; font-weight:700; box-shadow:0 10px 22px rgba(102,126,234,.28);">Update</button>
                       <button id="qe_cancel" style="padding:10px 16px; background:#6b7280; color:#fff; border:none; border-radius:8px; font-weight:600;">Close</button>
     </div>
                   </div>`;
@@ -556,6 +574,10 @@ $tasks = array_map(function($r){
             todayBtn.addEventListener('click', () => { currentDate = new Date(); renderGantt(currentDate); });
             prevMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); renderGantt(currentDate); });
             nextMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); renderGantt(currentDate); });
+
+            // Listen to global theme changes (e.g., navbar/footer toggle) and re-render for grid tone adjustments
+            const themeObserver = new MutationObserver(() => { renderGantt(currentDate); });
+            themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
             // Debounce + only-diff + batch persist
             const originalMap = new Map();

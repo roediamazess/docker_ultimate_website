@@ -807,6 +807,7 @@ html, body {
     color: white;
     padding: 1rem 0;
     margin-top: 0;
+    border-top: 1px solid rgba(255,255,255,0.08); /* garis halus seragam */
 }
 
 .footer .row {
@@ -972,7 +973,8 @@ html, body {
 
 /* Dark theme footer adjustments */
 [data-theme="dark"] .footer {
-    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+    border-top: 1px solid rgba(148,163,184,0.12); /* samakan garis atas di dark */
 }
 
 [data-theme="dark"] .footer .btn-outline-secondary {
