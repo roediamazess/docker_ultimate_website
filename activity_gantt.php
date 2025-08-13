@@ -37,13 +37,13 @@ $tasks = array_map(function($r){
 <style>
         body { font-family: 'Inter', sans-serif; }
         /* Force page background match list (fix outer light area) */
-        body { background-color:#f8fafc !important; }
-        body[data-theme="dark"] { background-color:#0b1220 !important; }
-        body[data-theme="dark"] .dashboard-main-body,
-        body[data-theme="dark"] .container,
-        body[data-theme="dark"] .content-wrapper,
-        body[data-theme="dark"] .main-content,
-        body[data-theme="dark"] .content {
+        html[data-theme="light"] body { background-color:#f8fafc !important; }
+        html[data-theme="dark"] body { background-color:#0b1220 !important; }
+        html[data-theme="dark"] .dashboard-main-body,
+        html[data-theme="dark"] .container,
+        html[data-theme="dark"] .content-wrapper,
+        html[data-theme="dark"] .main-content,
+        html[data-theme="dark"] .content {
             background-color:#0b1220 !important;
         }
         .gantt-grid { display: grid; grid-template-columns: 450px 1fr; }
@@ -125,11 +125,12 @@ $tasks = array_map(function($r){
     </style>
     <style>
     /* Page-level card tone override to match Activity List */
+    [data-theme="light"] .card { background-color:#f8fafc !important; border:1px solid #e5e7eb !important; box-shadow:0 1px 2px rgba(0,0,0,.06) !important; }
     [data-theme="dark"] .card { background-color:#0f172a !important; border:1px solid #1e293b !important; box-shadow:0 1px 2px rgba(0,0,0,.35) !important; }
     </style>
     <script>const SERVER_TASKS = <?php echo json_encode($tasks, JSON_UNESCAPED_UNICODE); ?>;</script>
 </head>
-<body class="bg-slate-50 text-slate-800" data-theme="<?php echo htmlspecialchars($_COOKIE['theme'] ?? 'light'); ?>">
+<body class="bg-slate-50 text-slate-800">
 
     <div class="dashboard-main-body">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
@@ -146,7 +147,7 @@ $tasks = array_map(function($r){
             </ul>
         </div>
 
-        <div class="card" style="<?php echo ((isset($_COOKIE['theme']) && $_COOKIE['theme']==='dark') ? 'background-color:#0f172a;border:1px solid #1e293b;box-shadow:0 1px 2px rgba(0,0,0,.35);' : 'background-color:#f8fafc;border:1px solid #e5e7eb;box-shadow:0 1px 2px rgba(0,0,0,.06);'); ?>">
+        <div class="card">
             <div class="d-flex justify-content-end p-3"><div class="d-flex gap-2">
                 <a href="activity.php" class="btn btn-secondary">List View</a>
                 <a href="activity_kanban.php" class="btn btn-secondary">Kanban View</a>
@@ -156,12 +157,12 @@ $tasks = array_map(function($r){
         
         <div class="gantt-card rounded-xl overflow-hidden">
             <div class="p-3 border-b border-slate-200">
-                <div class="w-full text-center mb-2">
+                <div class="w-full text-center mb-2 select-none">
                     <span id="month-year-display" class="text-sm font-semibold text-slate-600"></span>
                 </div>
                 <div class="flex items-start justify-between flex-wrap gap-3">
                     <div class="flex flex-col gap-2">
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 select-none">
                             <label for="wrap-toggle" class="text-sm font-medium text-slate-600 select-none cursor-pointer">Wrap Description</label>
                             <div class="toggle-wrap mr-2 align-middle select-none">
                                 <input type="checkbox" role="switch" aria-checked="false" aria-label="Toggle wrap description" tabindex="0" name="wrap-toggle" id="wrap-toggle" class="toggle-checkbox cursor-pointer"/>
