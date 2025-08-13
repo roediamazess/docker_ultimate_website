@@ -48,7 +48,7 @@ try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
 
-    echo json_encode(['success' => true, 'updated' => $stmt->rowCount()]);
+    echo json_encode(['success' => true, 'updated' => $stmt->rowCount(), 'action' => 'update']);
 } catch (Throwable $e) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);

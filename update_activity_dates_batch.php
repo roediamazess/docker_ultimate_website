@@ -50,7 +50,7 @@ try {
     }
 
     $pdo->commit();
-    echo json_encode(['success' => true, 'updated' => $updated]);
+    echo json_encode(['success' => true, 'updated' => $updated, 'action' => 'update']);
 } catch (Throwable $e) {
     if ($pdo && $pdo->inTransaction()) { $pdo->rollBack(); }
     http_response_code(400);

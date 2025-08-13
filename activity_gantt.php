@@ -386,9 +386,11 @@ $tasks = array_map(function($r){
                     fetch('update_activity_fields.php', {
                         method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin',
                         body: JSON.stringify({ id: task.id, status:s.value, priority:p.value, type:t.value })
-                    }).then(r=>r.json()).then(res=>{
-                        if(res && res.success){
-                            task.status = s.value; task.priority=p.value; task.type=t.value; // update local
+                    }).then(async (r)=>{
+                        let res = null;
+                        try { res = await r.clone().json(); } catch(_) {}
+                        if (r.ok && (!res || res.success !== false)){
+                            task.status = s.value; task.priority = p.value; task.type = t.value; // update local
                             if (window.showActivityToast) window.showActivityToast('Data berhasil disimpan', 'success', 2500);
                             renderGantt(currentDate);
                         } else {
