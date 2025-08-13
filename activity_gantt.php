@@ -25,15 +25,6 @@ $tasks = array_map(function($r){
 }, $rows);
 ?>
 <?php include './partials/layouts/layoutHorizontal.php'; ?>
-
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gantt Chart Interaktif (Dikelompokkan)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
         body { font-family: 'Inter', sans-serif; }
         /* Force page background match list (fix outer light area) */
@@ -129,8 +120,6 @@ $tasks = array_map(function($r){
     [data-theme="dark"] .card { background-color:#0f172a !important; border:1px solid #1e293b !important; box-shadow:0 1px 2px rgba(0,0,0,.35) !important; }
     </style>
     <script>const SERVER_TASKS = <?php echo json_encode($tasks, JSON_UNESCAPED_UNICODE); ?>;</script>
-</head>
-<body class="bg-slate-50 text-slate-800">
 
     <div class="dashboard-main-body">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
@@ -615,9 +604,6 @@ $tasks = array_map(function($r){
 });
 </script>
     <script src="assets/js/activity-notifications.js"></script>
-
-</body>
-</html>
 
 <?php include './partials/layouts/layoutBottom.php'; ?>
 
