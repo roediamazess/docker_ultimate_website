@@ -391,7 +391,11 @@ $projects = $pdo->query('SELECT project_id, project_name FROM projects ORDER BY 
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Customer</label>
-                                <input type="text" name="customer" class="form-control" placeholder="Enter customer name">
+                                <div class="input-group">
+                                    <input type="text" id="create_customer_display" class="form-control" placeholder="Search or select customer..." onfocus="openCustomerLookup('create_customer_display', 'create_customer_id', this)" onkeyup="liveFilterCustomerLookup(this.value)">
+                                    <button type="button" class="btn btn-secondary" onclick="openCustomerLookup('create_customer_display', 'create_customer_id', this)">Lookup</button>
+                                </div>
+                                <input type="hidden" name="customer" id="create_customer_id">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">CNC Number</label>
@@ -525,7 +529,11 @@ $projects = $pdo->query('SELECT project_id, project_name FROM projects ORDER BY 
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Customer</label>
-                                <input type="text" name="customer" id="update_customer" class="form-control" placeholder="Enter customer name">
+                                <div class="input-group">
+                                    <input type="text" id="update_customer_display" class="form-control" placeholder="Search or select customer..." onfocus="openCustomerLookup('update_customer_display', 'update_customer_id', this)" onkeyup="liveFilterCustomerLookup(this.value)">
+                                    <button type="button" class="btn btn-secondary" onclick="openCustomerLookup('update_customer_display', 'update_customer_id', this)">Lookup</button>
+                                </div>
+                                <input type="hidden" name="customer" id="update_customer_id">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">CNC Number</label>

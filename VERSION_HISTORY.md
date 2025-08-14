@@ -1,3 +1,15 @@
+## v2.4.8 (2025-08-14)
+- Projects (`projects.php`):
+  - Status tabs diseragamkan (urutan: Running, Scheduled, Document, Document Check, Done, Cancel, Rejected, All Status) dengan default filter Running.
+  - Dark mode parity mengikuti Activities List: tabs, filter section, form field, tombol Reset, dan header table chip (`.table-header`).
+  - Detail strip (baris "PIC: …") direduksi kontrasnya dan memakai gradient yang sama seperti header; mendukung dark mode.
+  - Tombol "Create Project" di header/tab bar dihapus; tombol "Add Project" diposisikan di bar filter di samping Reset.
+  - Modal Add/Edit:
+    - Styling dark mode diselaraskan (background, border, footer, disabled input legible).
+    - UX: bisa ditutup dengan ESC dan klik di luar konten modal (overlay).
+  - Perapihan kecil: klik baris tabel tetap membuka modal edit; tidak ada perubahan endpoint/backend.
+- Keamanan/DB: tidak ada perubahan skema database pada rilis ini.
+
 ## v2.4.7 (2025-08-13)
 - Gantt (dark/light):
   - Toggle tema sepenuhnya sinkron dengan global `html[data-theme]` (hapus atribusi `body`/cookie), dan re-render saat tema berubah.

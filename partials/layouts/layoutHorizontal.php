@@ -358,7 +358,7 @@ html[data-theme="light"] #root {
                     </li>
 
                     <li class="nav-item" data-debug="nav-item">
-                        <a href="project.php" class="nav-link">
+                        <a href="projects.php" class="nav-link">
                             <iconify-icon icon="solar:folder-with-files-outline" class="nav-icon"></iconify-icon>
                             <span>Projects</span>
                         </a>

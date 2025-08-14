@@ -53,6 +53,8 @@ class LogoNotificationManager {
             .notification-capsule {
                 transform-origin: top left;
                 animation: emerge-from-logo 0.5s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+                border-radius: 9999px;
+                backdrop-filter: blur(10px);
             }
             
             @keyframes emerge-from-logo {
@@ -90,8 +92,16 @@ class LogoNotificationManager {
                 from { width: 100%; }
                 to { width: 0%; }
             }
-            /* Info blue color (configurable) */
-            :root { --notify-info-color: #90C5D8; }
+            /* Theme-aware colors */
+            :root { 
+                --notify-info-color: #6fb1d6; /* default light */
+                --notify-bg-light: rgba(15, 23, 42, 0.85); /* slate-900 with opacity for light theme */
+                --notify-bg-dark: rgba(255, 255, 255, 0.1); /* glassy light overlay for dark theme */
+                --notify-text-light: #ffffff;
+                --notify-text-dark: #e5e7eb;
+            }
+            html[data-theme="light"] .notification-capsule { background-color: var(--notify-bg-light) !important; color: var(--notify-text-light) !important; }
+            html[data-theme="dark"] .notification-capsule { background-color: var(--notify-bg-dark) !important; color: var(--notify-text-dark) !important; }
             .notify-info-progress { background-color: var(--notify-info-color); }
             .notify-info-circle { background-color: var(--notify-info-color); }
         `;
@@ -143,7 +153,7 @@ class LogoNotificationManager {
 
     createNotificationElement(message, type) {
         const notification = document.createElement('div');
-        notification.className = 'notification-capsule bg-slate-800 text-white rounded-full shadow-2xl flex items-center p-2';
+        notification.className = 'notification-capsule shadow-2xl flex items-center p-2';
 
         // Tentukan ikon dan warna berdasarkan tipe
         let icon, progressColor;
@@ -162,7 +172,7 @@ class LogoNotificationManager {
                 break;
             default: // success
                 progressColor = 'bg-green-400';
-                icon = `<div class="w-8 h-8 rounded-full bg-green-500 flex-shrink-0 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>`;
+                icon = `<div class="w-8 h-8 rounded-full bg-green-500 flex-shrink-0 flex items-center justify-center"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-5 w-5 text-white\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" stroke-width=\"2\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M5 13l4 4L19 7\" /></svg></div>`;
         }
 
         // Isi konten notifikasi

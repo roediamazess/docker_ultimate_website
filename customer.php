@@ -7,6 +7,21 @@ require_once 'user_utils.php';
 // Cek akses menggunakan utility function
 require_login();
 
+// Ensure DB schema: unique customer_id and status enum column
+try {
+    // Create enum type if not exists
+    $pdo->exec("DO $$ BEGIN CREATE TYPE customer_status AS ENUM ('Active','Inactive'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;");
+    // Add status column if not exists
+    $pdo->exec("ALTER TABLE customers ADD COLUMN IF NOT EXISTS status customer_status");
+    // Backfill and set NOT NULL
+    $pdo->exec("UPDATE customers SET status = 'Active' WHERE status IS NULL");
+    $pdo->exec("ALTER TABLE customers ALTER COLUMN status SET NOT NULL");
+    // Unique index on customer_id
+    $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_customer_id_unique ON customers (customer_id)");
+} catch (Exception $e) {
+    // Silently ignore if database user lacks permissions; UI will still work
+}
+
 // Fungsi helper untuk logging - menggunakan utility function
 function log_activity($action, $description) {
     log_user_activity($action, $description);
@@ -34,7 +49,7 @@ if (isset($_POST['create'])) {
         $notification_type = 'error';
     } else {
         try {
-            $stmt = $pdo->prepare('INSERT INTO customers (customer_id, name, star, room, outlet, type, "group", zone, address, billing, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $stmt = $pdo->prepare('INSERT INTO customers (customer_id, name, star, room, outlet, type, "group", zone, address, billing, status, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([
                 $_POST['customer_id'],
                 $_POST['name'],
@@ -46,6 +61,7 @@ if (isset($_POST['create'])) {
                 $_POST['zone'],
                 $_POST['address'],
                 $_POST['billing'] ?: null,
+                $_POST['status'] ?: 'Active',
                 $_SESSION['user_id'],
                 date('Y-m-d H:i:s')
             ]);
@@ -66,7 +82,7 @@ if (isset($_POST['update'])) {
         $notification_type = 'error';
     } else {
         try {
-            $stmt = $pdo->prepare('UPDATE customers SET customer_id=?, name=?, star=?, room=?, outlet=?, type=?, "group"=?, zone=?, address=?, billing=? WHERE id=?');
+            $stmt = $pdo->prepare('UPDATE customers SET customer_id=?, name=?, star=?, room=?, outlet=?, type=?, "group"=?, zone=?, address=?, billing=?, status=? WHERE id=?');
             $stmt->execute([
                 $_POST['customer_id'],
                 $_POST['name'],
@@ -78,6 +94,7 @@ if (isset($_POST['update'])) {
                 $_POST['zone'],
                 $_POST['address'],
                 $_POST['billing'] ?: null,
+                $_POST['status'] ?: 'Active',
                 $_POST['id']
             ]);
             $message = 'Customer berhasil diperbarui!';
@@ -333,6 +350,13 @@ try {
                                             <?php endforeach; ?>
                                         </select>
                                     </div>
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Status *</label>
+                                        <select name="status" class="custom-modal-select" required>
+                                            <option value="Active">Active</option>
+                                            <option value="Inactive">Inactive</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <div class="custom-modal-footer">
@@ -422,6 +446,13 @@ try {
                                             <?php endforeach; ?>
                                         </select>
                                     </div>
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Status *</label>
+                                        <select name="status" id="edit_status" class="custom-modal-select" required>
+                                            <option value="Active">Active</option>
+                                            <option value="Inactive">Inactive</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <div class="custom-modal-footer">
@@ -437,32 +468,29 @@ try {
                         <table class="table table-striped mb-0">
                             <thead>
                                 <tr>
-                                    <th scope="col">
-                                        <div class="table-header">No</div>
-                                    </th>
-                                    <th scope="col">
-                                        <div class="table-header">Customer ID</div>
+                                    <th scope="col" class="text-center-important">
+                                        <div class="table-header text-center-important">Customer ID</div>
                                     </th>
                                     <th scope="col">
                                         <div class="table-header">Name</div>
                                     </th>
                                     <th scope="col">
-                                        <div class="table-header">Type</div>
+                                        <div class="table-header">Group</div>
                                     </th>
                                     <th scope="col">
                                         <div class="table-header">Star</div>
                                     </th>
-                                    <th scope="col">
-                                        <div class="table-header">Outlet Count</div>
+                                    <th scope="col" class="text-center-important">
+                                        <div class="table-header text-center-important">Type</div>
                                     </th>
-                                    <th scope="col">
-                                        <div class="table-header">Address</div>
+                                    <th scope="col" class="text-center-important">
+                                        <div class="table-header text-center-important">Room</div>
                                     </th>
-                                    <th scope="col">
-                                        <div class="table-header">Billing</div>
+                                    <th scope="col" class="text-center-important">
+                                        <div class="table-header text-center-important">Outlet</div>
                                     </th>
-                                    <th scope="col">
-                                        <div class="table-header">Created By</div>
+                                    <th scope="col" class="text-center-important">
+                                        <div class="table-header text-center-important">Billing</div>
                                     </th>
                                 </tr>
                             </thead>
@@ -481,16 +509,9 @@ try {
                                     data-address="<?= htmlspecialchars($c['address'] ?? '') ?>"
                                     data-billing="<?= htmlspecialchars($c['billing'] ?? '') ?>"
                                     onclick="editCustomer(<?= $c['id'] ?>)">
-                                    <td data-label="No"><?= str_pad($index + 1 + $offset, 2, '0', STR_PAD_LEFT) ?></td>
-                                    <td data-label="Customer ID"><?= htmlspecialchars($c['customer_id'] ?: '-') ?></td>
+                                    <td data-label="Customer ID" class="text-center-important"><?= htmlspecialchars($c['customer_id'] ?: '-') ?></td>
                                     <td data-label="Name"><?= htmlspecialchars($c['name'] ?: '-') ?></td>
-                                    <td data-label="Type">
-                                        <?php if ($c['type']): ?>
-                                            <span class="type-badge bg-info-focus text-info-main px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($c['type']) ?></span>
-                                        <?php else: ?>
-                                            -
-                                        <?php endif; ?>
-                                    </td>
+                                    <td data-label="Group"><?= htmlspecialchars($c['group'] ?: '-') ?></td>
                                     <td data-label="Star">
                                         <?php if ($c['star']): ?>
                                             <span class="star-badge bg-warning-focus text-warning-main px-8 py-4 rounded-pill fw-medium text-sm"><?= str_repeat('⭐', $c['star']) ?></span>
@@ -498,24 +519,18 @@ try {
                                             -
                                         <?php endif; ?>
                                     </td>
-                                    <td data-label="Outlet Count">
-                                        <?php if ($c['outlet']): ?>
-                                            <span class="outlet-badge bg-primary-focus text-primary-main px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($c['outlet']) ?> Outlet<?= $c['outlet'] > 1 ? 's' : '' ?></span>
+                                    <td data-label="Type" class="text-center-important">
+                                        <?php if ($c['type']): ?>
+                                            <span class="type-badge bg-info-focus text-info-main px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($c['type']) ?></span>
                                         <?php else: ?>
                                             -
                                         <?php endif; ?>
                                     </td>
-                                    <td data-label="Address"><?= htmlspecialchars($c['address'] ?: '-') ?></td>
-                                    <td data-label="Billing">
+                                    <td data-label="Room" class="text-center-important"><?= htmlspecialchars($c['room'] ?: '-') ?></td>
+                                    <td data-label="Outlet" class="text-center-important"><?= htmlspecialchars($c['outlet'] ?: '-') ?></td>
+                                    <td data-label="Billing" class="text-center-important">
                                         <?php if ($c['billing']): ?>
                                             <span class="billing-badge bg-success-focus text-success-main px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($c['billing']) ?></span>
-                                        <?php else: ?>
-                                            -
-                                        <?php endif; ?>
-                                    </td>
-                                    <td data-label="Created By">
-                                        <?php if ($c['creator_name']): ?>
-                                            <span class="creator-badge bg-secondary-focus text-secondary-main px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($c['creator_name']) ?></span>
                                         <?php else: ?>
                                             -
                                         <?php endif; ?>
@@ -781,6 +796,9 @@ try {
     line-height: 1.15;
 }
 
+/* Utility: force centered text where needed */
+.text-center-important { text-align: center !important; }
+
 .table-header::before {
     content: '';
     position: absolute;
@@ -874,6 +892,8 @@ function editCustomer(customerId) {
     document.getElementById('edit_zone').value = row.dataset.zone;
     document.getElementById('edit_address').value = row.dataset.address;
     document.getElementById('edit_billing').value = row.dataset.billing;
+    const statusEl = document.getElementById('edit_status');
+    if (statusEl) { statusEl.value = row.dataset.status || 'Active'; }
     
     // Show modal
     document.getElementById('editCustomerModal').style.display = 'flex';

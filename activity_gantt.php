@@ -128,12 +128,12 @@ $tasks = array_map(function($r){
     /* Page-level card tone override to match Activity List */
     [data-theme="light"] .card { background-color:#f8fafc !important; border:1px solid #e5e7eb !important; box-shadow:0 1px 2px rgba(0,0,0,.06) !important; }
     [data-theme="dark"] .card { background-color:#0f172a !important; border:1px solid #1e293b !important; box-shadow:0 1px 2px rgba(0,0,0,.35) !important; }
-    </style>
+</style>
     <script>const SERVER_TASKS = <?php echo json_encode($tasks, JSON_UNESCAPED_UNICODE); ?>;</script>
 
     <div class="dashboard-main-body" id="gantt-root">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-            <h6 class="fw-semibold mb-0">Activity Gantt</h6>
+    <h6 class="fw-semibold mb-0">Activity Gantt</h6>
             <ul class="d-flex align-items-center gap-2">
                 <li class="fw-medium">
                     <a href="index.php" class="d-flex align-items-center gap-1 hover-text-primary">
@@ -148,9 +148,9 @@ $tasks = array_map(function($r){
 
         <div class="card">
             <div class="d-flex justify-content-end p-3"><div class="d-flex gap-2">
-                <a href="activity.php" class="btn btn-secondary">List View</a>
-                <a href="activity_kanban.php" class="btn btn-secondary">Kanban View</a>
-                <a href="activity_gantt.php" class="btn btn-primary">Gantt Chart</a>
+      <a href="activity.php" class="btn btn-secondary">List View</a>
+      <a href="activity_kanban.php" class="btn btn-secondary">Kanban View</a>
+      <a href="activity_gantt.php" class="btn btn-primary">Gantt Chart</a>
             </div></div>
             <div class="card-body">
         
@@ -173,27 +173,27 @@ $tasks = array_map(function($r){
                             <button id="today-btn" class="px-3 py-1.5 text-sm font-medium bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition leading-none">Hari Ini</button>
                             <button id="prev-month-btn" class="px-3 py-1.5 text-sm font-medium bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition">&lt;</button>
                             <button id="next-month-btn" class="px-3 py-1.5 text-sm font-medium bg-white border border-slate-300 rounded-md hover:bg-slate-100 transition">&gt;</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+    </div>
+  </div>
+      </div>
+    </div>
+    
             <div>
                 <div class="gantt-grid grid w-full sticky top-0 bg-slate-100 z-10 border-b border-slate-200">
                     <div class="flex items-center h-12 px-4 border-r border-slate-200">
                         <h3 class="font-semibold text-slate-600 uppercase text-sm">Deskripsi Tugas</h3>
-                    </div>
+            </div>
                     <div class="timeline-container overflow-x-auto">
                         <div id="timeline-dates" class="timeline-grid-bg h-12"></div>
-                    </div>
-                </div>
+          </div>
+        </div>
                 <div id="gantt-body"></div>
-            </div>
         </div>
-            </div>
+          </div>
         </div>
+      </div>
     </div>
-
+    
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             let allTasks = (Array.isArray(SERVER_TASKS) ? SERVER_TASKS : []).map(t => ({

@@ -236,7 +236,7 @@
             </li>
             
             <li>
-                <a href="project.php">
+                <a href="projects.php">
                     <iconify-icon icon="solar:folder-outline" class="menu-icon"></iconify-icon>
                     <span>Project List</span>
                 </a>
