@@ -297,8 +297,13 @@ if ($_POST) {
                 
                 $pdo->commit();
                 $success_message = "Project saved successfully!";
-                // Reload page to reflect changes in the list
-                header('Location: projects.php');
+                // Redirect back to last viewed list (preserve current filter/tab)
+                $returnUrl = isset($_POST['return_url']) ? (string)$_POST['return_url'] : '';
+                if ($returnUrl !== '' && strpos($returnUrl, 'projects.php') === 0) {
+                    header('Location: ' . $returnUrl);
+                } else {
+                    header('Location: projects.php');
+                }
                 exit;
                 
             } catch (Exception $e) {
@@ -451,6 +456,7 @@ try {
                 <form method="post" id="projectForm">
                     <div class="custom-modal-body">
                         <input type="hidden" name="action" value="save_project">
+                        <input type="hidden" name="return_url" id="project_return_url" value="">
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Project ID *</label>
@@ -732,6 +738,8 @@ try {
             // reset form
             const form = document.getElementById('projectForm');
             if (form) form.reset();
+            // store current query as return url so after save we come back to same tab/list
+            try { var ret = 'projects.php' + window.location.search; var ru = document.getElementById('project_return_url'); if (ru) ru.value = ret; } catch(_) {}
             const details = document.getElementById('detailsContainer');
             if (details) details.innerHTML = '';
             // add initial row
@@ -1030,6 +1038,8 @@ try {
             const form = document.getElementById('projectForm');
             if (form) form.reset();
             document.getElementById('detailsContainer').innerHTML = '';
+            // persist current tab/filter via return_url
+            try { var ret = 'projects.php' + window.location.search; var ru = document.getElementById('project_return_url'); if (ru) ru.value = ret; } catch(_) {}
 
 			try {
 				const url = 'get_project_data.php?project_id=' + encodeURIComponent(projectId) + '&_=' + Date.now();
