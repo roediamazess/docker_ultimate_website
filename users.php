@@ -211,27 +211,29 @@ include './partials/layouts/layoutHorizontal.php'
             </div>
 
             <div class="card h-100 p-0 radius-12">
-                <div class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center flex-wrap gap-3 justify-content-between">
-                    <div class="d-flex align-items-center flex-wrap gap-3">
-                        <span class="text-md fw-medium text-secondary-light mb-0">Show</span>
+                <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-semibold">Show</span>
                         <form method="get" class="d-inline">
-                            <select class="form-select form-select-sm w-auto ps-12 py-6 radius-12 h-40-px" name="limit" onchange="this.form.submit()">
+                            <select class="form-select form-select-sm w-auto" name="limit" onchange="this.form.submit()">
                                 <option value="10" <?= $limit===10?'selected':''; ?>>10</option>
                                 <option value="15" <?= $limit===15?'selected':''; ?>>15</option>
                                 <option value="20" <?= $limit===20?'selected':''; ?>>20</option>
                             </select>
                             <?php if ($search) echo '<input type="hidden" name="search" value="'.htmlspecialchars($search).'">'; ?>
                         </form>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
                         <form class="navbar-search" method="get">
                             <input type="hidden" name="limit" value="<?= (int)$limit ?>">
-                            <input type="text" class="bg-base h-40-px w-auto" name="search" placeholder="Search" value="<?= htmlspecialchars($search) ?>">
+                            <input type="text" class="bg-base h-40-px w-auto" name="search" placeholder="Search users..." value="<?= htmlspecialchars($search) ?>">
                             <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
                         </form>
+                        <a href="#" onclick="showModal('createModal'); return false;" class="btn btn-sm btn-primary-600 d-flex align-items-center gap-2">
+                            <iconify-icon icon="solar:add-circle-outline" class="icon"></iconify-icon>
+                            Add User
+                        </a>
                     </div>
-                    <a href="#" onclick="showModal('createModal'); return false;" class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
-                        <iconify-icon icon="ic:baseline-plus" class="icon text-xl line-height-1"></iconify-icon>
-                        Add New User
-                    </a>
                 </div>
                 
                 <!-- Success/Error Messages -->
@@ -279,6 +281,26 @@ include './partials/layouts/layoutHorizontal.php'
                         </table>
                     </div>
                 </div>
+            </div>
+
+            <!-- Footer: info + pagination (menyerupai activity.php) -->
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
+                <span class="text-md text-secondary-light fw-normal">Showing <?= count($users) ?> of <?= $total_users ?> results</span>
+                <?php if ($total_pages > 1): ?>
+                <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
+                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                        <?php if ($i == $page): ?>
+                            <li class="page-item">
+                                <a class="page-link bg-primary-600 text-white rounded-8 fw-medium text-md px-9 py-6" href="#"><?= $i ?></a>
+                            </li>
+                        <?php else: ?>
+                            <li class="page-item">
+                                <a class="page-link bg-neutral-200 text-secondary-light rounded-8 fw-medium text-md px-9 py-6 hover-bg-primary-600 hover-text-white" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>"><?= $i ?></a>
+                            </li>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+                </ul>
+                <?php endif; ?>
             </div>
 
             <!-- Create User Modal -->
