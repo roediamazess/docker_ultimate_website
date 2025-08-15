@@ -590,6 +590,9 @@ try {
                         .table-header::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent); transition:left .5s; }
                         .table-header:hover::before { left:100%; }
                         .table thead th { padding:0 !important; vertical-align:middle !important; }
+                        /* Column alignment */
+                        .table tbody td.text-center { text-align: center !important; }
+                        .table tbody td.text-start { text-align: left !important; }
                         /* Detail strip row appearance: match header chip style */
                         .project-detail-row td { background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); color:#334155; }
                         [data-theme="dark"] .project-detail-row td {
@@ -648,14 +651,14 @@ try {
                     <table class="table table-striped mb-0">
                         <thead>
                             <tr>
-                                <th scope="col"><div class="table-header">Project ID</div></th>
-                                <th scope="col"><div class="table-header">Hotel Name</div></th>
+                                <th scope="col" style="width: 120px;"><div class="table-header">Project ID</div></th>
+                                <th scope="col" style="width: 200px;"><div class="table-header">Hotel Name</div></th>
                                 <th scope="col"><div class="table-header">Project Name</div></th>
-                                <th scope="col"><div class="table-header">Start Date</div></th>
-                                <th scope="col"><div class="table-header">End Date</div></th>
-                                <th scope="col"><div class="table-header">Total Days</div></th>
-                                <th scope="col"><div class="table-header">Type</div></th>
-                                <th scope="col"><div class="table-header">Status</div></th>
+                                <th scope="col" style="width: 120px;"><div class="table-header">Start Date</div></th>
+                                <th scope="col" style="width: 120px;"><div class="table-header">End Date</div></th>
+                                <th scope="col" style="width: 100px;"><div class="table-header">Total Days</div></th>
+                                <th scope="col" style="width: 140px;"><div class="table-header">Type</div></th>
+                                <th scope="col" style="width: 120px;"><div class="table-header">Status</div></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -674,14 +677,14 @@ try {
                                  $sampleDetail = $stmt->fetch(PDO::FETCH_ASSOC);
                                 ?>
                                 <tr class="project-row" data-project-id="<?= htmlspecialchars($project['project_id']) ?>">
-                                    <td data-label="Project ID"><?= htmlspecialchars($project['project_id']) ?></td>
-                                    <td data-label="Hotel Name"><?= htmlspecialchars($project['hotel_name_text'] ?? '-') ?></td>
+                                    <td data-label="Project ID" class="text-center"><?= htmlspecialchars($project['project_id']) ?></td>
+                                    <td data-label="Hotel Name" class="text-start"><?= htmlspecialchars($project['hotel_name_text'] ?? '-') ?></td>
                                     <td data-label="Project Name"><?= htmlspecialchars($project['project_name']) ?></td>
-                                    <td data-label="Start Date"><?= $project['start_date'] ? date('d M Y', strtotime($project['start_date'])) : '-' ?></td>
-                                    <td data-label="End Date"><?= $project['end_date'] ? date('d M Y', strtotime($project['end_date'])) : '-' ?></td>
-                                    <td data-label="Total Days"><?= htmlspecialchars($project['total_days'] ?? '-') ?></td>
-                                    <td data-label="Type"><span class="type-badge bg-neutral-200 text-neutral-600 px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($project['type'] ?? '-') ?></span></td>
-                                    <td data-label="Status"><span class="status-badge bg-neutral-200 text-neutral-600 px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($project['status'] ?? '-') ?></span></td>
+                                    <td data-label="Start Date" class="text-center"><?= $project['start_date'] ? date('d M Y', strtotime($project['start_date'])) : '-' ?></td>
+                                    <td data-label="End Date" class="text-center"><?= $project['end_date'] ? date('d M Y', strtotime($project['end_date'])) : '-' ?></td>
+                                    <td data-label="Total Days" class="text-center"><?= htmlspecialchars($project['total_days'] ?? '-') ?></td>
+                                    <td data-label="Type" class="text-center"><span class="type-badge bg-neutral-200 text-neutral-600 px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($project['type'] ?? '-') ?></td>
+                                    <td data-label="Status" class="text-center"><span class="status-badge bg-neutral-200 text-neutral-600 px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($project['status'] ?? '-') ?></span></td>
                                 </tr>
                                 <?php if ($detailsCount > 0 && $sampleDetail): ?>
                                     <tr class="project-detail-row">
