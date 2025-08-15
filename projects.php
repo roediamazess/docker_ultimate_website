@@ -590,9 +590,19 @@ try {
                         .table-header::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent); transition:left .5s; }
                         .table-header:hover::before { left:100%; }
                         .table thead th { padding:0 !important; vertical-align:middle !important; }
-                        /* Column alignment */
+                        /* Column alignment and height consistency */
                         .table tbody td.text-center { text-align: center !important; }
                         .table tbody td.text-start { text-align: left !important; }
+                        .table tbody td { 
+                            vertical-align: middle !important; 
+                            height: 60px !important;
+                            padding: 12px 8px !important;
+                        }
+                        .table tbody td .type-badge,
+                        .table tbody td .status-badge {
+                            display: inline-block;
+                            vertical-align: middle;
+                        }
                         /* Detail strip row appearance: match header chip style */
                         .project-detail-row td { background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); color:#334155; }
                         [data-theme="dark"] .project-detail-row td {
@@ -652,8 +662,8 @@ try {
                         <thead>
                             <tr>
                                 <th scope="col" style="width: 120px;"><div class="table-header">Project ID</div></th>
-                                <th scope="col" style="width: 200px;"><div class="table-header">Hotel Name</div></th>
-                                <th scope="col"><div class="table-header">Project Name</div></th>
+                                <th scope="col" style="width: 250px;"><div class="table-header">Hotel Name</div></th>
+                                <th scope="col" style="width: 180px;"><div class="table-header">Project Name</div></th>
                                 <th scope="col" style="width: 120px;"><div class="table-header">Start Date</div></th>
                                 <th scope="col" style="width: 120px;"><div class="table-header">End Date</div></th>
                                 <th scope="col" style="width: 100px;"><div class="table-header">Total Days</div></th>
