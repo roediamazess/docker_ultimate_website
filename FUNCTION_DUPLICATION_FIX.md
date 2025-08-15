@@ -37,7 +37,7 @@ function require_login() {
 // KEPT - Core authentication function
 function require_login() {
     if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-        header('Location: login_simple.php');
+        header('Location: login.php');
         exit;
     }
 }

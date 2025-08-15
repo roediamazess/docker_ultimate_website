@@ -70,9 +70,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         if ($stmt->fetch()) {
             $error = 'Email sudah digunakan oleh user lain.';
         } else {
-            // Update basic info (excluding display_name - only admin can change it)
+            // Normalize empty selects to NULL to avoid enum errors
+            $tierParam = ($tier === '' ? null : $tier);
+            $roleParam = ($role === '' ? null : $role);
+            // Update basic info (excluding display_name - only admin can change it). Cast to avoid enum invalids
             $stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, tier = ?, role = ?, start_work = ? WHERE user_id = ?");
-            if ($stmt->execute([$full_name, $email, $tier, $role, $start_work, $user_id])) {
+            if ($stmt->execute([$full_name, $email, $tierParam, $roleParam, $start_work, $user_id])) {
                 $message = 'Profil berhasil diupdate!';
                 
                 // Update session data (keep existing display_name)

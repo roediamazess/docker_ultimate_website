@@ -27,11 +27,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
+    // Case-insensitive email match
+    $stmt = $pdo->prepare('SELECT * FROM users WHERE LOWER(email) = LOWER(:email) LIMIT 1');
     $stmt->execute(['email' => $email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user && password_verify($password, $user['password'])) {
+    $isValid = false;
+    if ($user) {
+        if (!empty($user['password']) && password_verify($password, (string)$user['password'])) {
+            $isValid = true;
+        } else {
+            // Legacy fallback: plaintext stored
+            $stored = (string)($user['password'] ?? '');
+            if ($stored !== '' && strpos($stored, '$') !== 0 && hash_equals($stored, $password)) {
+                $isValid = true;
+                // Upgrade hash transparently
+                try {
+                    $newHash = password_hash($password, PASSWORD_DEFAULT);
+                    $pdo->prepare('UPDATE users SET password = :pwd WHERE user_id = :uid')->execute(['pwd' => $newHash, 'uid' => $user['user_id']]);
+                    $user['password'] = $newHash;
+                } catch (Throwable $e) { /* ignore */ }
+            }
+        }
+    }
+
+    if ($user && $isValid) {
         // Set session
         session_regenerate_id(true);
                         $_SESSION['user_id'] = $user['user_id'];

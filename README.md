@@ -46,8 +46,8 @@ Ultimate Website adalah sistem web modern dengan login system yang canggih, mena
 ## 📁 **File Structure**
 ```
 ultimate-website/
-├── login_simple.php          # Main login page (WORKING)
-├── login.php                 # Redirects to simple version
+├── login.php                 # Main login page (WORKING)
+├── login_simple.php          # Redirect 302 ke login.php (kompatibilitas URL lama)
 ├── test_simple_login.php     # Testing interface
 ├── logout.php               # Logout handler
 ├── index.php                # Dashboard utama
@@ -73,7 +73,7 @@ ultimate-website/
 ## 🎯 **Usage**
 
 ### **Login System**
-1. **Main Login**: `http://localhost/ultimate-website/login_simple.php`
+1. **Main Login**: `http://localhost/ultimate-website/login.php`
 2. **Test Login**: `http://localhost/ultimate-website/test_simple_login.php`
 3. **Dashboard**: `http://localhost/ultimate-website/index.php`
 

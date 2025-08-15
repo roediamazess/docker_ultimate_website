@@ -20,7 +20,7 @@ Website Anda telah berhasil diubah dari **dual layout system** (vertikal + horiz
    - CSS horizontal layout sudah ter-include
    - Semua styling horizontal tersedia
 
-4. **`login_simple.php`**
+4. **`login.php`**
    - Setelah login berhasil, redirect ke `index.php`
    - Logo perusahaan sudah terpasang dengan benar
 

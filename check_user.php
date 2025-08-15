@@ -1,10 +1,10 @@
 <?php
 require_once 'db.php';
 
-echo "<h2>Check User: admin@example.com</h2>";
+echo "<h2>Check User: iam@powerpro.co.id</h2>";
 
 // Cek apakah user ada
-$email = 'admin@example.com';
+$email = 'iam@powerpro.co.id';
 $sql = "SELECT * FROM users WHERE email = ?";
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$email]);
@@ -13,7 +13,7 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
 if ($user) {
     echo "<p>✅ User ditemukan:</p>";
     echo "<ul>";
-    echo "<li>ID: " . $user['id'] . "</li>";
+    echo "<li>User ID: " . ($user['user_id'] ?? '') . "</li>";
     echo "<li>Email: " . $user['email'] . "</li>";
     echo "<li>Display Name: " . $user['display_name'] . "</li>";
     echo "<li>Role: " . $user['role'] . "</li>";
@@ -21,7 +21,7 @@ if ($user) {
     echo "</ul>";
     
     // Test password
-    $test_password = 'admin123';
+    $test_password = 'pps88';
     if (password_verify($test_password, $user['password'])) {
         echo "<p>✅ Password 'admin123' BENAR!</p>";
     } else {
@@ -37,37 +37,36 @@ if ($user) {
         echo "<p>✅ Password berhasil diupdate!</p>";
     }
 } else {
-    echo "<p>❌ User admin@example.com tidak ditemukan!</p>";
+    echo "<p>❌ User iam@powerpro.co.id tidak ditemukan!</p>";
     echo "<p>Membuat user baru...</p>";
     
     // Buat user baru
-    $new_password_hash = password_hash('admin123', PASSWORD_DEFAULT);
-    $insert_sql = "INSERT INTO users (display_name, full_name, email, password, tier, role, start_work) 
+    $new_password_hash = password_hash('pps88', PASSWORD_DEFAULT);
+    $insert_sql = "INSERT INTO users (user_id, full_name, email, password, tier, role, start_work) 
                    VALUES (?, ?, ?, ?, ?, ?, ?)";
     $insert_stmt = $pdo->prepare($insert_sql);
     $insert_stmt->execute([
-        'Admin Example',
-        'Administrator Example',
-        'admin@example.com',
+        'Iam',
+        'M. Ilham Rizki',
+        'iam@powerpro.co.id',
         $new_password_hash,
-        'Tier 3',
-        'Administrator',
-        '2024-01-01'
+        'New Born',
+        'Admin Office',
+        null
     ]);
     
-    echo "<p>✅ User admin@example.com berhasil dibuat!</p>";
+    echo "<p>✅ User iam@powerpro.co.id berhasil dibuat!</p>";
 }
 
 // Tampilkan semua user untuk referensi
 echo "<h3>Daftar Semua User:</h3>";
-$all_users = $pdo->query("SELECT id, email, display_name, role FROM users ORDER BY id")->fetchAll();
+$all_users = $pdo->query("SELECT user_id, email, role FROM users ORDER BY user_id")->fetchAll();
 echo "<table border='1' style='border-collapse: collapse;'>";
-echo "<tr><th>ID</th><th>Email</th><th>Display Name</th><th>Role</th></tr>";
+echo "<tr><th>User ID</th><th>Email</th><th>Role</th></tr>";
 foreach ($all_users as $u) {
     echo "<tr>";
-    echo "<td>" . $u['id'] . "</td>";
+    echo "<td>" . $u['user_id'] . "</td>";
     echo "<td>" . $u['email'] . "</td>";
-    echo "<td>" . $u['display_name'] . "</td>";
     echo "<td>" . $u['role'] . "</td>";
     echo "</tr>";
 }

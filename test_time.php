@@ -62,5 +62,5 @@ for ($hour = 0; $hour < 24; $hour++) {
     echo "<p style='color: $color;'>$hour:00 - $timeOfDay ($bgClass)$current</p>";
 }
 
-echo "<p><a href='login_simple.php'>Kembali ke Login</a></p>";
+echo "<p><a href='login.php'>Kembali ke Login</a></p>";
 ?> 

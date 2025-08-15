@@ -81,10 +81,13 @@ html[data-theme="light"] #root {
     opacity: 1 !important;
 }
 
+/* Navbar floating variables */
+:root { --nav-height: 72px; --nav-offset: 24px; --logo-vpad: 12px; }
+
 /* Notification Flip Circle System Styles */
 .notification-stack {
     position: fixed;
-    top: 5rem; /* 80px, beri ruang di bawah logo */
+    top: calc(var(--nav-height) + var(--nav-offset) + 16px);
     left: 1.5rem; /* 24px */
     z-index: 1000;
     display: flex;
@@ -232,7 +235,7 @@ html[data-theme="light"] #root {
 /* Logo Notification System Styles */
 #notification-container {
     position: fixed;
-    top: 5rem;
+    top: calc(var(--nav-height) + var(--nav-offset) + 16px);
     left: 1.5rem;
     z-index: 1001;
     display: flex;
@@ -240,6 +243,86 @@ html[data-theme="light"] #root {
     align-items: flex-start;
     gap: 0.75rem;
 }
+
+/* Floating horizontal navbar */
+.horizontal-navbar {
+    position: fixed;
+    top: var(--nav-offset);
+    left: 0;
+    right: 0;
+    height: var(--nav-height);
+    z-index: 1050;
+    display: block;
+    padding: 0 12px; /* sedikit gutter agar kapsul tidak menempel tepi layar */
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    transition: none;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+.horizontal-navbar::before,
+.horizontal-navbar::after { display:none !important; content:none !important; }
+
+.horizontal-navbar .nav-container {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 16px;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+/* Kapsul permukaan navbar */
+.horizontal-navbar .nav-surface {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 16px;
+    border-radius: 9999px;
+    -webkit-backdrop-filter: none; /* matikan glass di dalam kapsul, gunakan warna solid semi transparan */
+    backdrop-filter: none;
+    border: 1px solid rgba(15,23,42,0.06);
+    background: rgba(255,255,255,0.98);
+    box-shadow: 0 6px 16px rgba(15,23,42,0.12);
+}
+html[data-theme="dark"] .horizontal-navbar .nav-surface {
+    border-color: rgba(148,163,184,0.12);
+    background: rgba(11,18,32,0.96);
+    box-shadow: 0 6px 16px rgba(2,6,23,0.45);
+}
+
+/* Samakan jarak vertikal logo (atas-bawah sama) */
+.horizontal-navbar .nav-logo { height: 100%; display: flex; align-items: center; }
+.horizontal-navbar .nav-logo a { height: 100%; display: flex; align-items: center; }
+.horizontal-navbar .nav-logo img {
+    display: block;
+    height: calc(var(--nav-height) - (var(--logo-vpad) * 2)) !important;
+}
+
+/* Samakan latar belakang di dalam kapsul: menu transparan (tidak menimpa nav-surface) */
+.horizontal-navbar .nav-surface .nav-menu {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+html[data-theme="dark"] .horizontal-navbar .nav-surface .nav-menu {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Shadow saat scroll hanya untuk kapsul, bukan fullbar */
+.horizontal-navbar .nav-surface.is-scrolled { box-shadow: 0 10px 28px rgba(15, 23, 42, 0.20); }
+html[data-theme="dark"] .horizontal-navbar .nav-surface.is-scrolled { box-shadow: 0 12px 30px rgba(2,6,23,0.55); }
+
+/* Offset content under fixed navbar */
+.main-content { padding-top: calc(var(--nav-height) + var(--nav-offset) + 12px); }
 
 .notification-capsule {
     transform-origin: top left;
@@ -288,6 +371,7 @@ html[data-theme="light"] #root {
     <!-- Horizontal Navigation Bar -->
     <nav class="horizontal-navbar">
         <div class="nav-container">
+            <div class="nav-surface">
             <!-- Logo Section -->
             <div class="nav-logo" id="companyLogo">
                 <a href="index.php">
@@ -299,7 +383,7 @@ html[data-theme="light"] #root {
             <div id="notification-container"></div>
 
             <!-- Main Navigation Menu -->
-            <div class="nav-menu">
+            <div class="nav-menu" style="background:transparent;border:none;box-shadow:none;">
                 <ul class="nav-list">
                     <li class="nav-item dropdown" data-debug="dropdown-item">
                         <a href="javascript:void(0)" class="nav-link" data-debug="dropdown-link">
@@ -414,10 +498,7 @@ html[data-theme="light"] #root {
                             <iconify-icon icon="solar:user-outline" class="me-2"></iconify-icon>
                             Profile
                         </a></li>
-                        <li><a href="settings.php">
-                            <iconify-icon icon="solar:settings-outline" class="me-2"></iconify-icon>
-                            Settings
-                        </a></li>
+                        
                         <li><hr class="dropdown-divider"></li>
                         <li><a href="logout.php">
                             <iconify-icon icon="solar:logout-2-outline" class="me-2"></iconify-icon>
@@ -431,8 +512,51 @@ html[data-theme="light"] #root {
             <button class="mobile-menu-toggle" data-debug="mobile-menu-toggle">
                 <iconify-icon icon="heroicons:bars-3-solid" class="menu-icon"></iconify-icon>
             </button>
+            </div>
         </div>
     </nav>
+    <script>
+    // Tambahkan bayangan pada kapsul saat discroll untuk depth
+    (function(){
+        var surface = document.querySelector('.horizontal-navbar .nav-surface');
+        if (!surface) return;
+        function onScroll(){
+            if (window.scrollY > 1) surface.classList.add('is-scrolled');
+            else surface.classList.remove('is-scrolled');
+        }
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+    })();
+    </script>
+    <script>
+    // Posisikan notifikasi tepat di bawah logo kapsul
+    (function(){
+        var logoEl = document.getElementById('companyLogo');
+        var notifContainer = document.getElementById('notification-container');
+        var notifStack = document.querySelector('.notification-stack');
+        function positionNotifications(){
+            if (!logoEl) return;
+            var surface = document.querySelector('.horizontal-navbar .nav-surface');
+            var rect = logoEl.getBoundingClientRect();
+            var surfRect = surface ? surface.getBoundingClientRect() : null;
+            var topPx = (surfRect ? surfRect.bottom : rect.bottom) + 12; // 12px jarak di bawah kapsul
+            var leftPx = rect.left; // sejajar kiri logo
+            if (notifContainer) {
+                notifContainer.style.top = topPx + 'px';
+                notifContainer.style.left = leftPx + 'px';
+            }
+            if (notifStack) {
+                notifStack.style.top = topPx + 'px';
+                notifStack.style.left = leftPx + 'px';
+            }
+        }
+        window.addEventListener('resize', positionNotifications, { passive: true });
+        window.addEventListener('scroll', positionNotifications, { passive: true });
+        document.addEventListener('DOMContentLoaded', positionNotifications);
+        // panggil segera jika elemen sudah siap
+        setTimeout(positionNotifications, 0);
+    })();
+    </script>
 
     <!-- Main Content Area -->
     <main class="main-content">

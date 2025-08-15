@@ -54,7 +54,7 @@ if (isset($_POST['reset_password']) && $user) {
         if ($clear_stmt->execute([$hashed_password, $user['id']])) {
             $success = 'Password berhasil diubah! Silakan login dengan password baru.';
             // Redirect ke login setelah 3 detik
-            header("refresh:3;url=login_simple.php");
+            header("refresh:3;url=login.php");
         } else {
             $error = 'Gagal mengubah password. Silakan coba lagi.';
         }
@@ -376,7 +376,7 @@ if ($user) {
             </form>
         <?php endif; ?>
 
-            <button onclick="window.location.href='login_simple.php'" class="back-btn">
+            <button onclick="window.location.href='login.php'" class="back-btn">
                 <iconify-icon icon="solar:arrow-left-outline" style="margin-right: 8px;"></iconify-icon>
                 Back to Login
             </button>

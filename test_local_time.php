@@ -71,7 +71,7 @@
         <div style="margin: 20px 0;">
             <button class="test-button" onclick="updateTime()">🔄 Update Waktu</button>
             <button class="test-button" onclick="testAllTimes()">🧪 Test Semua Waktu</button>
-            <a href="login_simple.php" class="test-button" style="text-decoration: none;">🏠 Kembali ke Login</a>
+            <a href="login.php" class="test-button" style="text-decoration: none;">🏠 Kembali ke Login</a>
         </div>
         
         <div id="testResults"></div>

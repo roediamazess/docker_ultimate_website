@@ -10,6 +10,15 @@
   - Perapihan kecil: klik baris tabel tetap membuka modal edit; tidak ada perubahan endpoint/backend.
 - Keamanan/DB: tidak ada perubahan skema database pada rilis ini.
 
+## v2.4.9 (2025-08-15)
+- Navbar Horizontal Floating Capsule
+  - Navbar diubah menjadi floating dengan offset atas 24px, tanpa efek glass di luar kapsul.
+  - Kapsul (`.nav-surface`) ber-radius besar, warna solid (light/dark), dan shadow saat scroll.
+  - Menu di dalam kapsul disamakan background-nya agar konsisten dari logo hingga area user.
+  - Logo diposisikan simetris (atas-bawah sama) menggunakan tinggi dinamis dari tinggi navbar.
+  - Notifikasi diposisikan dinamis tepat di bawah logo kapsul, menyesuaikan scroll/resize.
+  - Files touched: `partials/layouts/layoutHorizontal.php`, `README.md` (minor), CSS inline overrides.
+
 ## v2.4.7 (2025-08-13)
 - Gantt (dark/light):
   - Toggle tema sepenuhnya sinkron dengan global `html[data-theme]` (hapus atribusi `body`/cookie), dan re-render saat tema berubah.
@@ -43,12 +52,12 @@
 
 ### ✨ UX Improvements
 - Login sukses: animasi ripple overlay dengan redirect otomatis setelah animasi selesai (durasi saat ini: 1.5s, sinkron via `animationend`).
-- Favicon/Tab icon ditambahkan pada halaman auth (`login_simple.php`, `forgot-password.php`, `reset-password.php`).
+- Favicon/Tab icon ditambahkan pada halaman auth (`login.php`, `forgot-password.php`, `reset-password.php`).
 - Background pemandangan dikembalikan dan dipoles: setiap waktu (pagi/siang/sore/malam) memakai foto landscape + overlay gradient agar teks tetap terbaca.
 - Kompatibel dengan dark/light theme yang sudah ada; overlay mengikuti `data-theme`.
 
 ### 📄 Files Touched
-- `login_simple.php`
+- `login.php`
 - `forgot-password.php`
 - `reset-password.php`
 - `assets/css/login-backgrounds.css`
@@ -66,7 +75,7 @@
 - Cleanup: hapus file test/debug yang tidak digunakan agar tidak mengganggu produksi.
 
 ### 📄 Files Touched
-- `forgot-password.php`, `reset-password.php`, `login_simple.php`
+- `forgot-password.php`, `reset-password.php`, `login.php`
 - Utility/debug yang dirapikan atau dihapus
 
 ---

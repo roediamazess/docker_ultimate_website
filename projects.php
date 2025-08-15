@@ -317,6 +317,13 @@ $filter_status = trim($_GET['filter_status'] ?? '');
 $filter_type = trim($_GET['filter_type'] ?? '');
 $filter_project_information = trim($_GET['filter_project_information'] ?? '');
 
+// Default: when opening page without any query params, show Running only
+try {
+    if (empty($_GET) && $filter_status === '') {
+        $filter_status = 'Running';
+    }
+} catch (Throwable $e) { /* ignore */ }
+
 try {
     $drv = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
     $castExpr = ($drv === 'pgsql') ? 'CAST(c.id AS TEXT)' : 'CAST(c.id AS CHAR)';
@@ -392,13 +399,13 @@ try {
             [data-theme="dark"] .status-tab.inactive { background:#374151 !important; color:#e5e7eb !important; border:1px solid #4b5563; }
             [data-theme="dark"] .status-tab.active { background: linear-gradient(135deg,#0f172a 0%, #111827 100%) !important; color:#e5e7eb !important; box-shadow: 0 6px 18px rgba(2,6,23,.45) !important; }
         </style>
-        <?php $__statuses = ['Running','Scheduled','Document','Document Check','Done','Cancel','Rejected']; if ($filter_status==='') { $filter_status='Running'; } ?>
+        <?php $__statuses = ['Running','Scheduled','Document','Document Check','Done','Cancel','Rejected']; ?>
         <div class="status-tabs-wrap">
             <?php foreach ($__statuses as $__s): $is = ($filter_status === $__s); ?>
                 <a class="status-tab <?= $is?'active':'inactive' ?>" href="?<?= http_build_query(array_merge($_GET, ['filter_status' => $__s])) ?>"><?= htmlspecialchars($__s) ?></a>
             <?php endforeach; ?>
-            <?php $noFilterUrl = '?' . http_build_query(array_diff_key($_GET, ['filter_status'=>true])); ?>
-            <a class="status-tab <?= ($filter_status==='')?'active':'inactive' ?>" href="<?= $noFilterUrl ?>">All Status</a>
+            <?php $allUrl = '?' . http_build_query(array_merge($_GET, ['filter_status' => ''])); ?>
+            <a class="status-tab <?= ($filter_status==='')?'active':'inactive' ?>" href="<?= $allUrl ?>">All Status</a>
         </div>
         
         <?php if (isset($success_message)): ?>

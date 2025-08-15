@@ -412,7 +412,7 @@ $bgClass = 'morning';
                 </button>
             </form>
 
-            <button onclick="window.location.href='login_simple.php'" class="back-btn">
+            <button onclick="window.location.href='login.php'" class="back-btn">
                 <iconify-icon icon="solar:arrow-left-outline" style="margin-right: 8px;"></iconify-icon>
                 Back to Login
             </button>

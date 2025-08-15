@@ -7,6 +7,23 @@ require_once 'user_utils.php';
 // Cek akses menggunakan utility function
 require_login();
 
+// Execute DB migration: move data from user_role -> role, then drop user_role
+try {
+    $cols = [];
+    $stmtCols = $pdo->query("SELECT column_name FROM information_schema.columns WHERE table_name = 'users'");
+    while ($r = $stmtCols->fetch(PDO::FETCH_ASSOC)) { $cols[$r['column_name']] = true; }
+    if (!isset($cols['role'])) {
+        try { $pdo->exec("ALTER TABLE users ADD COLUMN role VARCHAR(40) NULL"); } catch (Throwable $e) {}
+        $cols['role'] = true;
+    }
+    if (isset($cols['user_role'])) {
+        try { $pdo->exec("UPDATE users SET role = CASE WHEN role IS NULL OR role = '' THEN user_role ELSE role END WHERE user_role IS NOT NULL AND user_role <> ''"); } catch (Throwable $e) {}
+        try { $pdo->exec("ALTER TABLE users DROP COLUMN user_role"); } catch (Throwable $e) {}
+    }
+} catch (Throwable $e) { /* ignore */ }
+
+// Migration handled by migrate_users_role.php; no inline migration here
+
         // Handle form submissions
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_POST['create'])) {
@@ -18,6 +35,8 @@ require_login();
                 $tier = $_POST['tier'];
                 $role = $_POST['role'];
                 $start_work = $_POST['start_work'] ?: null;
+                $new_password = $_POST['new_password'] ?? '';
+                $confirm_password = $_POST['confirm_password'] ?? '';
                 
                 try {
                     // Check if user_id already exists (now primary key)
@@ -72,34 +91,70 @@ require_login();
                 $start_work = $_POST['start_work'] ?: null;
                 
                 try {
-                    // Check if email already exists for other users
-                    $check_sql = "SELECT user_id FROM users WHERE email = :email AND user_id != :user_id";
-                    $check_stmt = $pdo->prepare($check_sql);
-                    $check_stmt->execute(['email' => $email, 'user_id' => $user_id]);
-                    
-                    if ($check_stmt->fetch()) {
+                    // Fetch current user email for comparison
+                    $curr_stmt = $pdo->prepare("SELECT email, role AS current_role FROM users WHERE user_id = :user_id");
+                    $curr_stmt->execute(['user_id' => $user_id]);
+                    $current = $curr_stmt->fetch(PDO::FETCH_ASSOC);
+                    $current_email = trim($current['email'] ?? '');
+                    $current_role = $current['current_role'] ?? null;
+
+                    // Use current email if not changed (case-insensitive)
+                    $emailToSave = (strcasecmp($email, $current_email) === 0) ? $current_email : $email;
+
+                    // Build dynamic update: include password only when provided & confirmed
+                    $roleToSave = ($role === '' || $role === null) ? $current_role : $role;
+                    $setParts = [
+                        'full_name = :full_name',
+                        'email = :email',
+                        'tier = :tier',
+                        'role = :role',
+                        'start_work = :start_work'
+                    ];
+                    $params = [
+                        'full_name' => $full_name,
+                        'email' => $emailToSave,
+                        'tier' => $tier,
+                        'role' => $roleToSave,
+                        'start_work' => $start_work,
+                        'user_id' => $user_id
+                    ];
+
+                    $new_password = trim($new_password);
+                    $confirm_password = trim($confirm_password);
+                    if ($new_password !== '') {
+                        if ($new_password !== $confirm_password) {
+                            throw new PDOException('Konfirmasi password tidak sama');
+                        }
+                        $params['password'] = password_hash($new_password, PASSWORD_DEFAULT);
+                        $setParts[] = 'password = :password';
+                    }
+
+                    $update_sql = 'UPDATE users SET ' . implode(', ', $setParts) . ' WHERE user_id = :user_id';
+                    $update_stmt = $pdo->prepare($update_sql);
+                    $update_stmt->execute($params);
+
+                    // Safety check: if password changed, verify immediately
+                    if (isset($params['password'])) {
+                        $chk = $pdo->prepare('SELECT password FROM users WHERE user_id = :uid');
+                        $chk->execute(['uid' => $user_id]);
+                        $row = $chk->fetch(PDO::FETCH_ASSOC);
+                        $savedHash = (string)($row['password'] ?? '');
+                        if ($savedHash === '' || !password_verify($new_password, $savedHash)) {
+                            throw new PDOException('Password gagal disimpan dengan benar');
+                        }
+                    }
+
+                    $success_message = "User berhasil diupdate!";
+                    // Redirect to refresh the page
+                    header("Location: users.php?success=updated");
+                    exit;
+                } catch (PDOException $e) {
+                    $msg = $e->getMessage();
+                    if (stripos($msg, 'unique') !== false || stripos($msg, 'duplicate') !== false) {
                         $error_message = "Email sudah terdaftar oleh user lain!";
                     } else {
-                        // Update user (user_id is excluded from update)
-                        $update_sql = "UPDATE users SET full_name = :full_name, email = :email, tier = :tier, role = :role, start_work = :start_work WHERE user_id = :user_id";
-                        $update_stmt = $pdo->prepare($update_sql);
-                        $update_stmt->execute([
-                            'full_name' => $full_name,
-                            'email' => $email,
-                            'tier' => $tier,
-                            'role' => $role,
-                            'start_work' => $start_work,
-                            'user_id' => $user_id
-                        ]);
-                        
-                        $success_message = "User berhasil diupdate!";
-                        
-                        // Redirect to refresh the page
-                        header("Location: users.php?success=updated");
-                        exit;
+                        $error_message = "Error: " . $e->getMessage();
                     }
-                } catch (PDOException $e) {
-                    $error_message = "Error: " . $e->getMessage();
                 }
             }
         }
@@ -306,7 +361,7 @@ include './partials/layouts/layoutHorizontal.php'
                             <div class="custom-modal-row">
                                 <div class="custom-modal-col">
                                     <label class="custom-modal-label">User ID</label>
-                                    <input type="text" name="user_id" id="edit_user_id" class="custom-modal-input" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
+                                    <input type="text" name="_user_id_display" id="edit_user_id_display" class="custom-modal-input" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
                                     <small style="color: #6b7280; font-size: 11px;">User ID tidak dapat diubah setelah pembuatan</small>
                                 </div>
                                 <div class="custom-modal-col">
@@ -343,6 +398,16 @@ include './partials/layouts/layoutHorizontal.php'
                                         <option value="User">User</option>
                                         <option value="Client">Client</option>
                                     </select>
+                                </div>
+                            </div>
+                            <div class="custom-modal-row">
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">New Password</label>
+                                    <input type="password" name="new_password" id="edit_new_password" class="custom-modal-input" placeholder="Leave blank to keep current">
+                                </div>
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Confirm Password</label>
+                                    <input type="password" name="confirm_password" id="edit_confirm_password" class="custom-modal-input" placeholder="Repeat new password">
                                 </div>
                             </div>
                         </form>
@@ -624,7 +689,7 @@ include './partials/layouts/layoutHorizontal.php'
                         
                         // Populate edit form
                         var editUserIdField = document.getElementById('edit_user_id');
-                        var editUserId = document.getElementById('edit_user_id');
+                        var editUserIdDisplay = document.getElementById('edit_user_id_display');
                         var editFullName = document.getElementById('edit_full_name');
                         var editEmail = document.getElementById('edit_email');
                         var editRole = document.getElementById('edit_role');
@@ -632,7 +697,7 @@ include './partials/layouts/layoutHorizontal.php'
                         var editStartWork = document.getElementById('edit_start_work');
                         
                         if (editUserIdField) editUserIdField.value = userId;
-                        if (editUserId) editUserId.value = row.getAttribute('data-user_id') || '';
+                        if (editUserIdDisplay) editUserIdDisplay.value = userId;
                         if (editFullName) editFullName.value = row.getAttribute('data-full_name') || '';
                         if (editEmail) editEmail.value = row.getAttribute('data-email') || '';
                         if (editRole) editRole.value = row.getAttribute('data-role') || '';
