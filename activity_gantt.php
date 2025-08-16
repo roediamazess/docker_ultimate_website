@@ -98,31 +98,128 @@ $tasks = array_map(function($r){
         [data-theme="dark"] .gantt-row:hover .timeline-cell { background-color: rgba(255,255,255,.04); }
         /* Quick Edit modal dark-mode tweaks */
         [data-theme="dark"] .qe-card { background-color:#0f172a !important; border-color:#1e293b !important; color:#e5e7eb !important; box-shadow:0 24px 60px rgba(2,6,23,.7) !important; }
-        [data-theme="dark"] .qe-card .qe-sub { color:#9ca3af !important; }
-        [data-theme="dark"] .qe-card select { background-color:#111827 !important; color:#e5e7eb !important; border-color:#334155 !important; }
-        [data-theme="dark"] .qe-card select:focus { border-color:#3b82f6 !important; box-shadow:0 0 0 3px rgba(59,130,246,.25) !important; outline:none !important; }
-        [data-theme="dark"] .qe-card button#qe_cancel { background:#475569 !important; color:#fff !important; }
-
-        /* Quick edit trigger button style (visible on dark) */
-        .quick-edit-btn{ padding:6px 10px; font-size:12px; font-weight:700; border-radius:8px; background:#ffffff; color:#334155; border:1px solid #e5e7eb; box-shadow:0 2px 6px rgba(0,0,0,.08); }
-        .quick-edit-btn:hover{ background:#f1f5f9; }
-        [data-theme="dark"] .quick-edit-btn{ background:#0f172a; color:#e5e7eb; border:1px solid #334155; box-shadow:0 2px 10px rgba(2,6,23,.5); }
-        [data-theme="dark"] .quick-edit-btn:hover{ background:#111827; }
-        /* Wrap Description toggle (scoped to Gantt root to avoid class collision with footer/navbar) */
-        #gantt-root .wrap-toggle-wrap{ position:relative; width:40px; height:20px; }
-        #gantt-root .wrap-toggle-track{ position:absolute; inset:0; width:100%; height:100%; border-radius:9999px; background-color:#cbd5e1; }
-        #gantt-root .wrap-toggle-checkbox{ position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:9999px; background:#fff; border:2px solid #fff; appearance:none; box-shadow:0 1px 2px rgba(0,0,0,.15); z-index:1; transition:left .2s ease; }
-        #gantt-root .wrap-toggle-checkbox:checked{ left:22px; border-color:#3b82f6; }
-        #gantt-root .wrap-toggle-checkbox:checked + .wrap-toggle-track{ background-color:#3b82f6; }
-        /* Status badge for toggle */
-        .wrap-badge{ display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; padding:2px 8px; border-radius:9999px; border:1px solid #e5e7eb; color:#334155; background:#f1f5f9; }
-        .wrap-badge.on{ background:linear-gradient(135deg,#667eea 0%, #764ba2 100%); color:#fff; border-color:transparent; box-shadow:0 6px 16px rgba(102,126,234,.25); }
-        .info-trigger{ position:relative; display:none !important; align-items:center; justify-content:center; width:18px; height:18px; border-radius:9999px; background:#334155; color:#fff; font-size:12px; cursor:default; }
-        .info-trigger:hover .info-tip{ opacity:1; visibility:visible; transform:translateY(-2px); }
-        .info-tip{ position:absolute; bottom:125%; left:50%; transform:translateX(-50%); background:#111827; color:#e5e7eb; font-size:11px; padding:6px 8px; border-radius:6px; white-space:nowrap; opacity:0; visibility:hidden; transition:all .15s ease; pointer-events:none; box-shadow:0 6px 16px rgba(0,0,0,.3); }
-        [data-theme="light"] .info-tip{ background:#0f172a; color:#e5e7eb; }
-        .collapse-icon { transition: transform 0.2s ease-in-out; }
-        .collapsed .collapse-icon { transform: rotate(-90deg); }
+        [data-theme="dark"] .qe-card select { background-color:#111827 !important; border-color:#374151 !important; color:#e5e7eb !important; }
+        [data-theme="dark"] .qe-card button { box-shadow:0 8px 16px rgba(0,0,0,.4) !important; }
+        [data-theme="dark"] .qe-card button#qe_save { background:linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%) !important; }
+        [data-theme="dark"] .qe-card button#qe_cancel { background:#4b5563 !important; }
+        /* Wrap toggle styling */
+        .wrap-toggle-wrap { display: inline-block; }
+        .wrap-toggle-checkbox { display: none; }
+        .wrap-toggle-track { 
+            display: inline-block; 
+            width: 40px; 
+            height: 20px; 
+            background: #d1d5db; 
+            border-radius: 10px; 
+            position: relative; 
+            cursor: pointer; 
+            transition: background 0.3s; 
+        }
+        .wrap-toggle-checkbox:checked + .wrap-toggle-track { background: #3b82f6; }
+        .wrap-toggle-track::after { 
+            content: ''; 
+            position: absolute; 
+            top: 2px; 
+            left: 2px; 
+            width: 16px; 
+            height: 16px; 
+            background: white; 
+            border-radius: 50%; 
+            transition: transform 0.3s; 
+        }
+        .wrap-toggle-checkbox:checked + .wrap-toggle-track::after { transform: translateX(20px); }
+        .wrap-badge { 
+            display: inline-block; 
+            padding: 2px 8px; 
+            background: #6b7280; 
+            color: white; 
+            border-radius: 12px; 
+            font-size: 10px; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+        }
+        .wrap-badge.on { background: #10b981; }
+        [data-theme="dark"] .wrap-toggle-track { background: #4b5563; }
+        [data-theme="dark"] .wrap-toggle-checkbox:checked + .wrap-toggle-track { background: #1d4ed8; }
+        [data-theme="dark"] .wrap-badge { background: #6b7280; }
+        [data-theme="dark"] .wrap-badge.on { background: #059669; }
+        
+        /* Quick edit button styling */
+        .quick-edit-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+        }
+        .quick-edit-btn:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+        [data-theme="dark"] .quick-edit-btn {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            box-shadow: 0 2px 4px rgba(29, 78, 216, 0.4);
+        }
+        [data-theme="dark"] .quick-edit-btn:hover {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            box-shadow: 0 4px 8px rgba(29, 78, 216, 0.5);
+        }
+        
+        /* Info trigger and tooltip styling */
+        .info-trigger{ 
+            position:relative; 
+            display:none !important; 
+            align-items:center; 
+            justify-content:center; 
+            width:18px; 
+            height:18px; 
+            border-radius:9999px; 
+            background:#334155; 
+            color:#fff; 
+            font-size:12px; 
+            cursor:default; 
+        }
+        .info-trigger:hover .info-tip{ 
+            opacity:1; 
+            visibility:visible; 
+            transform:translateY(-2px); 
+        }
+        .info-tip{ 
+            position:absolute; 
+            bottom:125%; 
+            left:50%; 
+            transform:translateX(-50%); 
+            background:#111827; 
+            color:#e5e7eb; 
+            font-size:11px; 
+            padding:6px 8px; 
+            border-radius:6px; 
+            white-space:nowrap; 
+            opacity:0; 
+            visibility:hidden; 
+            transition:all .15s ease; 
+            pointer-events:none; 
+            box-shadow:0 6px 16px rgba(0,0,0,.3); 
+        }
+        [data-theme="light"] .info-tip{ 
+            background:#0f172a; 
+            color:#e5e7eb; 
+        }
+        .collapse-icon { 
+            transition: transform 0.2s ease-in-out; 
+        }
+        .collapsed .collapse-icon { 
+            transform: rotate(-90deg); 
+        }
+        /* Task cell height to match header */
+        .task-cell { min-height: 80px; }
+        .timeline-cell { min-height: 80px; }
     </style>
     <style>
     /* Page-level card tone override to match Activity List */
@@ -152,6 +249,102 @@ $tasks = array_map(function($r){
       <a href="activity_kanban.php" class="btn btn-secondary">Kanban View</a>
       <a href="activity_gantt.php" class="btn btn-primary">Gantt Chart</a>
             </div></div>
+            
+            <!-- Header Section -->
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fw-semibold">Show</span>
+                    <select class="form-select form-select-sm w-auto" id="gantt-limit">
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <form method="get" class="filter-form" id="gantt-filter-form">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label class="filter-label">Search</label>
+                            <div class="icon-field">
+                                <input type="text" name="search" id="gantt-search" class="form-control" placeholder="Search activities...">
+                                <span class="icon">
+                                    <iconify-icon icon="ion:search-outline"></iconify-icon>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Priority</label>
+                            <select class="form-select" name="filter_priority" id="gantt-filter-priority">
+                                <option value="">All Priority</option>
+                                <option value="Urgent">Urgent</option>
+                                <option value="Normal">Normal</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Department</label>
+                            <select class="form-select" name="filter_department" id="gantt-filter-department">
+                                <option value="">All Department</option>
+                                <option value="Food & Beverage">Food & Beverage</option>
+                                <option value="Kitchen">Kitchen</option>
+                                <option value="Room Division">Room Division</option>
+                                <option value="Front Office">Front Office</option>
+                                <option value="Housekeeping">Housekeeping</option>
+                                <option value="Engineering">Engineering</option>
+                                <option value="Sales & Marketing">Sales & Marketing</option>
+                                <option value="IT / EDP">IT / EDP</option>
+                                <option value="Accounting">Accounting</option>
+                                <option value="Executive Office">Executive Office</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Application</label>
+                            <select class="form-select" name="filter_application" id="gantt-filter-application">
+                                <option value="">All Application</option>
+                                <option value="POS">POS</option>
+                                <option value="PMS">PMS</option>
+                                <option value="Back Office">Back Office</option>
+                                <option value="Website">Website</option>
+                                <option value="Mobile App">Mobile App</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Type</label>
+                            <select class="form-select" name="filter_type" id="gantt-filter-type">
+                                <option value="">All Type</option>
+                                <option value="Setup">Setup</option>
+                                <option value="Question">Question</option>
+                                <option value="Issue">Issue</option>
+                                <option value="Report Issue">Report Issue</option>
+                                <option value="Report Request">Report Request</option>
+                                <option value="Feature Request">Feature Request</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Status</label>
+                            <select class="form-select" name="filter_status" id="gantt-filter-status">
+                                <option value="">All Status</option>
+                                <option value="not_done">Active (Default)</option>
+                                <option value="Open">Open</option>
+                                <option value="On Progress">On Progress</option>
+                                <option value="Need Requirement">Need Requirement</option>
+                                <option value="Done">Done</option>
+                                <option value="Cancel">Cancel</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn-apply" id="gantt-apply-filters">Apply Filters</button>
+                        <button type="button" class="btn-reset" id="gantt-reset-filters">Reset</button>
+                    </div>
+                </form>
+            </div>
+            
             <div class="card-body">
         
         <div class="gantt-card rounded-xl overflow-hidden">
@@ -181,10 +374,10 @@ $tasks = array_map(function($r){
             <div>
                 <div class="gantt-grid grid w-full sticky top-0 bg-slate-100 z-10 border-b border-slate-200">
                     <div class="flex items-center h-12 px-4 border-r border-slate-200">
-                        <h3 class="font-semibold text-slate-600 uppercase text-sm">Deskripsi Tugas</h3>
+                        <h3 class="font-semibold text-slate-600 uppercase text-sm">Description</h3>
             </div>
                     <div class="timeline-container overflow-x-auto">
-                        <div id="timeline-dates" class="timeline-grid-bg h-12"></div>
+                        <div id="timeline-dates" class="timeline-grid-bg h-20"></div>
           </div>
         </div>
                 <div id="gantt-body"></div>
@@ -217,6 +410,87 @@ $tasks = array_map(function($r){
             const nextMonthBtn = document.getElementById('next-month-btn');
 
             let currentDate = new Date();
+
+            // Filter and search functionality
+            let filteredTasks = [...allTasks];
+            
+            function applyFilters() {
+                const searchTerm = document.getElementById('gantt-search').value.toLowerCase();
+                const priority = document.getElementById('gantt-filter-priority').value;
+                const department = document.getElementById('gantt-filter-department').value;
+                const application = document.getElementById('gantt-filter-application').value;
+                const type = document.getElementById('gantt-filter-type').value;
+                const status = document.getElementById('gantt-filter-status').value;
+                const limit = parseInt(document.getElementById('gantt-limit').value);
+                
+                filteredTasks = allTasks.filter(task => {
+                    // Search filter
+                    if (searchTerm && !task.description.toLowerCase().includes(searchTerm)) {
+                        return false;
+                    }
+                    
+                    // Priority filter
+                    if (priority && task.priority !== priority) {
+                        return false;
+                    }
+                    
+                    // Status filter
+                    if (status) {
+                        if (status === 'not_done' && task.status === 'Done') {
+                            return false;
+                        } else if (status !== 'not_done' && task.status !== status) {
+                            return false;
+                        }
+                    }
+                    
+                    // Type filter
+                    if (type && task.type !== type) {
+                        return false;
+                    }
+                    
+                    return true;
+                });
+                
+                // Apply limit
+                if (limit > 0) {
+                    filteredTasks = filteredTasks.slice(0, limit);
+                }
+                
+                // Re-render gantt with filtered tasks
+                renderGantt(currentDate);
+            }
+            
+            function resetFilters() {
+                document.getElementById('gantt-search').value = '';
+                document.getElementById('gantt-filter-priority').value = '';
+                document.getElementById('gantt-filter-department').value = '';
+                document.getElementById('gantt-filter-application').value = '';
+                document.getElementById('gantt-filter-type').value = '';
+                document.getElementById('gantt-filter-status').value = '';
+                document.getElementById('gantt-limit').value = '10';
+                
+                filteredTasks = [...allTasks];
+                renderGantt(currentDate);
+            }
+            
+            // Event listeners for filters
+            document.getElementById('gantt-apply-filters').addEventListener('click', applyFilters);
+            document.getElementById('gantt-reset-filters').addEventListener('click', resetFilters);
+            document.getElementById('gantt-search').addEventListener('input', applyFilters);
+            document.getElementById('gantt-limit').addEventListener('change', applyFilters);
+            
+            // Real-time search with debounce
+            let searchTimeout;
+            document.getElementById('gantt-search').addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(applyFilters, 300);
+            });
+            
+            // Modal functions
+            function openQuickEditModal(task) {
+                // Redirect to activity.php for editing
+                window.location.href = `activity.php?edit=${task.id}`;
+            }
 
             const renderGantt = (date) => {
                 timelineDatesEl.innerHTML = '';
@@ -265,7 +539,7 @@ $tasks = array_map(function($r){
                     const dayName = date.toLocaleDateString('id-ID', { weekday: 'short' }).charAt(0);
                     
                     const dateCell = document.createElement('div');
-                    dateCell.className = 'flex flex-col items-center justify-center h-16 text-center border-l border-slate-200';
+                    dateCell.className = 'flex flex-col items-center justify-center h-20 text-center border-l border-slate-200';
                     // mark today
                     const checkDate = new Date(date); checkDate.setHours(0,0,0,0);
                     if (checkDate.getTime() === todayISO.getTime()) {
@@ -279,7 +553,7 @@ $tasks = array_map(function($r){
                     timelineDatesEl.appendChild(dateCell);
                 }
 
-                const groupedTasks = allTasks.reduce((acc, task) => {
+                const groupedTasks = filteredTasks.reduce((acc, task) => {
                     (acc[task.type] = acc[task.type] || []).push(task);
                     return acc;
                 }, {});
@@ -447,88 +721,6 @@ $tasks = array_map(function($r){
                     document.documentElement.setAttribute('data-theme', savedTheme);
                 }
             } catch (_) {}
-
-            // Quick Edit Modal for status/priority/type
-            function openQuickEditModal(task){
-                const overlay = document.createElement('div');
-                overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;display:flex;align-items:center;justify-content:center;';
-
-                const escapeHtml = (str) => String(str || '')
-                    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-                    .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-
-                overlay.innerHTML = `
-                  <div class="qe-card" style="background:#fff; border:1px solid #e5e7eb; border-radius:10px; width:400px; padding:16px; box-shadow:0 16px 36px rgba(0,0,0,.18);">
-                    <h3 style="margin:0 0 6px 0; font-weight:800; font-size:20px; text-align:center;">Quick Edit</h3>
-                    <div class="qe-sub" style="text-align:center; color:#6b7280; font-size:12px; margin-bottom:14px;">No: <strong>${escapeHtml(task.no)}</strong></div>
-                    <div style="display:flex; gap:8px; margin-bottom:10px; align-items:center;">
-                      <label style="width:90px; font-weight:600;">Status</label>
-                      <select id="qe_status" style="flex:1; padding:10px; border:1px solid #d1d5db; border-radius:8px; background:#fff;">
-                        <option>Open</option>
-                        <option>On Progress</option>
-                        <option>Need Requirement</option>
-                        <option>Done</option>
-                        <option>Cancel</option>
-                      </select>
-    </div>
-                    <div style="display:flex; gap:8px; margin-bottom:10px; align-items:center;">
-                      <label style="width:90px; font-weight:600;">Priority</label>
-                      <select id="qe_priority" style="flex:1; padding:10px; border:1px solid #d1d5db; border-radius:8px; background:#fff;">
-                        <option>Urgent</option>
-                        <option selected>Normal</option>
-                        <option>Low</option>
-                      </select>
-  </div>
-                    <div style="display:flex; gap:8px; margin-bottom:16px; align-items:center;">
-                      <label style="width:90px; font-weight:600;">Type</label>
-                      <select id="qe_type" style="flex:1; padding:10px; border:1px solid #d1d5db; border-radius:8px; background:#fff;">
-                        <option>Setup</option>
-                        <option>Question</option>
-                        <option>Issue</option>
-                        <option>Report Issue</option>
-                        <option>Report Request</option>
-                        <option>Feature Request</option>
-                      </select>
-      </div>
-                    <div style="display:flex; justify-content:flex-end; gap:8px;">
-                      <button id="qe_save" style="padding:10px 16px; background:linear-gradient(135deg,#667eea 0%, #764ba2 100%); color:#fff; border:none; border-radius:8px; font-weight:700; box-shadow:0 10px 22px rgba(102,126,234,.28);">Update</button>
-                      <button id="qe_cancel" style="padding:10px 16px; background:#6b7280; color:#fff; border:none; border-radius:8px; font-weight:600;">Close</button>
-    </div>
-                  </div>`;
-                document.body.appendChild(overlay);
-                const s = overlay.querySelector('#qe_status');
-                const p = overlay.querySelector('#qe_priority');
-                const t = overlay.querySelector('#qe_type');
-                s.value = task.status; p.value = task.priority; t.value = task.type;
-
-                const closeOverlay = () => { document.removeEventListener('keydown', escHandler); overlay.remove(); };
-                const escHandler = (ev) => { if (ev.key === 'Escape') { closeOverlay(); } };
-                document.addEventListener('keydown', escHandler);
-                overlay.querySelector('#qe_cancel').onclick = closeOverlay;
-
-                // autofocus pada status untuk cepat navigasi keyboard
-                s.focus();
-
-                overlay.querySelector('#qe_save').onclick = ()=>{
-                    fetch('update_activity_fields.php', {
-                        method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin',
-                        body: JSON.stringify({ id: task.id, status:s.value, priority:p.value, type:t.value })
-                    }).then(async (r)=>{
-                        let res = null;
-                        try { res = await r.clone().json(); } catch(_) {}
-                        if (r.ok && (!res || res.success !== false)){
-                            task.status = s.value; task.priority = p.value; task.type = t.value; // update local
-                            const hasLogoNotif = (window.logoNotificationManager && typeof window.logoNotificationManager.isAvailable === 'function' && window.logoNotificationManager.isAvailable());
-                            if (!hasLogoNotif && window.showActivityToast) window.showActivityToast('Data berhasil disimpan', 'success', 2500);
-                            renderGantt(currentDate);
-                        } else {
-                            if (window.showActivityToast) window.showActivityToast('Gagal menyimpan perubahan', 'error', 3500);
-                        }
-                    }).catch(()=>{
-                        if (window.showActivityToast) window.showActivityToast('Jaringan bermasalah saat menyimpan', 'error', 3500);
-                    }).finally(()=> closeOverlay());
-                };
-            }
 
             // Restore saved preference
             try {

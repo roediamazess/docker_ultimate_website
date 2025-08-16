@@ -112,7 +112,7 @@ function initCardEvents() {
         openEditModal(cardId);
       } else {
         console.error('Card has no data-id attribute');
-        showError('Card ID tidak valid');
+        showError('Invalid card ID');
       }
     });
   });
@@ -125,7 +125,7 @@ function updateActivityStatus(cardId, newStatus, targetColumn) {
   const cardElement = document.querySelector('[data-id="' + cardId + '"]');
   if (cardElement) {
     targetColumn.querySelector('.kanban-cards').prepend(cardElement);
-    showSuccess('Status berhasil diubah ke ' + newStatus);
+    showSuccess('Status updated to ' + newStatus);
   }
   
   // Send update to server in background (don't wait for response)
@@ -546,7 +546,7 @@ function submitEditForm() {
           console.log('Server response:', response);
           
           if (response.success) {
-            showSuccess('Activity berhasil diperbarui!');
+            showSuccess('Activity updated successfully!');
             closeEditModal();
             
             // Refresh the page to show updated data

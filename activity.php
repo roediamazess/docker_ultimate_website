@@ -287,10 +287,6 @@ $script = ($script ?? '')
                                 <option value="20" <?= $limit===20?'selected':''; ?>>20</option>
                             </select>
                         </div>
-                    <button type="button" class="btn btn-sm btn-primary-600 d-flex align-items-center gap-2" id="createActivityBtn" onclick="showCreateModal()">
-                        <iconify-icon icon="solar:add-circle-outline" class="icon"></iconify-icon>
-                        Create Activity
-                    </button>
                 </div>
                 
                 <!-- Filter Section -->
@@ -370,6 +366,9 @@ $script = ($script ?? '')
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn-apply">Apply Filters</button>
                             <a href="activity.php" class="btn-reset">Reset</a>
+                            <button type="button" class="btn-apply" id="createActivityBtn" onclick="showCreateModal()">
+                                Add Activity
+                            </button>
                         </div>
                     </form>
                 </div>

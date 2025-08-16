@@ -158,6 +158,65 @@ if ($_POST) {
                 $stmt->execute([$project_id]);
                 $existing = $stmt->fetch();
                 
+                // Validate project_id format
+                if (empty($project_id) || strlen($project_id) > 50) {
+                    throw new Exception('Project ID tidak boleh kosong dan maksimal 50 karakter.');
+                }
+                
+                // Validate project_id format (only alphanumeric, underscore, dash)
+                if (!preg_match('/^[a-zA-Z0-9_-]+$/', $project_id)) {
+                    throw new Exception('Project ID hanya boleh berisi huruf, angka, underscore (_), dan dash (-). Karakter khusus tidak diizinkan.');
+                }
+                
+                // Check for duplicate project_id - PERBAIKAN LOGIKA
+                if (!$existing) {
+                    // Untuk project baru, cek apakah project_id sudah ada
+                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM projects WHERE project_id = ?");
+                    $stmt->execute([$project_id]);
+                    $count = $stmt->fetchColumn();
+                    if ($count > 0) {
+                        // Get additional information about the existing project
+                        $stmt = $pdo->prepare("SELECT project_name, hotel_name_text, type, status, created_at FROM projects WHERE project_id = ? LIMIT 1");
+                        $stmt->execute([$project_id]);
+                        $project_info = $stmt->fetch(PDO::FETCH_ASSOC);
+                        
+                        $additional_info = '';
+                        if ($project_info) {
+                            $additional_info = "\n\nInformasi Project yang sudah ada:\n" .
+                                              "• Project Name: " . ($project_info['project_name'] ?: 'N/A') . "\n" .
+                                              "• Hotel: " . ($project_info['hotel_name_text'] ?: 'N/A') . "\n" .
+                                              "• Type: " . ($project_info['type'] ?: 'N/A') . "\n" .
+                                              "• Status: " . ($project_info['status'] ?: 'N/A') . "\n" .
+                                              "• Created: " . ($project_info['created_at'] ?: 'N/A');
+                        }
+                        
+                        throw new Exception('❌ Project ID "' . htmlspecialchars($project_id) . '" sudah digunakan!' . $additional_info . "\n\nSilakan gunakan Project ID yang berbeda.");
+                    }
+                } else {
+                    // Untuk edit project, pastikan tidak ada project lain dengan project_id yang sama
+                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM projects WHERE project_id = ? AND id != ?");
+                    $stmt->execute([$project_id, $existing['id']]);
+                    $count = $stmt->fetchColumn();
+                    if ($count > 0) {
+                        // Get additional information about the conflicting project
+                        $stmt = $pdo->prepare("SELECT project_name, hotel_name_text, type, status, created_at FROM projects WHERE project_id = ? AND id != ? LIMIT 1");
+                        $stmt->execute([$project_id, $existing['id']]);
+                        $project_info = $stmt->fetch(PDO::FETCH_ASSOC);
+                        
+                        $additional_info = '';
+                        if ($project_info) {
+                            $additional_info = "\n\nInformasi Project yang konflik:\n" .
+                                              "• Project Name: " . ($project_info['project_name'] ?: 'N/A') . "\n" .
+                                              "• Hotel: " . ($project_info['hotel_name_text'] ?: 'N/A') . "\n" .
+                                              "• Type: " . ($project_info['type'] ?: 'N/A') . "\n" .
+                                              "• Status: " . ($project_info['status'] ?: 'N/A') . "\n" .
+                                              "• Created: " . ($project_info['created_at'] ?: 'N/A');
+                        }
+                        
+                        throw new Exception('❌ Project ID "' . htmlspecialchars($project_id) . '" sudah digunakan oleh project lain!' . $additional_info . "\n\nSilakan gunakan Project ID yang berbeda.");
+                    }
+                }
+                
                 // Prepare typed hotel_name value if that column exists and is integer
                 $hotelNameIntValue = null;
                 if (isset($projectsColumns['hotel_name']) && ($projectsColumnTypes['hotel_name'] ?? '') === 'integer') {
@@ -391,6 +450,60 @@ try {
         .btn-remove:hover { background: #c82333; }
         .success-message { background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin: 15px 0; }
         .error-message { background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        
+        /* Project ID Validation Styles */
+        .validation-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+        }
+        
+        .invalid-feedback {
+            color: #dc3545;
+            font-weight: 500;
+        }
+        
+        .valid-feedback {
+            color: #198754;
+            font-weight: 500;
+        }
+        
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+        
+        .is-valid {
+            border-color: #198754 !important;
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;
+        }
+        
+        .project-id-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        /* Test button styling */
+        .test-validation-btn {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .test-validation-btn:hover {
+            background: #c82333;
+        }
             </style>
 
     <div class="container-fluid">
@@ -461,6 +574,7 @@ try {
                             <div class="col-md-6">
                                 <label class="form-label">Project ID *</label>
                                 <input type="text" name="project_id" class="form-control" required>
+                                <div class="validation-feedback"></div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Project Name *</label>
@@ -1019,24 +1133,237 @@ try {
             }
         }
 
-        // Frontend guard: enforce detail dates within project period
-        document.addEventListener('input', function(e) {
-            if (e.target && e.target.matches('input[type="date"], select')) {
-                const headerStart = document.querySelector('input[name="start_date"]').value;
-                const headerEnd = document.querySelector('input[name="end_date"]').value;
-                if (!headerStart && !headerEnd) return;
-
-                document.querySelectorAll('#detailsContainer .detail-row').forEach(row => {
-                    const ds = row.querySelector('input[name*="[start_date]"]').value;
-                    const de = row.querySelector('input[name*="[end_date]"]').value;
-                    if (ds && headerStart && new Date(ds) < new Date(headerStart)) {
-                        row.querySelector('input[name*="[start_date]"]').value = headerStart;
-                    }
-                    if (de && headerEnd && new Date(de) > new Date(headerEnd)) {
-                        row.querySelector('input[name*="[end_date]"]').value = headerEnd;
-                    }
-                });
+        // Frontend validation for project_id uniqueness
+        function validateProjectId(projectId) {
+            if (!projectId || projectId.trim() === '') {
+                return { valid: false, message: 'Project ID tidak boleh kosong' };
             }
+            
+            if (projectId.length > 50) {
+                return { valid: false, message: 'Project ID maksimal 50 karakter' };
+            }
+            
+            // Check for special characters that might cause issues
+            if (!/^[a-zA-Z0-9_-]+$/.test(projectId)) {
+                return { valid: false, message: 'Project ID hanya boleh berisi huruf, angka, underscore (_), dan dash (-). Karakter khusus tidak diizinkan.' };
+            }
+            
+            return { valid: true, message: '' };
+        }
+        
+        // Check project ID uniqueness in database
+        async function checkProjectIdUniqueness(projectId) {
+            try {
+                console.log('🔍 Checking uniqueness for project ID:', projectId);
+                
+                const response = await fetch('check_project_id_uniqueness.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'project_id=' + encodeURIComponent(projectId)
+                });
+                
+                console.log('📡 Response status:', response.status);
+                console.log('📡 Response headers:', response.headers);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const responseText = await response.text();
+                console.log('📡 Raw response:', responseText);
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('❌ JSON parse error:', parseError);
+                    console.error('❌ Response text:', responseText);
+                    throw new Error('Invalid JSON response from server');
+                }
+                
+                console.log('✅ Parsed result:', result);
+                return result;
+                
+            } catch (error) {
+                console.error('❌ Error checking project ID uniqueness:', error);
+                return { 
+                    exists: false, 
+                    message: 'Error checking uniqueness: ' + error.message,
+                    error: error.message 
+                };
+            }
+        }
+        
+        // Enhanced real-time validation
+        function initializeProjectIdValidation() {
+            // Wait a bit for modal to fully render
+            setTimeout(() => {
+                const projectIdInput = document.querySelector('input[name="project_id"]');
+                const projectForm = document.getElementById('projectForm');
+                
+                if (projectIdInput && !projectIdInput.dataset.validationInitialized) {
+                    projectIdInput.dataset.validationInitialized = 'true';
+                    
+                    // Real-time validation with database check
+                    projectIdInput.addEventListener('blur', async function() {
+                        const projectId = this.value.trim();
+                        
+                        if (!projectId) {
+                            return;
+                        }
+                        
+                        // Basic format validation
+                        const formatValidation = validateProjectId(projectId);
+                        if (!formatValidation.valid) {
+                            this.classList.add('is-invalid');
+                            const feedbackEl = this.parentNode.querySelector('.validation-feedback');
+                            if (feedbackEl) {
+                                feedbackEl.textContent = formatValidation.message;
+                                feedbackEl.classList.add('invalid-feedback');
+                            }
+                            return;
+                        }
+                        
+                        // Check uniqueness in database
+                        console.log('🔍 Starting uniqueness check for:', projectId);
+                        const uniquenessCheck = await checkProjectIdUniqueness(projectId);
+                        console.log('🔍 Uniqueness check result:', uniquenessCheck);
+                        
+                        const feedbackEl = this.parentNode.querySelector('.validation-feedback');
+                        
+                        if (uniquenessCheck.exists) {
+                            console.log('❌ Project ID already exists');
+                            this.classList.add('is-invalid');
+                            if (feedbackEl) {
+                                feedbackEl.textContent = uniquenessCheck.message;
+                                feedbackEl.classList.add('invalid-feedback');
+                                console.log('✅ Error message displayed:', uniquenessCheck.message);
+                            }
+                        } else {
+                            console.log('✅ Project ID is available');
+                            this.classList.remove('is-invalid');
+                            this.classList.add('is-valid');
+                            if (feedbackEl) {
+                                feedbackEl.textContent = '✅ Project ID tersedia dan dapat digunakan';
+                                feedbackEl.classList.remove('invalid-feedback');
+                                feedbackEl.classList.add('valid-feedback');
+                                console.log('✅ Success message displayed');
+                            }
+                        }
+                    });
+                    
+                    projectIdInput.addEventListener('input', function() {
+                        this.classList.remove('is-valid', 'is-invalid');
+                        const feedbackEl = this.parentNode.querySelector('.validation-feedback');
+                        if (feedbackEl) {
+                            feedbackEl.textContent = '';
+                            feedbackEl.classList.remove('invalid-feedback', 'valid-feedback');
+                        }
+                    });
+                }
+                
+                // Prevent form submission if project_id is invalid
+                if (projectForm) {
+                    projectForm.addEventListener('submit', async function(e) {
+                        const projectIdInput = this.querySelector('input[name="project_id"]');
+                        if (projectIdInput) {
+                            const projectId = projectIdInput.value.trim();
+                            
+                            // Check format first
+                            const formatValidation = validateProjectId(projectId);
+                            if (!formatValidation.valid) {
+                                e.preventDefault();
+                                projectIdInput.classList.add('is-invalid');
+                                const feedbackEl = projectIdInput.parentNode.querySelector('.validation-feedback');
+                                if (feedbackEl) {
+                                    feedbackEl.textContent = formatValidation.message;
+                                    feedbackEl.classList.add('invalid-feedback');
+                                }
+                                alert('❌ ' + formatValidation.message + '\n\nForm tidak dapat disubmit. Silakan perbaiki Project ID terlebih dahulu.');
+                                projectIdInput.focus();
+                                return false;
+                            }
+                            
+                                                    // Check uniqueness in database for new projects only
+                        const projectModalTitle = document.getElementById('projectModalTitle');
+                        if (projectModalTitle && projectModalTitle.textContent === 'Add Project') {
+                            const uniquenessCheck = await checkProjectIdUniqueness(projectId);
+                            if (uniquenessCheck.exists) {
+                                e.preventDefault();
+                                projectIdInput.classList.add('is-invalid');
+                                const feedbackEl = projectIdInput.parentNode.querySelector('.validation-feedback');
+                                if (feedbackEl) {
+                                    feedbackEl.textContent = uniquenessCheck.message;
+                                    feedbackEl.classList.add('invalid-feedback');
+                                }
+                                
+                                // Show detailed error message
+                                let errorMessage = '❌ Project ID "' + projectId + '" sudah digunakan!\n\n';
+                                if (uniquenessCheck.project_info) {
+                                    errorMessage += 'Informasi Project yang sudah ada:\n';
+                                    errorMessage += '• Project Name: ' + (uniquenessCheck.project_info.project_name || 'N/A') + '\n';
+                                    errorMessage += '• Hotel: ' + (uniquenessCheck.project_info.hotel_name_text || 'N/A') + '\n';
+                                    errorMessage += '• Type: ' + (uniquenessCheck.project_info.type || 'N/A') + '\n';
+                                    errorMessage += '• Status: ' + (uniquenessCheck.project_info.status || 'N/A') + '\n';
+                                    errorMessage += '• Created: ' + (uniquenessCheck.project_info.created_at || 'N/A') + '\n\n';
+                                }
+                                errorMessage += 'Silakan gunakan Project ID yang berbeda.\n\nForm tidak dapat disubmit.';
+                                
+                                alert(errorMessage);
+                                projectIdInput.focus();
+                                return false;
+                            }
+                        }
+                        }
+                    });
+                }
+            }, 300); // Wait 300ms for modal to fully render
+        }
+        
+        // Initialize validation when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 DOM loaded, initializing validation...');
+            initializeProjectIdValidation();
+        });
+        
+        // Also initialize when modal is shown (for dynamic content)
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.textContent === 'Add Project') {
+                console.log('➕ Add Project button clicked, reinitializing validation...');
+                setTimeout(initializeProjectIdValidation, 300); // Increased delay
+            }
+        });
+        
+        // Additional event listener for modal show
+        document.addEventListener('show.bs.modal', function(e) {
+            if (e.target.id === 'projectModal') {
+                console.log('🎭 Modal shown, initializing validation...');
+                setTimeout(initializeProjectIdValidation, 100);
+            }
+        });
+        
+        // Mutation observer to detect when modal content changes
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    const projectIdInput = document.querySelector('input[name="project_id"]');
+                    if (projectIdInput && !projectIdInput.hasAttribute('data-validation-initialized')) {
+                        console.log('🔍 New Project ID input detected, initializing validation...');
+                        projectIdInput.setAttribute('data-validation-initialized', 'true');
+                        setTimeout(initializeProjectIdValidation, 100);
+                    }
+                }
+            });
+        });
+        
+        // Start observing
+        document.addEventListener('DOMContentLoaded', function() {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
         });
         
         let __isLoadingProject = false;
@@ -1165,6 +1492,28 @@ try {
                 });
             });
         });
+        
+        // Frontend guard: enforce detail dates within project period
+        document.addEventListener('input', function(e) {
+            if (e.target && e.target.matches('input[type="date"], select')) {
+                const headerStart = document.querySelector('input[name="start_date"]').value;
+                const headerEnd = document.querySelector('input[name="end_date"]').value;
+                if (!headerStart && !headerEnd) return;
+
+                document.querySelectorAll('#detailsContainer .detail-row').forEach(row => {
+                    const ds = row.querySelector('input[name*="[start_date]"]').value;
+                    const de = row.querySelector('input[name*="[end_date]"]').value;
+                    if (ds && headerStart && new Date(ds) < new Date(headerStart)) {
+                        row.querySelector('input[name*="[start_date]"]').value = headerStart;
+                    }
+                    if (de && headerEnd && new Date(de) > new Date(headerEnd)) {
+                        row.querySelector('input[name*="[end_date]"]').value = headerEnd;
+                    }
+                });
+            }
+        });
+
     </script>
 
 <?php include './partials/layouts/layoutBottom.php'; ?>
+

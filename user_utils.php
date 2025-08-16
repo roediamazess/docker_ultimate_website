@@ -47,7 +47,16 @@ function log_user_activity($action, $description = '') {
         
         $user_id = get_current_user_id();
         $user_email = get_current_user_email();
-        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        
+        // Improved IP address detection
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        }
+        
         $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
         
         if ($pdo) {

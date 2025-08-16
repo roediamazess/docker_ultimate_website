@@ -13,6 +13,8 @@ try {
     $pdo->exec("DO $$ BEGIN CREATE TYPE customer_status AS ENUM ('Active','Inactive'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;");
     // Add status column if not exists
     $pdo->exec("ALTER TABLE customers ADD COLUMN IF NOT EXISTS status customer_status");
+    // Add email column if not exists
+    $pdo->exec("ALTER TABLE customers ADD COLUMN IF NOT EXISTS email VARCHAR(255)");
     // Backfill and set NOT NULL
     $pdo->exec("UPDATE customers SET status = 'Active' WHERE status IS NULL");
     $pdo->exec("ALTER TABLE customers ALTER COLUMN status SET NOT NULL");
@@ -49,7 +51,7 @@ if (isset($_POST['create'])) {
         $notification_type = 'error';
     } else {
         try {
-            $stmt = $pdo->prepare('INSERT INTO customers (customer_id, name, star, room, outlet, type, "group", zone, address, billing, status, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $stmt = $pdo->prepare('INSERT INTO customers (customer_id, name, star, room, outlet, type, "group", zone, address, billing, status, email_gm, email_executive, email_hr, email_acc_head, email_chief_acc, email_cost_control, email_ap, email_ar, email_fb, email_fo, email_hk, email_engineering, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([
                 $_POST['customer_id'],
                 $_POST['name'],
@@ -62,6 +64,18 @@ if (isset($_POST['create'])) {
                 $_POST['address'],
                 $_POST['billing'] ?: null,
                 $_POST['status'] ?: 'Active',
+                $_POST['email_gm'] ?: null,
+                $_POST['email_executive'] ?: null,
+                $_POST['email_hr'] ?: null,
+                $_POST['email_acc_head'] ?: null,
+                $_POST['email_chief_acc'] ?: null,
+                $_POST['email_cost_control'] ?: null,
+                $_POST['email_ap'] ?: null,
+                $_POST['email_ar'] ?: null,
+                $_POST['email_fb'] ?: null,
+                $_POST['email_fo'] ?: null,
+                $_POST['email_hk'] ?: null,
+                $_POST['email_engineering'] ?: null,
                 $_SESSION['user_id'],
                 date('Y-m-d H:i:s')
             ]);
@@ -82,7 +96,7 @@ if (isset($_POST['update'])) {
         $notification_type = 'error';
     } else {
         try {
-            $stmt = $pdo->prepare('UPDATE customers SET customer_id=?, name=?, star=?, room=?, outlet=?, type=?, "group"=?, zone=?, address=?, billing=?, status=? WHERE id=?');
+            $stmt = $pdo->prepare('UPDATE customers SET customer_id=?, name=?, star=?, room=?, outlet=?, type=?, "group"=?, zone=?, address=?, billing=?, status=?, email_gm=?, email_executive=?, email_hr=?, email_acc_head=?, email_chief_acc=?, email_cost_control=?, email_ap=?, email_ar=?, email_fb=?, email_fo=?, email_hk=?, email_engineering=? WHERE id=?');
             $stmt->execute([
                 $_POST['customer_id'],
                 $_POST['name'],
@@ -95,6 +109,18 @@ if (isset($_POST['update'])) {
                 $_POST['address'],
                 $_POST['billing'] ?: null,
                 $_POST['status'] ?: 'Active',
+                $_POST['email_gm'] ?: null,
+                $_POST['email_executive'] ?: null,
+                $_POST['email_hr'] ?: null,
+                $_POST['email_acc_head'] ?: null,
+                $_POST['email_chief_acc'] ?: null,
+                $_POST['email_cost_control'] ?: null,
+                $_POST['email_ap'] ?: null,
+                $_POST['email_ar'] ?: null,
+                $_POST['email_fb'] ?: null,
+                $_POST['email_fo'] ?: null,
+                $_POST['email_hk'] ?: null,
+                $_POST['email_engineering'] ?: null,
                 $_POST['id']
             ]);
             $message = 'Customer berhasil diperbarui!';
@@ -282,80 +308,146 @@ try {
                         <form method="post">
                             <div class="custom-modal-body">
                                 <?= csrf_field() ?>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Customer ID *</label>
-                                        <input type="text" name="customer_id" class="custom-modal-input" required>
+                                
+                                <!-- Tab Navigation -->
+                                <div class="tab-container">
+                                    <div class="tab-buttons">
+                                        <button type="button" class="tab-button active" onclick="switchTab('general', this)">General Info</button>
+                                        <button type="button" class="tab-button" onclick="switchTab('email', this)">Email Contacts</button>
                                     </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Name *</label>
-                                        <input type="text" name="name" class="custom-modal-input" required>
+                                    
+                                    <!-- General Info Tab -->
+                                    <div id="general-tab" class="tab-content active">
+                                        <div class="custom-modal-row">
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Customer ID *</label>
+                                                <input type="text" name="customer_id" class="custom-modal-input" required>
+                                            </div>
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Name *</label>
+                                                <input type="text" name="name" class="custom-modal-input" required>
+                                            </div>
+                                        </div>
+                                        <div class="custom-modal-row">
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Star</label>
+                                                <select name="star" class="custom-modal-select">
+                                                    <option value="">-</option>
+                                                    <option value="1">1 Star</option>
+                                                    <option value="2">2 Star</option>
+                                                    <option value="3">3 Star</option>
+                                                    <option value="4">4 Star</option>
+                                                    <option value="5">5 Star</option>
+                                                </select>
+                                            </div>
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Room</label>
+                                                <input type="text" name="room" class="custom-modal-input">
+                                            </div>
+                                        </div>
+                                        <div class="custom-modal-row">
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Outlet Count</label>
+                                                <input type="number" name="outlet" class="custom-modal-input" min="1" value="1">
+                                            </div>
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Type</label>
+                                                <select name="type" class="custom-modal-select">
+                                                    <option value="">-</option>
+                                                    <?php foreach ($types as $type): ?>
+                                                        <option value="<?= htmlspecialchars($type) ?>"><?= htmlspecialchars($type) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="custom-modal-row">
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Group</label>
+                                                <input type="text" name="group" class="custom-modal-input">
+                                            </div>
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Zone</label>
+                                                <input type="text" name="zone" class="custom-modal-input">
+                                            </div>
+                                        </div>
+                                        <div class="custom-modal-row">
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Address</label>
+                                                <textarea name="address" class="custom-modal-textarea" rows="2"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="custom-modal-row">
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Billing</label>
+                                                <select name="billing" class="custom-modal-select">
+                                                    <option value="">-</option>
+                                                    <?php foreach ($billings as $billing): ?>
+                                                        <option value="<?= htmlspecialchars($billing) ?>"><?= htmlspecialchars($billing) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Status *</label>
+                                                <select name="status" class="custom-modal-select" required>
+                                                    <option value="Active">Active</option>
+                                                    <option value="Inactive">Inactive</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Star</label>
-                                        <select name="star" class="custom-modal-select">
-                                            <option value="">-</option>
-                                            <option value="1">1 Star</option>
-                                            <option value="2">2 Star</option>
-                                            <option value="3">3 Star</option>
-                                            <option value="4">4 Star</option>
-                                            <option value="5">5 Star</option>
-                                        </select>
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Room</label>
-                                        <input type="text" name="room" class="custom-modal-input">
-                                    </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Outlet Count</label>
-                                        <input type="number" name="outlet" class="custom-modal-input" min="1" value="1">
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Type</label>
-                                        <select name="type" class="custom-modal-select">
-                                            <option value="">-</option>
-                                            <?php foreach ($types as $type): ?>
-                                                <option value="<?= htmlspecialchars($type) ?>"><?= htmlspecialchars($type) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Group</label>
-                                        <input type="text" name="group" class="custom-modal-input">
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Zone</label>
-                                        <input type="text" name="zone" class="custom-modal-input">
-                                    </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Address</label>
-                                        <textarea name="address" class="custom-modal-textarea" rows="2"></textarea>
-                                    </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Billing</label>
-                                        <select name="billing" class="custom-modal-select">
-                                            <option value="">-</option>
-                                            <?php foreach ($billings as $billing): ?>
-                                                <option value="<?= htmlspecialchars($billing) ?>"><?= htmlspecialchars($billing) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Status *</label>
-                                        <select name="status" class="custom-modal-select" required>
-                                            <option value="Active">Active</option>
-                                            <option value="Inactive">Inactive</option>
-                                        </select>
+                                    
+                                    <!-- Email Contacts Tab -->
+                                    <div id="email-tab" class="tab-content">
+                                        <div class="email-fields-grid">
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">General Manager</label>
+                                                <input type="email" name="email_gm" class="email-field-input" placeholder="gm@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Executive Office</label>
+                                                <input type="email" name="email_executive" class="email-field-input" placeholder="executive@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">HR Department Head</label>
+                                                <input type="email" name="email_hr" class="email-field-input" placeholder="hr@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Accounting Department Head</label>
+                                                <input type="email" name="email_acc_head" class="email-field-input" placeholder="accounting@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Chief Accounting</label>
+                                                <input type="email" name="email_chief_acc" class="email-field-input" placeholder="chief.acc@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Cost Control</label>
+                                                <input type="email" name="email_cost_control" class="email-field-input" placeholder="cost.control@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Accounting Payable</label>
+                                                <input type="email" name="email_ap" class="email-field-input" placeholder="ap@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Accounting Receivable</label>
+                                                <input type="email" name="email_ar" class="email-field-input" placeholder="ar@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">F&B Department Head</label>
+                                                <input type="email" name="email_fb" class="email-field-input" placeholder="f&b@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Front Office Department Head</label>
+                                                <input type="email" name="email_fo" class="email-field-input" placeholder="front.office@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Housekeeping Department Head</label>
+                                                <input type="email" name="email_hk" class="email-field-input" placeholder="housekeeping@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Engineering Department Head</label>
+                                                <input type="email" name="email_engineering" class="email-field-input" placeholder="engineering@hotelname.com">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -378,80 +470,146 @@ try {
                             <div class="custom-modal-body">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="id" id="edit_id">
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Customer ID *</label>
-                                        <input type="text" name="customer_id" id="edit_customer_id" class="custom-modal-input" required>
+                                
+                                <!-- Tab Navigation -->
+                                <div class="tab-container">
+                                    <div class="tab-buttons">
+                                        <button type="button" class="tab-button active" onclick="switchTab('edit-general', this)">General Info</button>
+                                        <button type="button" class="tab-button" onclick="switchTab('edit-email', this)">Email Contacts</button>
                                     </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Name *</label>
-                                        <input type="text" name="name" id="edit_name" class="custom-modal-input" required>
+                                    
+                                    <!-- General Info Tab -->
+                                    <div id="edit-general-tab" class="tab-content active">
+                                        <div class="custom-modal-row">
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Customer ID *</label>
+                                                <input type="text" name="customer_id" id="edit_customer_id" class="custom-modal-input" required>
+                                            </div>
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Name *</label>
+                                                <input type="text" name="name" id="edit_name" class="custom-modal-input" required>
+                                            </div>
+                                        </div>
+                                        <div class="custom-modal-row">
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Star</label>
+                                                <select name="star" id="edit_star" class="custom-modal-select">
+                                                    <option value="">-</option>
+                                                    <option value="1">1 Star</option>
+                                                    <option value="2">2 Star</option>
+                                                    <option value="3">3 Star</option>
+                                                    <option value="4">4 Star</option>
+                                                    <option value="5">5 Star</option>
+                                                </select>
+                                            </div>
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Room</label>
+                                                <input type="text" name="room" id="edit_room" class="custom-modal-input">
+                                            </div>
+                                        </div>
+                                        <div class="custom-modal-row">
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Outlet Count</label>
+                                                <input type="number" name="outlet" id="edit_outlet" class="custom-modal-input" min="1">
+                                            </div>
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Type</label>
+                                                <select name="type" id="edit_type" class="custom-modal-select">
+                                                    <option value="">-</option>
+                                                    <?php foreach ($types as $type): ?>
+                                                        <option value="<?= htmlspecialchars($type) ?>"><?= htmlspecialchars($type) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="custom-modal-row">
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Group</label>
+                                                <input type="text" name="group" id="edit_group" class="custom-modal-input">
+                                            </div>
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Zone</label>
+                                                <input type="text" name="zone" id="edit_zone" class="custom-modal-input">
+                                            </div>
+                                        </div>
+                                        <div class="custom-modal-row">
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Address</label>
+                                                <textarea name="address" id="edit_address" class="custom-modal-textarea" rows="2"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="custom-modal-row">
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Billing</label>
+                                                <select name="billing" id="edit_billing" class="custom-modal-select">
+                                                    <option value="">-</option>
+                                                    <?php foreach ($billings as $type): ?>
+                                                        <option value="<?= htmlspecialchars($type) ?>"><?= htmlspecialchars($type) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div class="custom-modal-col">
+                                                <label class="custom-modal-label">Status *</label>
+                                                <select name="status" id="edit_status" class="custom-modal-select" required>
+                                                    <option value="Active">Active</option>
+                                                    <option value="Inactive">Inactive</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Star</label>
-                                        <select name="star" id="edit_star" class="custom-modal-select">
-                                            <option value="">-</option>
-                                            <option value="1">1 Star</option>
-                                            <option value="2">2 Star</option>
-                                            <option value="3">3 Star</option>
-                                            <option value="4">4 Star</option>
-                                            <option value="5">5 Star</option>
-                                        </select>
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Room</label>
-                                        <input type="text" name="room" id="edit_room" class="custom-modal-input">
-                                    </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Outlet Count</label>
-                                        <input type="number" name="outlet" id="edit_outlet" class="custom-modal-input" min="1">
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Type</label>
-                                        <select name="type" id="edit_type" class="custom-modal-select">
-                                            <option value="">-</option>
-                                            <?php foreach ($types as $type): ?>
-                                                <option value="<?= htmlspecialchars($type) ?>"><?= htmlspecialchars($type) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Group</label>
-                                        <input type="text" name="group" id="edit_group" class="custom-modal-input">
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Zone</label>
-                                        <input type="text" name="zone" id="edit_zone" class="custom-modal-input">
-                                    </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Address</label>
-                                        <textarea name="address" id="edit_address" class="custom-modal-textarea" rows="2"></textarea>
-                                    </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Billing</label>
-                                        <select name="billing" id="edit_billing" class="custom-modal-select">
-                                            <option value="">-</option>
-                                            <?php foreach ($billings as $type): ?>
-                                                <option value="<?= htmlspecialchars($type) ?>"><?= htmlspecialchars($type) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Status *</label>
-                                        <select name="status" id="edit_status" class="custom-modal-select" required>
-                                            <option value="Active">Active</option>
-                                            <option value="Inactive">Inactive</option>
-                                        </select>
+                                    
+                                    <!-- Email Contacts Tab -->
+                                    <div id="edit-email-tab" class="tab-content">
+                                        <div class="email-fields-grid">
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">General Manager</label>
+                                                <input type="email" name="email_gm" id="edit_email_gm" class="email-field-input" placeholder="gm@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Executive Office</label>
+                                                <input type="email" name="email_executive" id="edit_email_executive" class="email-field-input" placeholder="executive@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">HR Department Head</label>
+                                                <input type="email" name="email_hr" id="edit_email_hr" class="email-field-input" placeholder="hr@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Accounting Department Head</label>
+                                                <input type="email" name="email_acc_head" id="edit_email_acc_head" class="email-field-input" placeholder="accounting@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Chief Accounting</label>
+                                                <input type="email" name="email_chief_acc" id="edit_email_chief_acc" class="email-field-input" placeholder="chief.acc@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Cost Control</label>
+                                                <input type="email" name="email_cost_control" id="edit_email_cost_control" class="email-field-input" placeholder="cost.control@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Accounting Payable</label>
+                                                <input type="email" name="email_ap" id="edit_email_ap" class="email-field-input" placeholder="ap@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Accounting Receivable</label>
+                                                <input type="email" name="email_ar" id="edit_email_ar" class="email-field-input" placeholder="ar@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">F&B Department Head</label>
+                                                <input type="email" name="email_fb" id="edit_email_fb" class="email-field-input" placeholder="f&b@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Front Office Department Head</label>
+                                                <input type="email" name="email_fo" id="edit_email_fo" class="email-field-input" placeholder="front.office@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Housekeeping Department Head</label>
+                                                <input type="email" name="email_hk" id="edit_email_hk" class="email-field-input" placeholder="housekeeping@hotelname.com">
+                                            </div>
+                                            <div class="email-field-group">
+                                                <label class="email-field-label">Engineering Department Head</label>
+                                                <input type="email" name="email_engineering" id="edit_email_engineering" class="email-field-input" placeholder="engineering@hotelname.com">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -507,6 +665,18 @@ try {
                                     data-group="<?= htmlspecialchars($c['group'] ?? '') ?>"
                                     data-zone="<?= htmlspecialchars($c['zone'] ?? '') ?>"
                                     data-address="<?= htmlspecialchars($c['address'] ?? '') ?>"
+                                    data-email-gm="<?= htmlspecialchars($c['email_gm'] ?? '') ?>"
+                                    data-email-executive="<?= htmlspecialchars($c['email_executive'] ?? '') ?>"
+                                    data-email-hr="<?= htmlspecialchars($c['email_hr'] ?? '') ?>"
+                                    data-email-acc-head="<?= htmlspecialchars($c['email_acc_head'] ?? '') ?>"
+                                    data-email-chief-acc="<?= htmlspecialchars($c['email_chief_acc'] ?? '') ?>"
+                                    data-email-cost-control="<?= htmlspecialchars($c['email_cost_control'] ?? '') ?>"
+                                    data-email-ap="<?= htmlspecialchars($c['email_ap'] ?? '') ?>"
+                                    data-email-ar="<?= htmlspecialchars($c['email_ar'] ?? '') ?>"
+                                    data-email-fb="<?= htmlspecialchars($c['email_fb'] ?? '') ?>"
+                                    data-email-fo="<?= htmlspecialchars($c['email_fo'] ?? '') ?>"
+                                    data-email-hk="<?= htmlspecialchars($c['email_hk'] ?? '') ?>"
+                                    data-email-engineering="<?= htmlspecialchars($c['email_engineering'] ?? '') ?>"
                                     data-billing="<?= htmlspecialchars($c['billing'] ?? '') ?>"
                                     onclick="editCustomer(<?= $c['id'] ?>)">
                                     <td data-label="Customer ID" class="text-center-important"><?= htmlspecialchars($c['customer_id'] ?: '-') ?></td>
@@ -773,6 +943,85 @@ try {
     background: #4b5563;
 }
 
+/* Tab System Styling */
+.tab-container {
+    margin-bottom: 20px;
+}
+
+.tab-buttons {
+    display: flex;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab-button.active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+    background-color: #eff6ff;
+}
+
+.tab-button:hover:not(.active) {
+    color: #374151;
+    background-color: #f9fafb;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Email Fields Grid */
+.email-fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.email-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.email-field-label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+}
+
+.email-field-input {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.email-field-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.email-field-input::placeholder {
+    color: #9ca3af;
+}
+
 /* Table Header Styling */
 .table-header {
     padding: 12px 16px;
@@ -863,6 +1112,25 @@ try {
     .filter-group {
         min-width: 100%;
     }
+
+    .email-fields-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .tab-buttons {
+        flex-direction: column;
+    }
+    
+    .tab-button {
+        text-align: left;
+        border-bottom: none;
+        border-right: 2px solid transparent;
+    }
+    
+    .tab-button.active {
+        border-right-color: #3b82f6;
+        border-bottom-color: transparent;
+    }
 }
 </style>
 
@@ -873,6 +1141,22 @@ function showCreateModal() {
 
 function closeCreateModal() {
     document.getElementById('createCustomerModal').style.display = 'none';
+}
+
+function switchTab(tabName, buttonElement) {
+    // Remove active class from all tabs and buttons
+    const tabButtons = buttonElement.parentElement.querySelectorAll('.tab-button');
+    const tabContents = buttonElement.parentElement.parentElement.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+    tabContents.forEach(content => content.classList.remove('active'));
+    
+    // Add active class to clicked button and corresponding content
+    buttonElement.classList.add('active');
+    const targetTab = document.getElementById(tabName + '-tab');
+    if (targetTab) {
+        targetTab.classList.add('active');
+    }
 }
 
 function editCustomer(customerId) {
@@ -894,6 +1178,31 @@ function editCustomer(customerId) {
     document.getElementById('edit_billing').value = row.dataset.billing;
     const statusEl = document.getElementById('edit_status');
     if (statusEl) { statusEl.value = row.dataset.status || 'Active'; }
+    
+    // Populate email fields if they exist in data attributes
+    const emailFields = [
+        { field: 'email_gm', dataAttr: 'email-gm' },
+        { field: 'email_executive', dataAttr: 'email-executive' },
+        { field: 'email_hr', dataAttr: 'email-hr' },
+        { field: 'email_acc_head', dataAttr: 'email-acc-head' },
+        { field: 'email_chief_acc', dataAttr: 'email-chief-acc' },
+        { field: 'email_cost_control', dataAttr: 'email-cost-control' },
+        { field: 'email_ap', dataAttr: 'email-ap' },
+        { field: 'email_ar', dataAttr: 'email-ar' },
+        { field: 'email_fb', dataAttr: 'email-fb' },
+        { field: 'email_fo', dataAttr: 'email-fo' },
+        { field: 'email_hk', dataAttr: 'email-hk' },
+        { field: 'email_engineering', dataAttr: 'email-engineering' }
+    ];
+    
+    emailFields.forEach(({ field, dataAttr }) => {
+        const input = document.getElementById('edit_' + field);
+        if (input && row.dataset[dataAttr]) {
+            input.value = row.dataset[dataAttr];
+        } else if (input) {
+            input.value = '';
+        }
+    });
     
     // Show modal
     document.getElementById('editCustomerModal').style.display = 'flex';

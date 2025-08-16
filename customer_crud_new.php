@@ -9,11 +9,9 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Fungsi helper untuk logging
+// Fungsi helper untuk logging - menggunakan utility function
 function log_activity($action, $description) {
-    global $pdo;
-    $stmt = $pdo->prepare('INSERT INTO logs (user_email, action, description, created_at) VALUES (?, ?, ?, ?)');
-    $stmt->execute([$_SESSION['email'] ?? 'unknown', $action, $description, date('Y-m-d H:i:s')]);
+    log_user_activity($action, $description);
 }
 
 // CSRF Protection

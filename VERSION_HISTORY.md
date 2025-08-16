@@ -1,23 +1,32 @@
-## v2.4.8 (2025-08-14)
-- Projects (`projects.php`):
-  - Status tabs diseragamkan (urutan: Running, Scheduled, Document, Document Check, Done, Cancel, Rejected, All Status) dengan default filter Running.
-  - Dark mode parity mengikuti Activities List: tabs, filter section, form field, tombol Reset, dan header table chip (`.table-header`).
-  - Detail strip (baris "PIC: …") direduksi kontrasnya dan memakai gradient yang sama seperti header; mendukung dark mode.
-  - Tombol "Create Project" di header/tab bar dihapus; tombol "Add Project" diposisikan di bar filter di samping Reset.
-  - Modal Add/Edit:
-    - Styling dark mode diselaraskan (background, border, footer, disabled input legible).
-    - UX: bisa ditutup dengan ESC dan klik di luar konten modal (overlay).
-  - Perapihan kecil: klik baris tabel tetap membuka modal edit; tidak ada perubahan endpoint/backend.
-- Keamanan/DB: tidak ada perubahan skema database pada rilis ini.
+# VERSION HISTORY
 
-## v2.4.9 (2025-08-15)
-- Navbar Horizontal Floating Capsule
-  - Navbar diubah menjadi floating dengan offset atas 24px, tanpa efek glass di luar kapsul.
-  - Kapsul (`.nav-surface`) ber-radius besar, warna solid (light/dark), dan shadow saat scroll.
-  - Menu di dalam kapsul disamakan background-nya agar konsisten dari logo hingga area user.
-  - Logo diposisikan simetris (atas-bawah sama) menggunakan tinggi dinamis dari tinggi navbar.
-  - Notifikasi diposisikan dinamis tepat di bawah logo kapsul, menyesuaikan scroll/resize.
-  - Files touched: `partials/layouts/layoutHorizontal.php`, `README.md` (minor), CSS inline overrides.
+## v2.4.8 (2025-01-XX)
+- **Gantt Chart View Enhancement:**
+  - Menambahkan header dan filter section yang lengkap seperti Activity List view
+  - Header section dengan dropdown "Show" untuk memilih jumlah item (10, 15, 20, 50, 100)
+  - Filter section lengkap: Search, Priority, Department, Application, Type, Status
+  - Real-time search dengan debounce 300ms
+  - Filter logic untuk semua kriteria dengan dynamic rendering
+  - Meningkatkan tinggi kolom header timeline dari h-12 (48px) ke h-20 (80px)
+  - Mengganti label "DESKRIPSI TUGAS" menjadi "Description"
+  - Menyesuaikan tinggi cell tanggal dan task cell agar konsisten
+  - Menghapus tombol "Create Activity" dari Gantt Chart view
+  - Menambahkan CSS untuk wrap-toggle, quick-edit-btn, dan styling lainnya
+  - Integrasi filter dengan Gantt chart rendering
+
+- **Activity List View UI Improvement:**
+  - Memindahkan tombol "Create Activity" dari header ke filter section
+  - Posisi baru: Apply Filters → Reset → Add Activity
+  - Menyamakan styling tombol Add Activity dengan Apply Filters (gradient ungu)
+  - Menghapus icon plus (+) dari tombol Add Activity
+  - Layout yang lebih terorganisir dan konsisten
+
+- **Technical Improvements:**
+  - Filter functionality menggunakan JavaScript dengan real-time updates
+  - Responsive design untuk semua view (List, Kanban, Gantt)
+  - Dark mode support yang konsisten
+  - Performance optimization dengan debounced search
+  - Clean code structure dengan proper separation of concerns
 
 ## v2.4.7 (2025-08-13)
 - Gantt (dark/light):
