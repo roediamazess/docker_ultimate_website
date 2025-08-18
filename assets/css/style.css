@@ -480,7 +480,7 @@ a, button {
 }
 
 a:hover {
-  text-decoration: none;
+    text-decoration: none;
 }
 
 strong {
@@ -488,7 +488,7 @@ strong {
 }
 
 a:hover {
-  color: var(--primary);
+    color: var(--primary);
 }
 
 abbr[title] {
@@ -1072,7 +1072,7 @@ th {
 }
 
 .text-hover-neutral-600:hover {
-  color: var(--neutral-600) !important;
+  color: var(--neutral-500) !important;
 }
 
 .text-hover-neutral-700:hover {

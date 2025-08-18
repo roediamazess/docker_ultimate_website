@@ -250,6 +250,13 @@
             </li>
             
             <li>
+                <a href="jobsheet.php">
+                    <iconify-icon icon="solar:clipboard-list-outline" class="menu-icon"></iconify-icon>
+                    <span>Jobsheet</span>
+                </a>
+            </li>
+            
+            <li>
                 <a href="log_view.php">
                     <iconify-icon icon="solar:file-text-outline" class="menu-icon"></iconify-icon>
                     <span>Audit Logs</span>

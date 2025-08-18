@@ -1256,11 +1256,12 @@ html, body {
     background-color: rgba(248, 250, 252, 0.5);
 }
 
-.table.sortable-table tbody tr:hover {
+/* Table row hover effects - DISABLED */
+/* .table.sortable-table tbody tr:hover {
     background-color: rgba(59, 130, 246, 0.05);
     transform: scale(1.01);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
+} */
 
 /* Priority badge styling */
 .priority-badge {
@@ -1756,10 +1757,11 @@ html, body {
     color: #f9fafb;
 }
 
-[data-theme="dark"] .sortable-header:hover {
+/* Dark theme sortable header hover effects - DISABLED */
+/* [data-theme="dark"] .sortable-header:hover {
     background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
     border-color: #6b7280;
-}
+} */
 
 [data-theme="dark"] .sortable-header .header-text {
     color: #f9fafb;
@@ -1789,9 +1791,10 @@ html, body {
     color: #f9fafb;
 }
 
-[data-theme="dark"] .table.sortable-table tbody tr:hover {
+/* Dark theme table row hover effects - DISABLED */
+/* [data-theme="dark"] .table.sortable-table tbody tr:hover {
     background: rgba(102, 126, 234, 0.1);
-}
+} */
 
 /* Dark theme untuk filter section */
 [data-theme="dark"] .filter-section .form-select,
@@ -1817,6 +1820,7 @@ html, body {
     border-color: #4b5563;
 }
 
+/* Dark theme filter button hover effects - DISABLED */
 [data-theme="dark"] .filter-section .btn-reset:hover {
     background: #4b5563;
     border-color: #6b7280;
@@ -1845,12 +1849,13 @@ html, body {
     margin: 0;
 }
 
-.sortable-table th .sortable-header:hover {
+/* Sortable header hover effects - DISABLED */
+/* .sortable-table th .sortable-header:hover {
     background-color: rgba(102, 126, 234, 0.1);
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 2px 8px rgba(102, 234, 0.15);
     text-decoration: none;
-}
+} */
 
 .sortable-table th .sortable-header:active {
     transform: translateY(0);
@@ -1911,9 +1916,10 @@ html, body {
     color: var(--text-primary-dark);
 }
 
-[data-theme="dark"] .sortable-table th .sortable-header:hover {
+/* Dark theme sortable header hover effects - DISABLED */
+/* [data-theme="dark"] .sortable-table th .sortable-header:hover {
     background-color: rgba(102, 126, 234, 0.15);
-}
+} */
 
 [data-theme="dark"] .sortable-table th .sortable-header .header-text {
     color: var(--text-primary-dark);

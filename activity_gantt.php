@@ -60,7 +60,7 @@ $tasks = array_map(function($r){
         .timeline-container::-webkit-scrollbar { height: 8px; }
         .timeline-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
         .timeline-container::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
-        .timeline-container::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        /* .timeline-container::-webkit-scrollbar-thumb:hover { background: #64748b; } */
         /* Gantt container card (follow outer .card; internal border/shadow removed to match list) */
         .gantt-card { background:transparent; border:0; box-shadow:none; }
         /* soften grid borders to avoid bright edges */

@@ -455,9 +455,9 @@ html[data-theme="dark"] .horizontal-navbar .nav-surface.is-scrolled { box-shadow
                         </a>
                     </li>
 
-                    <li class="nav-item">
+                    <li class="nav-item" data-debug="nav-item">
                         <a href="jobsheet.php" class="nav-link">
-                            <iconify-icon icon="solar:document-text-outline" class="nav-icon"></iconify-icon>
+                            <iconify-icon icon="solar:clipboard-list-outline" class="nav-icon"></iconify-icon>
                             <span>Jobsheet</span>
                         </a>
                     </li>

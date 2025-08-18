@@ -65,7 +65,7 @@
   background-color: var(--bs-table-striped-bg) !important;
 }
 [data-theme="dark"] .table.table-hover > tbody > tr:hover > * {
-  background-color: var(--bs-table-hover-bg) !important;
+    background-color: var(--bs-table-hover-bg) !important;
 }
 [data-theme="dark"] .table.table-striped thead th {
   border: none !important;
@@ -80,7 +80,7 @@
   background-color: #111827 !important;
 }
 [data-theme="dark"] .table.table-striped tbody tr:hover {
-  background-color: rgba(59,130,246,0.08) !important;
+    background-color: rgba(59,130,246,0.08) !important;
 }
 
 /* Header chips inside thead used by activity.php (.table-header) */
@@ -161,7 +161,7 @@
 }
 [data-theme="dark"] .custom-btn-secondary:hover,
 [data-theme="dark"] .btn-secondary:hover {
-  background: #4b5563 !important;
+    background: #4b5563 !important;
 }
 
 [data-theme="dark"] .card .card-header,
@@ -232,8 +232,8 @@
 .btn-primary:hover,
 .btn-primary-600:hover,
 .custom-btn-primary:hover {
-  filter: brightness(1.03);
-  transform: translateY(-1px);
+    filter: brightness(1.03);
+    transform: translateY(-1px);
 }
 .btn-primary:active,
 .btn-primary-600:active,
