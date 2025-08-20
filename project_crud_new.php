@@ -33,43 +33,52 @@ if (isset($_POST['create'])) {
     if (!csrf_verify()) {
         $message = 'CSRF token tidak valid!';
     } else {
-        $stmt = $pdo->prepare('INSERT INTO projects (project_id, pic, assignment, project_info, req_pic, hotel_name, project_name, start_date, end_date, total_days, type, status, handover_report, handover_days, ketertiban_admin, point_ach, point_req, percent_point, month, quarter, week_number, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        // Check if project_id already exists
+        $checkStmt = $pdo->prepare('SELECT COUNT(*) FROM projects WHERE project_id = ?');
+        $checkStmt->execute([$_POST['project_id']]);
+        $projectExists = $checkStmt->fetchColumn() > 0;
         
-        $start_date = $_POST['start_date'] ?: null;
-        $end_date = $_POST['end_date'] ?: null;
-        $total_days = null;
-        
-        if ($start_date && $end_date) {
-            $diff = date_diff(date_create($start_date), date_create($end_date));
-            $total_days = $diff->days + 1;
+        if ($projectExists) {
+            $message = 'Project ID sudah ada di database! Silakan gunakan Project ID yang berbeda.';
+        } else {
+            $stmt = $pdo->prepare('INSERT INTO projects (project_id, pic, assignment, project_info, req_pic, hotel_name, project_name, start_date, end_date, total_days, type, status, handover_report, handover_days, ketertiban_admin, point_ach, point_req, percent_point, month, quarter, week_number, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            
+            $start_date = $_POST['start_date'] ?: null;
+            $end_date = $_POST['end_date'] ?: null;
+            $total_days = null;
+            
+            if ($start_date && $end_date) {
+                $diff = date_diff(date_create($start_date), date_create($end_date));
+                $total_days = $diff->days + 1;
+            }
+            
+            $stmt->execute([
+                $_POST['project_id'],
+                $_POST['pic'],
+                $_POST['assignment'],
+                $_POST['project_info'],
+                $_POST['req_pic'],
+                $_POST['hotel_name'],
+                $_POST['project_name'],
+                $start_date,
+                $end_date,
+                $total_days,
+                $_POST['type'],
+                $_POST['status'],
+                $_POST['handover_report'],
+                $_POST['handover_days'] ?: null,
+                $_POST['ketertiban_admin'],
+                $_POST['point_ach'] ?: null,
+                $_POST['point_req'] ?: null,
+                $_POST['percent_point'] ?: null,
+                $_POST['month'],
+                $_POST['quarter'],
+                $_POST['week_number'] ?: null,
+                date('Y-m-d H:i:s')
+            ]);
+            $message = 'Project created!';
+            log_activity('create_project', 'Project ID: ' . $_POST['project_id']);
         }
-        
-        $stmt->execute([
-            $_POST['project_id'],
-            $_POST['pic'],
-            $_POST['assignment'],
-            $_POST['project_info'],
-            $_POST['req_pic'],
-            $_POST['hotel_name'],
-            $_POST['project_name'],
-            $start_date,
-            $end_date,
-            $total_days,
-            $_POST['type'],
-            $_POST['status'],
-            $_POST['handover_report'],
-            $_POST['handover_days'] ?: null,
-            $_POST['ketertiban_admin'],
-            $_POST['point_ach'] ?: null,
-            $_POST['point_req'] ?: null,
-            $_POST['percent_point'] ?: null,
-            $_POST['month'],
-            $_POST['quarter'],
-            $_POST['week_number'] ?: null,
-            date('Y-m-d H:i:s')
-        ]);
-        $message = 'Project created!';
-        log_activity('create_project', 'Project ID: ' . $_POST['project_id']);
     }
 }
 

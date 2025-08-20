@@ -153,11 +153,6 @@ if ($_POST) {
                     try { $d = date_diff(date_create($start_date), date_create($end_date)); $header_total_days = $d->days + 1; } catch (Throwable $e) {}
                 }
                 
-                // Check if project exists
-                $stmt = $pdo->prepare("SELECT id FROM projects WHERE project_id = ?");
-                $stmt->execute([$project_id]);
-                $existing = $stmt->fetch();
-                
                 // Validate project_id format
                 if (empty($project_id) || strlen($project_id) > 50) {
                     throw new Exception('Project ID tidak boleh kosong dan maksimal 50 karakter.');
@@ -167,53 +162,21 @@ if ($_POST) {
                 if (!preg_match('/^[a-zA-Z0-9_-]+$/', $project_id)) {
                     throw new Exception('Project ID hanya boleh berisi huruf, angka, underscore (_), dan dash (-). Karakter khusus tidak diizinkan.');
                 }
-                
-                // Check for duplicate project_id - PERBAIKAN LOGIKA
-                if (!$existing) {
-                    // Untuk project baru, cek apakah project_id sudah ada
-                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM projects WHERE project_id = ?");
-                    $stmt->execute([$project_id]);
-                    $count = $stmt->fetchColumn();
-                    if ($count > 0) {
-                        // Get additional information about the existing project
-                        $stmt = $pdo->prepare("SELECT project_name, hotel_name_text, type, status, created_at FROM projects WHERE project_id = ? LIMIT 1");
-                        $stmt->execute([$project_id]);
-                        $project_info = $stmt->fetch(PDO::FETCH_ASSOC);
-                        
-                        $additional_info = '';
-                        if ($project_info) {
-                            $additional_info = "\n\nInformasi Project yang sudah ada:\n" .
-                                              "• Project Name: " . ($project_info['project_name'] ?: 'N/A') . "\n" .
-                                              "• Hotel: " . ($project_info['hotel_name_text'] ?: 'N/A') . "\n" .
-                                              "• Type: " . ($project_info['type'] ?: 'N/A') . "\n" .
-                                              "• Status: " . ($project_info['status'] ?: 'N/A') . "\n" .
-                                              "• Created: " . ($project_info['created_at'] ?: 'N/A');
-                        }
-                        
-                        throw new Exception('❌ Project ID "' . htmlspecialchars($project_id) . '" sudah digunakan!' . $additional_info . "\n\nSilakan gunakan Project ID yang berbeda.");
+
+                // Check if project exists
+                $stmt = $pdo->prepare("SELECT id FROM projects WHERE project_id = ?");
+                $stmt->execute([$project_id]);
+                $existing = $stmt->fetch();
+
+                if ($_POST['action'] === 'save_project' && isset($_POST['id']) && !empty($_POST['id'])) { // This is an edit
+                    $stmt = $pdo->prepare("SELECT id FROM projects WHERE project_id = ? AND id != ?");
+                    $stmt->execute([$project_id, $_POST['id']]);
+                    if ($stmt->fetch()) {
+                        throw new Exception('Project ID sudah digunakan oleh project lain.');
                     }
-                } else {
-                    // Untuk edit project, pastikan tidak ada project lain dengan project_id yang sama
-                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM projects WHERE project_id = ? AND id != ?");
-                    $stmt->execute([$project_id, $existing['id']]);
-                    $count = $stmt->fetchColumn();
-                    if ($count > 0) {
-                        // Get additional information about the conflicting project
-                        $stmt = $pdo->prepare("SELECT project_name, hotel_name_text, type, status, created_at FROM projects WHERE project_id = ? AND id != ? LIMIT 1");
-                        $stmt->execute([$project_id, $existing['id']]);
-                        $project_info = $stmt->fetch(PDO::FETCH_ASSOC);
-                        
-                        $additional_info = '';
-                        if ($project_info) {
-                            $additional_info = "\n\nInformasi Project yang konflik:\n" .
-                                              "• Project Name: " . ($project_info['project_name'] ?: 'N/A') . "\n" .
-                                              "• Hotel: " . ($project_info['hotel_name_text'] ?: 'N/A') . "\n" .
-                                              "• Type: " . ($project_info['type'] ?: 'N/A') . "\n" .
-                                              "• Status: " . ($project_info['status'] ?: 'N/A') . "\n" .
-                                              "• Created: " . ($project_info['created_at'] ?: 'N/A');
-                        }
-                        
-                        throw new Exception('❌ Project ID "' . htmlspecialchars($project_id) . '" sudah digunakan oleh project lain!' . $additional_info . "\n\nSilakan gunakan Project ID yang berbeda.");
+                } else { // This is a new project
+                    if ($existing) {
+                        throw new Exception('Project ID sudah ada.');
                     }
                 }
                 
@@ -1198,95 +1161,89 @@ try {
         
         // Enhanced real-time validation
         function initializeProjectIdValidation() {
-            // Wait a bit for modal to fully render
-            setTimeout(() => {
-                const projectIdInput = document.querySelector('input[name="project_id"]');
-                const projectForm = document.getElementById('projectForm');
+            alert('Initializing validation...');
+            const projectIdInput = document.querySelector('input[name="project_id"]');
+            const projectForm = document.getElementById('projectForm');
+            
+            if (projectIdInput && !projectIdInput.dataset.validationInitialized) {
+                alert('Project ID input found, initializing validation...');
+                projectIdInput.dataset.validationInitialized = 'true';
                 
-                if (projectIdInput && !projectIdInput.dataset.validationInitialized) {
-                    projectIdInput.dataset.validationInitialized = 'true';
+                // Real-time validation with database check
+                projectIdInput.addEventListener('input', async function() {
+                    alert('Input event triggered...');
+                    const projectId = this.value.trim();
                     
-                    // Real-time validation with database check
-                    projectIdInput.addEventListener('blur', async function() {
-                        const projectId = this.value.trim();
-                        
-                        if (!projectId) {
-                            return;
-                        }
-                        
-                        // Basic format validation
-                        const formatValidation = validateProjectId(projectId);
-                        if (!formatValidation.valid) {
-                            this.classList.add('is-invalid');
-                            const feedbackEl = this.parentNode.querySelector('.validation-feedback');
-                            if (feedbackEl) {
-                                feedbackEl.textContent = formatValidation.message;
-                                feedbackEl.classList.add('invalid-feedback');
-                            }
-                            return;
-                        }
-                        
-                        // Check uniqueness in database
-                        console.log('🔍 Starting uniqueness check for:', projectId);
-                        const uniquenessCheck = await checkProjectIdUniqueness(projectId);
-                        console.log('🔍 Uniqueness check result:', uniquenessCheck);
-                        
-                        const feedbackEl = this.parentNode.querySelector('.validation-feedback');
-                        
-                        if (uniquenessCheck.exists) {
-                            console.log('❌ Project ID already exists');
-                            this.classList.add('is-invalid');
-                            if (feedbackEl) {
-                                feedbackEl.textContent = uniquenessCheck.message;
-                                feedbackEl.classList.add('invalid-feedback');
-                                console.log('✅ Error message displayed:', uniquenessCheck.message);
-                            }
-                        } else {
-                            console.log('✅ Project ID is available');
-                            this.classList.remove('is-invalid');
-                            this.classList.add('is-valid');
-                            if (feedbackEl) {
-                                feedbackEl.textContent = '✅ Project ID tersedia dan dapat digunakan';
-                                feedbackEl.classList.remove('invalid-feedback');
-                                feedbackEl.classList.add('valid-feedback');
-                                console.log('✅ Success message displayed');
-                            }
-                        }
-                    });
-                    
-                    projectIdInput.addEventListener('input', function() {
+                    if (!projectId) {
                         this.classList.remove('is-valid', 'is-invalid');
                         const feedbackEl = this.parentNode.querySelector('.validation-feedback');
                         if (feedbackEl) {
                             feedbackEl.textContent = '';
                             feedbackEl.classList.remove('invalid-feedback', 'valid-feedback');
                         }
-                    });
-                }
-                
-                // Prevent form submission if project_id is invalid
-                if (projectForm) {
-                    projectForm.addEventListener('submit', async function(e) {
-                        const projectIdInput = this.querySelector('input[name="project_id"]');
-                        if (projectIdInput) {
-                            const projectId = projectIdInput.value.trim();
-                            
-                            // Check format first
-                            const formatValidation = validateProjectId(projectId);
-                            if (!formatValidation.valid) {
-                                e.preventDefault();
-                                projectIdInput.classList.add('is-invalid');
-                                const feedbackEl = projectIdInput.parentNode.querySelector('.validation-feedback');
-                                if (feedbackEl) {
-                                    feedbackEl.textContent = formatValidation.message;
-                                    feedbackEl.classList.add('invalid-feedback');
-                                }
-                                alert('❌ ' + formatValidation.message + '\n\nForm tidak dapat disubmit. Silakan perbaiki Project ID terlebih dahulu.');
-                                projectIdInput.focus();
-                                return false;
+                        return;
+                    }
+                    
+                    // Basic format validation
+                    const formatValidation = validateProjectId(projectId);
+                    if (!formatValidation.valid) {
+                        this.classList.add('is-invalid');
+                        const feedbackEl = this.parentNode.querySelector('.validation-feedback');
+                        if (feedbackEl) {
+                            feedbackEl.textContent = formatValidation.message;
+                            feedbackEl.classList.add('invalid-feedback');
+                        }
+                        return;
+                    }
+                    
+                    // Check uniqueness in database
+                    alert('Checking uniqueness...');
+                    const uniquenessCheck = await checkProjectIdUniqueness(projectId);
+                    alert('Uniqueness check result: ' + JSON.stringify(uniquenessCheck));
+                    
+                    const feedbackEl = this.parentNode.querySelector('.validation-feedback');
+                    
+                    if (uniquenessCheck.exists) {
+                        this.classList.add('is-invalid');
+                        if (feedbackEl) {
+                            feedbackEl.textContent = uniquenessCheck.message;
+                            feedbackEl.classList.add('invalid-feedback');
+                        }
+                    } else {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                        if (feedbackEl) {
+                            feedbackEl.textContent = '✅ Project ID tersedia dan dapat digunakan';
+                            feedbackEl.classList.remove('invalid-feedback');
+                            feedbackEl.classList.add('valid-feedback');
+                        }
+                    }
+                });
+            }
+            
+            // Prevent form submission if project_id is invalid
+            if (projectForm) {
+                projectForm.addEventListener('submit', async function(e) {
+                    const projectIdInput = this.querySelector('input[name="project_id"]');
+                    if (projectIdInput) {
+                        const projectId = projectIdInput.value.trim();
+                        
+                        // Check format first
+                        const formatValidation = validateProjectId(projectId);
+                        if (!formatValidation.valid) {
+                            e.preventDefault();
+                            projectIdInput.classList.add('is-invalid');
+                            const feedbackEl = projectIdInput.parentNode.querySelector('.validation-feedback');
+                            if (feedbackEl) {
+                                feedbackEl.textContent = formatValidation.message;
+                                feedbackEl.classList.add('invalid-feedback');
                             }
-                            
-                                                    // Check uniqueness in database for new projects only
+                            alert('❌ ' + formatValidation.message + '\n\nForm tidak dapat disubmit. Silakan perbaiki Project ID terlebih dahulu.');
+                            projectIdInput.focus();
+                            return false;
+                        }
+                        
+                        // Check uniqueness in database for new projects only
                         const projectModalTitle = document.getElementById('projectModalTitle');
                         if (projectModalTitle && projectModalTitle.textContent === 'Add Project') {
                             const uniquenessCheck = await checkProjectIdUniqueness(projectId);
@@ -1316,54 +1273,17 @@ try {
                                 return false;
                             }
                         }
-                        }
-                    });
-                }
-            }, 300); // Wait 300ms for modal to fully render
-        }
-        
-        // Initialize validation when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 DOM loaded, initializing validation...');
-            initializeProjectIdValidation();
-        });
-        
-        // Also initialize when modal is shown (for dynamic content)
-        document.addEventListener('click', function(e) {
-            if (e.target && e.target.textContent === 'Add Project') {
-                console.log('➕ Add Project button clicked, reinitializing validation...');
-                setTimeout(initializeProjectIdValidation, 300); // Increased delay
+                    }
+                });
             }
-        });
-        
-        // Additional event listener for modal show
+        }
+
+        // Initialize validation when the modal is shown
         document.addEventListener('show.bs.modal', function(e) {
             if (e.target.id === 'projectModal') {
-                console.log('🎭 Modal shown, initializing validation...');
-                setTimeout(initializeProjectIdValidation, 100);
+                alert('Modal shown, initializing validation...');
+                initializeProjectIdValidation();
             }
-        });
-        
-        // Mutation observer to detect when modal content changes
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'childList') {
-                    const projectIdInput = document.querySelector('input[name="project_id"]');
-                    if (projectIdInput && !projectIdInput.hasAttribute('data-validation-initialized')) {
-                        console.log('🔍 New Project ID input detected, initializing validation...');
-                        projectIdInput.setAttribute('data-validation-initialized', 'true');
-                        setTimeout(initializeProjectIdValidation, 100);
-                    }
-                }
-            });
-        });
-        
-        // Start observing
-        document.addEventListener('DOMContentLoaded', function() {
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
         });
         
         let __isLoadingProject = false;
@@ -1516,4 +1436,3 @@ try {
     </script>
 
 <?php include './partials/layouts/layoutBottom.php'; ?>
-
