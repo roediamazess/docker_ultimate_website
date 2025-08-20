@@ -39,7 +39,7 @@ if (isset($_POST['create'])) {
         $projectExists = $checkStmt->fetchColumn() > 0;
         
         if ($projectExists) {
-            $message = 'Project ID sudah ada di database! Silakan gunakan Project ID yang berbeda.';
+            echo "<script>document.addEventListener('DOMContentLoaded', function() { triggerActivityNotification('error', 'Project ID sudah ada di database! Silakan gunakan Project ID yang berbeda.'); });</script>";
         } else {
             $stmt = $pdo->prepare('INSERT INTO projects (project_id, pic, assignment, project_info, req_pic, hotel_name, project_name, start_date, end_date, total_days, type, status, handover_report, handover_days, ketertiban_admin, point_ach, point_req, percent_point, month, quarter, week_number, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             
@@ -234,9 +234,7 @@ try {
                     </button>
                 </div>
                 <div class="card-body">
-                    <?php if ($message): ?>
-                        <div class="alert alert-info"> <?= htmlspecialchars($message) ?> </div>
-                    <?php endif; ?>
+                                        
 
                     <!-- Create Project Form (Hidden by default) -->
                     <div id="createProjectForm" style="display:none; margin-bottom:24px; padding:20px; border:1px solid #ddd; border-radius:8px; background:#f9f9f9;">
