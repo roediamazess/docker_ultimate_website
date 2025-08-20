@@ -72,6 +72,13 @@
     <script src="assets/js/horizontal-layout.js"></script>
     
     <!-- Additional scripts can be added here -->
+    <?php
+    if (isset($_SESSION['notification'])) {
+        $notification = $_SESSION['notification'];
+        echo "<script>document.addEventListener('DOMContentLoaded', function() { triggerActivityNotification('{$notification['type']}', '{$notification['message']}'); });</script>";
+        unset($_SESSION['notification']);
+    }
+    ?>
     <?php if (isset($script)) echo $script; ?>
     
 </body>

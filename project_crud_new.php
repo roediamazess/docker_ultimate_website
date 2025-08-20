@@ -76,7 +76,7 @@ if (isset($_POST['create'])) {
                 $_POST['week_number'] ?: null,
                 date('Y-m-d H:i:s')
             ]);
-            $message = 'Project created!';
+            $script = "<script>document.addEventListener('DOMContentLoaded', function() { triggerActivityNotification('success', 'Project created successfully!'); });</script>";
             log_activity('create_project', 'Project ID: ' . $_POST['project_id']);
         }
     }
@@ -122,7 +122,7 @@ if (isset($_POST['update'])) {
             $_POST['week_number'] ?: null,
             $_POST['id']
         ]);
-        $message = 'Project updated!';
+        $script = "<script>document.addEventListener('DOMContentLoaded', function() { triggerActivityNotification('info', 'Project updated successfully!'); });</script>";
         log_activity('update_project', 'Project ID: ' . $_POST['id']);
     }
 }

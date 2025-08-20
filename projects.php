@@ -318,7 +318,7 @@ if ($_POST) {
                  }
                 
                 $pdo->commit();
-                $success_message = "Project saved successfully!";
+                $_SESSION['notification'] = ['type' => 'success', 'message' => 'Project saved successfully!'];
                 // Redirect back to last viewed list (preserve current filter/tab)
                 $returnUrl = isset($_POST['return_url']) ? (string)$_POST['return_url'] : '';
                 if ($returnUrl !== '' && strpos($returnUrl, 'projects.php') === 0) {
