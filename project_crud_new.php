@@ -39,7 +39,7 @@ if (isset($_POST['create'])) {
         $projectExists = $checkStmt->fetchColumn() > 0;
         
         if ($projectExists) {
-            echo "<script>document.addEventListener('DOMContentLoaded', function() { triggerActivityNotification('error', 'Project ID sudah ada di database! Silakan gunakan Project ID yang berbeda.'); });</script>";
+            $script = "<script>document.addEventListener('DOMContentLoaded', function() { triggerActivityNotification('error', 'Project ID sudah ada di database! Silakan gunakan Project ID yang berbeda.'); });</script>";
         } else {
             $stmt = $pdo->prepare('INSERT INTO projects (project_id, pic, assignment, project_info, req_pic, hotel_name, project_name, start_date, end_date, total_days, type, status, handover_report, handover_days, ketertiban_admin, point_ach, point_req, percent_point, month, quarter, week_number, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             

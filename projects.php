@@ -331,7 +331,7 @@ if ($_POST) {
             } catch (Exception $e) {
                 $pdo->rollBack();
                 if ($e->getMessage() === 'Project ID sudah ada.') {
-                    echo "<script>document.addEventListener('DOMContentLoaded', function() { triggerActivityNotification('error', 'Project ID sudah ada di database!'); });</script>";
+                    $script = "<script>document.addEventListener('DOMContentLoaded', function() { triggerActivityNotification('error', 'Project ID sudah ada di database!'); });</script>";
                 } else {
                     $error_message = "Error: " . $e->getMessage();
                 }
