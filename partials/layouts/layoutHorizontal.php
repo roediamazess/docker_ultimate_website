@@ -427,12 +427,17 @@ html[data-theme="dark"] .horizontal-navbar .nav-surface.is-scrolled { box-shadow
                         </ul>
                     </li>
 
+                    <?php 
+                    // Kondisi untuk menampilkan menu Users berdasarkan role
+                    if (isset($_SESSION['user_role']) && in_array($_SESSION['user_role'], ['Administrator', 'Management', 'Admin Office'])): 
+                    ?>
                     <li class="nav-item" data-debug="nav-item">
                         <a href="users.php" class="nav-link">
                             <iconify-icon icon="solar:users-group-rounded-outline" class="nav-icon"></iconify-icon>
                             <span>Users</span>
                         </a>
                     </li>
+                    <?php endif; ?>
 
                     <li class="nav-item" data-debug="nav-item">
                         <a href="customer.php" class="nav-link">

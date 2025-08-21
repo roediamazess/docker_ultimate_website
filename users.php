@@ -7,6 +7,17 @@ require_once 'user_utils.php';
 // Cek akses menggunakan utility function
 require_login();
 
+// Role-based Access Control
+$user_role = get_current_user_role();
+if (!in_array($user_role, ['Administrator', 'Management', 'Admin Office'])) {
+    $_SESSION['notification'] = ['type' => 'error', 'message' => 'Access Denied.'];
+    header('Location: index.php');
+    exit;
+}
+
+$can_create = check_access('user', 'create');
+$can_update = check_access('user', 'update');
+
 // Execute DB migration: move data from user_role -> role, then drop user_role
 try {
     $cols = [];
@@ -22,151 +33,140 @@ try {
     }
 } catch (Throwable $e) { /* ignore */ }
 
-// Migration handled by migrate_users_role.php; no inline migration here
-
-        // Handle form submissions
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_POST['create'])) {
-                // Create new user
-                $user_id = trim($_POST['user_id']);
-                $full_name = trim($_POST['full_name']);
-                $email = trim($_POST['email']);
-                $password = $_POST['password'];
-                $tier = $_POST['tier'];
-                $role = $_POST['role'];
-                $start_work = $_POST['start_work'] ?: null;
-                $new_password = $_POST['new_password'] ?? '';
-                $confirm_password = $_POST['confirm_password'] ?? '';
+// Handle form submissions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['create'])) {
+        if (!$can_create) {
+            $error_message = "You do not have permission to create users.";
+        } else {
+            // Create new user logic...
+            $user_id = trim($_POST['user_id']);
+            $full_name = trim($_POST['full_name']);
+            $email = trim($_POST['email']);
+            $password = $_POST['password'];
+            $tier = $_POST['tier'];
+            $role = $_POST['role'];
+            $start_work = $_POST['start_work'] ?: null;
+            
+            try {
+                $check_user_id_sql = "SELECT user_id FROM users WHERE user_id = :user_id";
+                $check_user_id_stmt = $pdo->prepare($check_user_id_sql);
+                $check_user_id_stmt->execute(['user_id' => $user_id]);
                 
-                try {
-                    // Check if user_id already exists (now primary key)
-                    $check_user_id_sql = "SELECT user_id FROM users WHERE user_id = :user_id";
-                    $check_user_id_stmt = $pdo->prepare($check_user_id_sql);
-                    $check_user_id_stmt->execute(['user_id' => $user_id]);
+                if ($check_user_id_stmt->fetch()) {
+                    $error_message = "User ID already exists!";
+                } else {
+                    $check_email_sql = "SELECT user_id FROM users WHERE email = :email";
+                    $check_email_stmt = $pdo->prepare($check_email_sql);
+                    $check_email_stmt->execute(['email' => $email]);
                     
-                    if ($check_user_id_stmt->fetch()) {
-                        $error_message = "User ID sudah digunakan!";
+                    if ($check_email_stmt->fetch()) {
+                        $error_message = "Email is already registered!";
                     } else {
-                        // Check if email already exists
-                        $check_email_sql = "SELECT user_id FROM users WHERE email = :email";
-                        $check_email_stmt = $pdo->prepare($check_email_sql);
-                        $check_email_stmt->execute(['email' => $email]);
+                        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                        $insert_sql = "INSERT INTO users (user_id, full_name, email, password, tier, role, start_work, created_at) VALUES (:user_id, :full_name, :email, :password, :tier, :role, :start_work, NOW())";
+                        $insert_stmt = $pdo->prepare($insert_sql);
+                        $insert_stmt->execute([
+                            'user_id' => $user_id,
+                            'full_name' => $full_name,
+                            'email' => $email,
+                            'password' => $hashed_password,
+                            'tier' => $tier,
+                            'role' => $role,
+                            'start_work' => $start_work
+                        ]);
                         
-                        if ($check_email_stmt->fetch()) {
-                            $error_message = "Email sudah terdaftar!";
-                        } else {
-                            // Hash password
-                            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                            
-                            // Insert new user (user_id is now primary key)
-                            $insert_sql = "INSERT INTO users (user_id, full_name, email, password, tier, role, start_work, created_at) VALUES (:user_id, :full_name, :email, :password, :tier, :role, :start_work, NOW())";
-                            $insert_stmt = $pdo->prepare($insert_sql);
-                            $insert_stmt->execute([
-                                'user_id' => $user_id,
-                                'full_name' => $full_name,
-                                'email' => $email,
-                                'password' => $hashed_password,
-                                'tier' => $tier,
-                                'role' => $role,
-                                'start_work' => $start_work
-                            ]);
-                            
-                            $success_message = "User berhasil dibuat!";
-                            
-                            // Redirect to refresh the page
-                            header("Location: users.php?success=created");
-                            exit;
-                        }
+                        $_SESSION['notification'] = ['type' => 'success', 'message' => 'User created successfully!'];
+                        header("Location: users.php");
+                        exit;
                     }
-                } catch (PDOException $e) {
-                    $error_message = "Error: " . $e->getMessage();
                 }
-            } elseif (isset($_POST['update'])) {
-                // Update existing user (user_id cannot be changed)
-                $user_id = $_POST['user_id']; // This is the original user_id (primary key)
-                $full_name = trim($_POST['full_name']);
-                $email = trim($_POST['email']);
-                $tier = $_POST['tier'];
-                $role = $_POST['role'];
-                $start_work = $_POST['start_work'] ?: null;
+            } catch (PDOException $e) {
+                $error_message = "Error: " . $e->getMessage();
+            }
+        }
+    } elseif (isset($_POST['update'])) {
+        if (!$can_update) {
+            $error_message = "You do not have permission to update users.";
+        } else {
+            // Update existing user logic...
+            $user_id = $_POST['user_id'];
+            $full_name = trim($_POST['full_name']);
+            $email = trim($_POST['email']);
+            $tier = $_POST['tier'];
+            $role = $_POST['role'];
+            $start_work = $_POST['start_work'] ?: null;
+            $new_password = $_POST['new_password'] ?? '';
+            $confirm_password = $_POST['confirm_password'] ?? '';
+            
+            try {
+                $curr_stmt = $pdo->prepare("SELECT email, role AS current_role FROM users WHERE user_id = :user_id");
+                $curr_stmt->execute(['user_id' => $user_id]);
+                $current = $curr_stmt->fetch(PDO::FETCH_ASSOC);
+                $current_email = trim($current['email'] ?? '');
+                $current_role = $current['current_role'] ?? null;
+
+                $emailToSave = (strcasecmp($email, $current_email) === 0) ? $current_email : $email;
+                $roleToSave = ($role === '' || $role === null) ? $current_role : $role;
                 
-                try {
-                    // Fetch current user email for comparison
-                    $curr_stmt = $pdo->prepare("SELECT email, role AS current_role FROM users WHERE user_id = :user_id");
-                    $curr_stmt->execute(['user_id' => $user_id]);
-                    $current = $curr_stmt->fetch(PDO::FETCH_ASSOC);
-                    $current_email = trim($current['email'] ?? '');
-                    $current_role = $current['current_role'] ?? null;
+                $setParts = ['full_name = :full_name', 'email = :email', 'tier = :tier', 'role = :role', 'start_work = :start_work'];
+                $params = [
+                    'full_name' => $full_name,
+                    'email' => $emailToSave,
+                    'tier' => $tier,
+                    'role' => $roleToSave,
+                    'start_work' => $start_work,
+                    'user_id' => $user_id
+                ];
 
-                    // Use current email if not changed (case-insensitive)
-                    $emailToSave = (strcasecmp($email, $current_email) === 0) ? $current_email : $email;
-
-                    // Build dynamic update: include password only when provided & confirmed
-                    $roleToSave = ($role === '' || $role === null) ? $current_role : $role;
-                    $setParts = [
-                        'full_name = :full_name',
-                        'email = :email',
-                        'tier = :tier',
-                        'role = :role',
-                        'start_work = :start_work'
-                    ];
-                    $params = [
-                        'full_name' => $full_name,
-                        'email' => $emailToSave,
-                        'tier' => $tier,
-                        'role' => $roleToSave,
-                        'start_work' => $start_work,
-                        'user_id' => $user_id
-                    ];
-
-                    $new_password = trim($new_password);
-                    $confirm_password = trim($confirm_password);
-                    if ($new_password !== '') {
-                        if ($new_password !== $confirm_password) {
-                            throw new PDOException('Konfirmasi password tidak sama');
-                        }
-                        $params['password'] = password_hash($new_password, PASSWORD_DEFAULT);
-                        $setParts[] = 'password = :password';
+                if ($new_password !== '') {
+                    if ($new_password !== $confirm_password) {
+                        throw new PDOException('Password confirmation does not match.');
                     }
+                    $params['password'] = password_hash($new_password, PASSWORD_DEFAULT);
+                    $setParts[] = 'password = :password';
+                }
 
-                    $update_sql = 'UPDATE users SET ' . implode(', ', $setParts) . ' WHERE user_id = :user_id';
-                    $update_stmt = $pdo->prepare($update_sql);
-                    $update_stmt->execute($params);
+                $update_sql = 'UPDATE users SET ' . implode(', ', $setParts) . ' WHERE user_id = :user_id';
+                $update_stmt = $pdo->prepare($update_sql);
+                $update_stmt->execute($params);
 
-                    // Safety check: if password changed, verify immediately
-                    if (isset($params['password'])) {
-                        $chk = $pdo->prepare('SELECT password FROM users WHERE user_id = :uid');
-                        $chk->execute(['uid' => $user_id]);
-                        $row = $chk->fetch(PDO::FETCH_ASSOC);
-                        $savedHash = (string)($row['password'] ?? '');
-                        if ($savedHash === '' || !password_verify($new_password, $savedHash)) {
-                            throw new PDOException('Password gagal disimpan dengan benar');
-                        }
-                    }
-
-                    $success_message = "User berhasil diupdate!";
-                    // Redirect to refresh the page
-                    header("Location: users.php?success=updated");
-                    exit;
-                } catch (PDOException $e) {
-                    $msg = $e->getMessage();
-                    if (stripos($msg, 'unique') !== false || stripos($msg, 'duplicate') !== false) {
-                        $error_message = "Email sudah terdaftar oleh user lain!";
-                    } else {
-                        $error_message = "Error: " . $e->getMessage();
-                    }
+                $_SESSION['notification'] = ['type' => 'success', 'message' => 'User updated successfully!'];
+                header("Location: users.php");
+                exit;
+            } catch (PDOException $e) {
+                $msg = $e->getMessage();
+                if (stripos($msg, 'unique') !== false || stripos($msg, 'duplicate') !== false) {
+                    $error_message = "Email is already registered by another user!";
+                } else {
+                    $error_message = "Error: " . $e->getMessage();
                 }
             }
         }
+    }
+}
 
-// Get users from database (list-style like Activities)
+// Get users from database
 $search = trim($_GET['search'] ?? '');
+$filter_role = trim($_GET['filter_role'] ?? '');
+$filter_tier = trim($_GET['filter_tier'] ?? '');
+
 $where_conditions = [];
 $params = [];
 
 if ($search) {
     $where_conditions[] = "(user_id ILIKE :search OR full_name ILIKE :search OR email ILIKE :search)";
     $params['search'] = "%$search%";
+}
+
+if ($filter_role) {
+    $where_conditions[] = "role = :role";
+    $params['role'] = $filter_role;
+}
+
+if ($filter_tier) {
+    $where_conditions[] = "tier = :tier";
+    $params['tier'] = $filter_tier;
 }
 
 $where_clause = '';
@@ -210,50 +210,54 @@ include './partials/layouts/layoutHorizontal.php'
                 </ul>
             </div>
 
-            <div class="card h-100 p-0 radius-12">
-                <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="fw-semibold">Show</span>
-                        <form method="get" class="d-inline">
-                            <select class="form-select form-select-sm w-auto" name="limit" onchange="this.form.submit()">
-                                <option value="10" <?= $limit===10?'selected':''; ?>>10</option>
-                                <option value="15" <?= $limit===15?'selected':''; ?>>15</option>
-                                <option value="20" <?= $limit===20?'selected':''; ?>>20</option>
-                            </select>
-                            <?php if ($search) echo '<input type="hidden" name="search" value="'.htmlspecialchars($search).'">'; ?>
-                        </form>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <form class="navbar-search" method="get">
-                            <input type="hidden" name="limit" value="<?= (int)$limit ?>">
-                            <input type="text" class="bg-base h-40-px w-auto" name="search" placeholder="Search users..." value="<?= htmlspecialchars($search) ?>">
-                            <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
-                        </form>
-                        <a href="#" onclick="showModal('createModal'); return false;" class="btn btn-sm btn-primary-600 d-flex align-items-center gap-2">
-                            <iconify-icon icon="solar:add-circle-outline" class="icon"></iconify-icon>
-                            Add User
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Success/Error Messages -->
-                <?php if (isset($_GET['success'])): ?>
-                    <div class="alert alert-success m-3" role="alert">
-                        <?php if ($_GET['success'] === 'created'): ?>
-                            <i class="fas fa-check-circle me-2"></i>User berhasil dibuat!
-                        <?php elseif ($_GET['success'] === 'updated'): ?>
-                            <i class="fas fa-check-circle me-2"></i>User berhasil diupdate!
-                        <?php endif; ?>
-                    </div>
-                <?php endif; ?>
-                
-                <?php if (isset($error_message)): ?>
-                    <div class="alert alert-danger m-3" role="alert">
-                        <i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($error_message) ?>
-                    </div>
-                <?php endif; ?>
-                
+            <div class="card h-100 radius-12">
                 <div class="card-body p-24">
+                    <!-- Filter Section -->
+                    <div class="filter-section">
+                        <form method="get" class="filter-form" action="users.php">
+                            <div class="filter-row">
+                                <div class="filter-group">
+                                    <label class="filter-label">Search</label>
+                                    <input type="text" name="search" class="form-control" placeholder="Search by ID, Name, Email..." value="<?= htmlspecialchars($search) ?>">
+                                </div>
+                                <div class="filter-group">
+                                    <label class="filter-label">Role</label>
+                                    <select class="form-select" name="filter_role">
+                                        <option value="">All Roles</option>
+                                        <option value="Administrator" <?= $filter_role === 'Administrator' ? 'selected' : '' ?>>Administrator</option>
+                                        <option value="Management" <?= $filter_role === 'Management' ? 'selected' : '' ?>>Management</option>
+                                        <option value="Admin Office" <?= $filter_role === 'Admin Office' ? 'selected' : '' ?>>Admin Office</option>
+                                        <option value="User" <?= $filter_role === 'User' ? 'selected' : '' ?>>User</option>
+                                        <option value="Client" <?= $filter_role === 'Client' ? 'selected' : '' ?>>Client</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label class="filter-label">Tier</label>
+                                    <select class="form-select" name="filter_tier">
+                                        <option value="">All Tiers</option>
+                                        <option value="New Born" <?= $filter_tier === 'New Born' ? 'selected' : '' ?>>New Born</option>
+                                        <option value="Tier 1" <?= $filter_tier === 'Tier 1' ? 'selected' : '' ?>>Tier 1</option>
+                                        <option value="Tier 2" <?= $filter_tier === 'Tier 2' ? 'selected' : '' ?>>Tier 2</option>
+                                        <option value="Tier 3" <?= $filter_tier === 'Tier 3' ? 'selected' : '' ?>>Tier 3</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="filter-buttons">
+                                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                                <a href="users.php" class="btn btn-secondary">Reset</a>
+                                <?php if ($can_create): ?>
+                                <button type="button" class="btn btn-success" onclick="showModal('createModal'); return false;">Add User</button>
+                                <?php endif; ?>
+                            </div>
+                        </form>
+                    </div>
+                
+                    <?php if (isset($error_message)): ?>
+                        <div class="alert alert-danger m-3" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($error_message) ?>
+                        </div>
+                    <?php endif; ?>
+                    
                     <div class="table-responsive">
                         <table class="table table-striped mb-0">
                             <thead>
@@ -283,7 +287,7 @@ include './partials/layouts/layoutHorizontal.php'
                 </div>
             </div>
 
-            <!-- Footer: info + pagination (menyerupai activity.php) -->
+            <!-- Footer: info + pagination -->
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
                 <span class="text-md text-secondary-light fw-normal">Showing <?= count($users) ?> of <?= $total_users ?> results</span>
                 <?php if ($total_pages > 1): ?>
@@ -304,6 +308,7 @@ include './partials/layouts/layoutHorizontal.php'
             </div>
 
             <!-- Create User Modal -->
+            <?php if ($can_create): ?>
             <div class="custom-modal-overlay" id="createModal">
                 <div class="custom-modal">
                     <div class="custom-modal-header">
@@ -369,8 +374,10 @@ include './partials/layouts/layoutHorizontal.php'
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
 
             <!-- Edit User Modal -->
+            <?php if ($can_update): ?>
             <div class="custom-modal-overlay" id="editModal">
                 <div class="custom-modal">
                     <div class="custom-modal-header">
@@ -384,7 +391,7 @@ include './partials/layouts/layoutHorizontal.php'
                                 <div class="custom-modal-col">
                                     <label class="custom-modal-label">User ID</label>
                                     <input type="text" name="_user_id_display" id="edit_user_id_display" class="custom-modal-input" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
-                                    <small style="color: #6b7280; font-size: 11px;">User ID tidak dapat diubah setelah pembuatan</small>
+                                    <small style="color: #6b7280; font-size: 11px;">User ID cannot be changed after creation.</small>
                                 </div>
                                 <div class="custom-modal-col">
                                     <label class="custom-modal-label">Full Name *</label>
@@ -440,12 +447,23 @@ include './partials/layouts/layoutHorizontal.php'
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
 
             <?php 
             include './partials/layouts/layoutBottom.php';
             ?>
             
             <style>
+            /* Filter Section Styles */
+            .filter-section{padding:1rem;margin-bottom:1rem;background:#f8fafc;border:1px solid #e5e7eb;border-radius:.5rem}
+            .filter-form .filter-row{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1rem}
+            .filter-form .filter-group{flex:1;min-width:150px}
+            .filter-form .filter-label{font-weight:600;font-size:12px;color:#374151;margin-bottom:6px;display:block}
+            .filter-form .filter-buttons{display:flex;gap:.5rem}
+            [data-theme="dark"] .filter-section{background:#1f2937;border-color:#374151}
+            [data-theme="dark"] .filter-label{color:#e5e7eb}
+            [data-theme="dark"] .form-control, [data-theme="dark"] .form-select{background-color:#111827;border-color:#374151;color:#e5e7eb}
+
             /* Modal styles - sama persis seperti activity.php */
             .custom-modal-overlay {
                 position: fixed;
@@ -658,7 +676,6 @@ include './partials/layouts/layoutHorizontal.php'
                 var modal = document.getElementById(modalId);
                 if (modal) {
                     modal.classList.add('show');
-                    console.log('Modal shown:', modalId);
                 }
             }
             
@@ -666,7 +683,6 @@ include './partials/layouts/layoutHorizontal.php'
                 var modal = document.getElementById(modalId);
                 if (modal) {
                     modal.classList.remove('show');
-                    console.log('Modal hidden:', modalId);
                 }
             }
             
@@ -689,45 +705,26 @@ include './partials/layouts/layoutHorizontal.php'
             
             // Initialize page
             document.addEventListener('DOMContentLoaded', function() {
-                console.log('Page loaded, initializing user interactions...');
-                
-                // Check for openEdit parameter only (for edit modal)
-                var urlParams = new URLSearchParams(window.location.search);
-                var editId = urlParams.get('openEdit');
-                if (editId) {
-                    console.log('Opening edit modal for ID:', editId);
-                    setTimeout(function() {
-                        showModal('editModal');
-                    }, 100);
-                }
-                
-                // Add click handlers to user rows
+                <?php if ($can_update): ?>
+                // Add click handlers to user rows for editing
                 var userRows = document.querySelectorAll('.user-row');
                 userRows.forEach(function(row) {
                     row.style.cursor = 'pointer';
                     row.addEventListener('click', function() {
                         var userId = row.getAttribute('data-user_id');
-                        console.log('Row clicked, User ID:', userId);
                         
                         // Populate edit form
-                        var editUserIdField = document.getElementById('edit_user_id');
-                        var editUserIdDisplay = document.getElementById('edit_user_id_display');
-                        var editFullName = document.getElementById('edit_full_name');
-                        var editEmail = document.getElementById('edit_email');
-                        var editRole = document.getElementById('edit_role');
-                        var editTier = document.getElementById('edit_tier');
-                        var editStartWork = document.getElementById('edit_start_work');
-                        
-                        if (editUserIdField) editUserIdField.value = userId;
-                        if (editUserIdDisplay) editUserIdDisplay.value = userId;
-                        if (editFullName) editFullName.value = row.getAttribute('data-full_name') || '';
-                        if (editEmail) editEmail.value = row.getAttribute('data-email') || '';
-                        if (editRole) editRole.value = row.getAttribute('data-role') || '';
-                        if (editTier) editTier.value = row.getAttribute('data-tier') || '';
-                        if (editStartWork) editStartWork.value = row.getAttribute('data-start_work') || '';
+                        document.getElementById('edit_user_id').value = userId;
+                        document.getElementById('edit_user_id_display').value = userId;
+                        document.getElementById('edit_full_name').value = row.getAttribute('data-full_name') || '';
+                        document.getElementById('edit_email').value = row.getAttribute('data-email') || '';
+                        document.getElementById('edit_role').value = row.getAttribute('data-role') || '';
+                        document.getElementById('edit_tier').value = row.getAttribute('data-tier') || '';
+                        document.getElementById('edit_start_work').value = row.getAttribute('data-start_work') || '';
                         
                         showModal('editModal');
                     });
                 });
+                <?php endif; ?>
             });
             </script>
