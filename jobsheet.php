@@ -126,7 +126,7 @@ include './partials/layouts/layoutHorizontal.php'; ?>
         <a href="#" id="menu-approve" class="block px-4 py-2 text-sm text-blue-600 dark:text-blue-200 hover:bg-gray-100 dark:hover:bg-gray-800 font-bold" data-action="approve">Approve</a>
         <a href="#" id="menu-unlock" class="block px-4 py-2 text-sm text-yellow-600 dark:text-yellow-200 hover:bg-gray-100 dark:hover:bg-gray-800 font-bold" data-action="unlock">Re-Open</a>
         <div class="border-t my-1 border-gray-200 dark:border-gray-600"></div>
-        <a href="#" id="menu-clear" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-bold" data-action="">Kosongkan</a>
+        <a href="#" id="menu-clear" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-bold" data-action="">Clear</a>
     </div>
 
     <!-- Modal untuk menambah catatan -->
@@ -937,11 +937,18 @@ include './partials/layouts/layoutHorizontal.php'; ?>
                 if (cell.dataset.approved !== 'true') {
                     const mainContentNode = Array.from(cell.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
                     if (action === '') { // Clear action
-                        if (mainContentNode) mainContentNode.nodeValue = '';
-                        cell.querySelector('.indicator')?.remove();
-                        cell.querySelector('.note-text')?.remove();
+                        // Get metadata BEFORE clearing the cell
+                        const meta = getCellMeta(cell);
+
+                        // Clear the cell content visually
+                        cell.innerHTML = ''; 
                         delete cell.dataset.note;
-                        saveOrDeleteCell(cell);
+                        
+                        // Call the function to delete from backend and local storage
+                        if (meta) {
+                            postJson('jobsheet_delete.php', { user_id: meta.user_id, pic_name: meta.pic_name, day: meta.day });
+                            deleteLocal([{ user_id: meta.user_id, pic: meta.pic_name, day: meta.day }]);
+                        }
                     } else {
                         if (mainContentNode) {
                             mainContentNode.nodeValue = action;
