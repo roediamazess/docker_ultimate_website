@@ -75,7 +75,24 @@
     <?php
     if (isset($_SESSION['notification'])) {
         $notification = $_SESSION['notification'];
-        echo "<script>document.addEventListener('DOMContentLoaded', function() { triggerActivityNotification('{$notification['type']}', '{$notification['message']}'); });</script>";
+        $type = htmlspecialchars($notification['type'], ENT_QUOTES, 'UTF-8');
+        $message = htmlspecialchars($notification['message'], ENT_QUOTES, 'UTF-8');
+        
+        // Use a more direct and robust script injection
+        echo "<script>\n            document.addEventListener('DOMContentLoaded', function() {\n                if (typeof logoNotificationManager !== 'undefined' && logoNotificationManager.isAvailable()) {\n                    switch ('$type') {\n                        case 'success':\n                            logoNotificationManager.showSuccess('$message');\n                            break;\n                        case 'error':\n                            logoNotificationManager.showError('$message');\n                            break;\n                        case 'info':\n                            logoNotificationManager.showInfo('$message');\n                            break;\n                        case 'warning':\n                            logoNotificationManager.showWarning('$message');\n                            break;\n                        // Keep old types for compatibility
+                        case 'created':
+                            logoNotificationManager.showSuccess('$message'); // Map 'created' to 'success'
+                            break;
+                        case 'updated':
+                            logoNotificationManager.showInfo('$message'); // Map 'updated' to 'info'
+                            break;
+                        default:
+                            logoNotificationManager.showInfo('$message');\n                    }\n                } else {\n                    // Fallback for critical notifications
+                    if ('$type' === 'success' || '$type' === 'error' || '$type' === 'warning') {
+                        alert('[Notification] $message');
+                    }
+                }
+            });\n        </script>";
         unset($_SESSION['notification']);
     }
     ?>

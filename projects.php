@@ -163,20 +163,21 @@ if ($_POST) {
                     throw new Exception('Project ID hanya boleh berisi huruf, angka, underscore (_), dan dash (-). Karakter khusus tidak diizinkan.');
                 }
 
-                // Check if project exists
-                $stmt = $pdo->prepare("SELECT id FROM projects WHERE project_id = ?");
-                $stmt->execute([$project_id]);
-                $existing = $stmt->fetch();
+                $is_edit = isset($_POST['id']) && !empty($_POST['id']);
 
-                if ($_POST['action'] === 'save_project' && isset($_POST['id']) && !empty($_POST['id'])) { // This is an edit
-                    $stmt = $pdo->prepare("SELECT id FROM projects WHERE project_id = ? AND id != ?");
+                if ($is_edit) {
+                    // For an existing project, check if the new project_id is already used by *another* project (case-insensitive).
+                    $stmt = $pdo->prepare("SELECT id FROM projects WHERE LOWER(project_id) = LOWER(?) AND id != ?");
                     $stmt->execute([$project_id, $_POST['id']]);
                     if ($stmt->fetch()) {
-                        throw new Exception('Project ID sudah digunakan oleh project lain.');
+                        throw new Exception('Project ID already exists for another project.');
                     }
-                } else { // This is a new project
-                    if ($existing) {
-                        throw new Exception('Project ID sudah ada.');
+                } else {
+                    // For a new project, check if the project_id is already used (case-insensitive).
+                    $stmt = $pdo->prepare("SELECT id FROM projects WHERE LOWER(project_id) = LOWER(?)");
+                    $stmt->execute([$project_id]);
+                    if ($stmt->fetch()) {
+                        throw new Exception('Project ID already exists.');
                     }
                 }
                 
@@ -189,7 +190,7 @@ if ($_POST) {
                     $hotelNameIntValue = (int)$hotel_id;
                 }
 
-                if ($existing) {
+                if ($is_edit) {
                     // Dynamic UPDATE sets hotel_name_text and/or hotel_name when present
                     $setClauses = [];
                     $params = [];
@@ -206,8 +207,8 @@ if ($_POST) {
                     $setClauses[] = 'type = ?'; $params[] = $type;
                     $setClauses[] = 'status = ?'; $params[] = $status;
                     $setClauses[] = 'project_remark = ?'; $params[] = $remark;
-                    $sql = 'UPDATE projects SET ' . implode(', ', $setClauses) . ' WHERE project_id = ?';
-                    $params[] = $project_id;
+                    $sql = 'UPDATE projects SET ' . implode(', ', $setClauses) . ' WHERE id = ?';
+                    $params[] = $_POST['id'];
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute($params);
                 } else {
@@ -318,7 +319,13 @@ if ($_POST) {
                  }
                 
                 $pdo->commit();
-                $_SESSION['notification'] = ['type' => 'success', 'message' => 'Project saved successfully!'];
+
+                if ($is_edit) {
+                    $_SESSION['notification'] = ['type' => 'success', 'message' => 'Project updated successfully!'];
+                } else {
+                    $_SESSION['notification'] = ['type' => 'success', 'message' => 'Project created successfully!'];
+                }
+                
                 // Redirect back to last viewed list (preserve current filter/tab)
                 $returnUrl = isset($_POST['return_url']) ? (string)$_POST['return_url'] : '';
                 if ($returnUrl !== '' && strpos($returnUrl, 'projects.php') === 0) {
@@ -330,10 +337,30 @@ if ($_POST) {
                 
             } catch (Exception $e) {
                 $pdo->rollBack();
-                if ($e->getMessage() === 'Project ID sudah ada.') {
-                    $script = "<script>document.addEventListener('DOMContentLoaded', function() { triggerActivityNotification('error', 'Project ID sudah ada di database!'); });</script>";
+                $exception_msg = $e->getMessage();
+                if (strpos($exception_msg, 'Project ID already exists') !== false || strpos($exception_msg, 'Project ID sudah ada') !== false) {
+                    // Display error using the logo notification system
+                    $script = "<script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            if (typeof logoNotificationManager !== 'undefined' && logoNotificationManager.isAvailable()) {
+                                logoNotificationManager.showError('Project ID already exists. Please use a different ID.');
+                            } else {
+                                // Fallback to a standard alert if the manager is not available
+                                alert('Project ID already exists. Please use a different ID.');
+                            }
+                        });
+                    </script>";
                 } else {
-                    $error_message = "Error: " . $e->getMessage();
+                    // For other errors, set a session notification and redirect
+                    $_SESSION['notification'] = ['type' => 'error', 'message' => 'Error: ' . htmlspecialchars($e->getMessage())];
+                    // Redirect back to the page to show the notification
+                    $returnUrl = isset($_POST['return_url']) ? (string)$_POST['return_url'] : '';
+                    if ($returnUrl !== '' && strpos($returnUrl, 'projects.php') === 0) {
+                        header('Location: ' . $returnUrl);
+                    } else {
+                        header('Location: projects.php');
+                    }
+                    exit;
                 }
             }
         }
@@ -536,6 +563,7 @@ try {
                 <form method="post" id="projectForm">
                     <div class="custom-modal-body">
                         <input type="hidden" name="action" value="save_project">
+                        <input type="hidden" name="id" value="">
                         <input type="hidden" name="return_url" id="project_return_url" value="">
                         <div class="row mb-3">
                             <div class="col-md-6">
@@ -1327,6 +1355,7 @@ try {
 						}
 
 						// Populate project header
+						document.querySelector('input[name="id"]').value = data.project.id;
 						document.querySelector('input[name="project_id"]').value = data.project.project_id;
                 document.querySelector('input[name="project_name"]').value = data.project.project_name || '';
 						document.querySelector('input[name="start_date"]').value = data.project.start_date || '';
