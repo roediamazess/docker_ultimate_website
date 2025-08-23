@@ -1,0 +1,198 @@
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: none;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.custom-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: 10000;
+}
+
+.custom-modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #dee2e6;
+    background: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.custom-modal-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.custom-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-modal-close:hover {
+    color: #333;
+}
+
+.custom-modal-body {
+    padding: 24px;
+}
+
+.custom-modal-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.custom-modal-col {
+    flex: 1;
+}
+
+.custom-modal-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.custom-modal-input,
+.custom-modal-select,
+.custom-modal-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+}
+
+.custom-modal-input:focus,
+.custom-modal-select:focus,
+.custom-modal-textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.custom-modal-footer {
+    padding: 20px 24px;
+    border-top: 1px solid #dee2e6;
+    background: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.custom-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.custom-btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.custom-btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.custom-btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.custom-btn-danger:hover {
+    background-color: #c82333;
+}
+
+.custom-btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.custom-btn-secondary:hover {
+    background-color: #545b62;
+}
+/* Dark mode overrides for custom Activity modals */
+[data-theme="dark"] .custom-modal {
+    background: #1f2937 !important; /* slate-800 */
+    color: #e5e7eb !important; /* zinc-200 */
+    border: 1px solid #334155 !important; /* slate-700 */
+}
+[data-theme="dark"] .custom-modal-header {
+    background: linear-gradient(135deg, #0f172a 0%, #111827 100%) !important;
+    border-bottom: 1px solid #334155 !important;
+    color: #e5e7eb !important;
+}
+[data-theme="dark"] .custom-modal-footer {
+    background: #0b1220 !important;
+    border-top: 1px solid #334155 !important;
+}
+[data-theme="dark"] .custom-modal-input,
+[data-theme="dark"] .custom-modal-select,
+[data-theme="dark"] .custom-modal-textarea {
+    background: #111827 !important;
+    border: 1px solid #374151 !important;
+    color: #e5e7eb !important;
+}
+[data-theme="dark"] .custom-modal-input::placeholder,
+[data-theme="dark"] .custom-modal-textarea::placeholder {
+    color: #9ca3af !important;
+}
+[data-theme="dark"] .custom-modal-input:focus,
+[data-theme="dark"] .custom-modal-select:focus,
+[data-theme="dark"] .custom-modal-textarea:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,.25) !important;
+    outline: none !important;
+}
+[data-theme="dark"] .custom-btn-secondary {
+    background: #374151 !important;
+    color: #e5e7eb !important;
+    border: 1px solid #4b5563 !important;
+}
+[data-theme="dark"] .custom-btn-secondary:hover {
+    background: #4b5563 !important;
+}
+/* Make field labels readable in dark mode */
+[data-theme="dark"] .custom-modal-label,
+[data-theme="dark"] .filter-label,
+[data-theme="dark"] label {
+    color: #e5e7eb !important;
+    font-weight: 600 !important;
+}

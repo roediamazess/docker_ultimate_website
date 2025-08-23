@@ -69,80 +69,17 @@ foreach ($activities as $a) {
   }
 }
 
-// HEREDOC for script to avoid escaping issues
-$script = ($script ?? '') . <<<'SCRIPT'
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  initDragAndDrop();
-  initCardEvents();
-  initModalEventListeners();
-});
-
-function initModalEventListeners() {
-  document.addEventListener('click', function(e) {
-    const editModal = document.getElementById('editActivityModal');
-    if (editModal && e.target === editModal) closeEditModal();
-  });
-
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeEditModal();
-  });
+// Generate a CSRF token if one doesn't exist
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-function initDragAndDrop() {
-  document.querySelectorAll('.kanban-card').forEach(function(card) {
-    card.addEventListener('dragstart', function(e) {
-      e.dataTransfer.setData('text/plain', this.dataset.id);
-    });
-  });
+$csrf_token = $_SESSION['csrf_token'];
 
-  document.querySelectorAll('.kanban-column').forEach(function(col) {
-    col.addEventListener('dragover', function(e) {
-      e.preventDefault();
-      this.classList.add('drag-over');
-    });
-    
-    col.addEventListener('dragleave', function() {
-      this.classList.remove('drag-over');
-    });
-    
-    col.addEventListener('drop', function(e) {
-      e.preventDefault();
-      this.classList.remove('drag-over');
-      const cardId = e.dataTransfer.getData('text/plain');
-      const newStatus = this.dataset.status;
-      updateActivityStatus(cardId, newStatus, this);
-    });
-  });
-}
-
-function initCardEvents() {
-  document.querySelectorAll('.kanban-card').forEach(function(card) {
-    card.addEventListener('dblclick', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      const cardId = this.dataset.id;
-      if (cardId) openEditModal(cardId);
-    });
-  });
-}
-
-function updateActivityStatus(cardId, newStatus, targetColumn) {
-  const cardElement = document.querySelector(`[data-id="${cardId}"]`);
-  if (cardElement) {
-    targetColumn.querySelector('.kanban-cards').prepend(cardElement);
-    if(window.logoNotificationManager) window.logoNotificationManager.showInfo(`Status updated to ${newStatus}`);
-  }
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', 'update_activity_status.php', true);
-  xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.send(JSON.stringify({id: cardId, status: newStatus}));
-}
-
-</script>
-SCRIPT;
 ?>
 <?php include './partials/layouts/layoutHorizontal.php'; ?>
+
+<link rel="stylesheet" href="assets/css/modal.css">
 
 <style>
 /* Kanban Styles */
@@ -290,5 +227,10 @@ SCRIPT;
     </div>
   </div>
 </div>
+
+<script>
+  window.csrfToken = '<?= $csrf_token ?>';
+</script>
+<script src="assets/js/activity_kanban.js"></script>
 
 <?php include './partials/layouts/layoutBottom.php'; ?>

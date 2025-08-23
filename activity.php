@@ -112,7 +112,7 @@ if (isset($_POST['update'])) {
                 if ($due < $inf) { $dueDate = $inf->format('Y-m-d'); }
             } catch (Exception $e) { }
         }
-        $stmt = $pdo->prepare('UPDATE activities SET project_id=?, no=?, information_date=?, user_position=?, department=?, application=?, type=?, description=?, action_solution=?, due_date=?, status=?, cnc_number=?, priority=?, customer=?, project=? WHERE id=?');
+        $stmt = $pdo->prepare('UPDATE activities SET project_id=?, no=?, information_date=?, user_position=?, department=?, application=?, type=?, description=?, action_solution=?, due_date=?, status=?, cnc_number=?, priority=?, customer=?, project=?, updated_by=? WHERE id=?');
         $stmt->execute([
             $_POST['project_id'] ?? null,
             $_POST['no'] ?? null,
@@ -129,6 +129,7 @@ if (isset($_POST['update'])) {
             $_POST['priority'] ?? 'Normal',
             $_POST['customer'] ?? null,
             $_POST['project'] ?? null,
+            get_current_user_id(), // Set updated_by
             $_POST['id']
         ]);
         
