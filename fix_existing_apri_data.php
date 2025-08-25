@@ -86,7 +86,7 @@ try {
         $picName = $row['pic_name'];
         
         // Check if user exists
-        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM users WHERE user_id = ?");
+        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM users WHERE id = ?");
         $stmt->execute([$picName]);
         $userExists = $stmt->fetch(PDO::FETCH_ASSOC);
         

@@ -46,7 +46,7 @@ try {
     // Get user names for details
     foreach ($details as &$detail) {
         if (!empty($detail['user_id'])) {
-            $stmt = $pdo->prepare("SELECT full_name FROM users WHERE user_id = ?");
+            $stmt = $pdo->prepare("SELECT full_name FROM users WHERE id = ?");
             $stmt->execute([$detail['user_id']]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             $detail['user_name'] = $user['full_name'] ?? '';

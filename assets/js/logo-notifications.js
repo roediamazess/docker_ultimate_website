@@ -50,12 +50,12 @@ class LogoNotificationManager {
         const style = document.createElement('style');
         style.id = 'notification-styles';
         style.textContent = `
-            .notification-capsule {
-                transform-origin: top left;
-                animation: emerge-from-logo 0.5s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
-                border-radius: 9999px;
-                backdrop-filter: blur(10px);
-            }
+                    .notification-capsule {
+            transform-origin: top left;
+            animation: emerge-from-logo 0.5s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+            border-radius: 9999px;
+            backdrop-filter: blur(10px);
+        }
             
             @keyframes emerge-from-logo {
                 from {
@@ -83,10 +83,11 @@ class LogoNotificationManager {
                 }
             }
             
-            .progress-line {
-                height: 2px;
-                animation: shrink 4.5s linear forwards;
-            }
+                    .progress-line {
+            height: 2px;
+            animation: shrink 4.5s linear forwards;
+            margin-top: 4px;
+        }
             
             @keyframes shrink {
                 from { width: 100%; }
@@ -164,11 +165,11 @@ class LogoNotificationManager {
                 break;
             case 'info':
                 progressColor = 'notify-info-progress';
-                icon = `<div class="w-8 h-8 rounded-full notify-info-circle flex-shrink-0 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 13l3 3 7-7" /><path stroke-linecap="round" stroke-linejoin="round" d="M5 11l3 3 5-5" /></svg></div>`;
+                icon = `<div class="w-6 h-6 rounded-full notify-info-circle flex-shrink-0 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 13l3 3 7-7" /><path stroke-linecap="round" stroke-linejoin="round" d="M5 11l3 3 5-5" /></svg></div>`;
                 break;
             case 'warning':
                 progressColor = 'bg-orange-400';
-                icon = `<div class="w-8 h-8 rounded-full bg-orange-500 flex-shrink-0 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg></div>`;
+                icon = `<div class="w-6 h-6 rounded-full bg-orange-500 flex-shrink-0 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg></div>`;
                 break;
             default: // success
                 progressColor = 'bg-green-400';
@@ -179,8 +180,8 @@ class LogoNotificationManager {
         notification.innerHTML = `
             ${icon}
             <div class="flex flex-col px-3 flex-grow">
-                <p class="text-sm font-medium leading-tight">${message}</p>
-                <div class="progress-line ${progressColor} mt-1 rounded-full"></div>
+                <p class="text-sm font-medium leading-tight mb-1">${message}</p>
+                <div class="progress-line ${progressColor} rounded-full"></div>
             </div>
         `;
 

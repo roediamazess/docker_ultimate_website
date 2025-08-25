@@ -483,17 +483,21 @@ html[data-theme="dark"] .horizontal-navbar .nav-surface.is-scrolled { box-shadow
                     <button class="user-button" type="button" data-debug="user-button" data-bs-toggle="none">
                         <div class="user-avatar">
                             <?php
-                            // Get user profile photo
+                            // Get user profile photo (with safe fallback)
                             $user_id = $_SESSION['user_id'] ?? null;
                             $profile_photo = null;
                             if ($user_id) {
-                                $stmt = $pdo->prepare("SELECT profile_photo FROM users WHERE user_id = ?");
-                                $stmt->execute([$user_id]);
-                                $user_data = $stmt->fetch();
-                                $profile_photo = $user_data['profile_photo'] ?? null;
+                                try {
+                                    $stmt = $pdo->prepare("SELECT profile_photo FROM users WHERE id = ?");
+                                    $stmt->execute([$user_id]);
+                                    $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+                                    $profile_photo = $user_data['profile_photo'] ?? null;
+                                } catch (Throwable $e) {
+                                    $profile_photo = null;
+                                }
                             }
                             ?>
-                            <?php if ($profile_photo && file_exists($profile_photo)): ?>
+                            <?php if ($profile_photo && is_string($profile_photo) && file_exists($profile_photo)): ?>
                                                      <img src="<?= htmlspecialchars($profile_photo) ?>"
                           alt="Profile Photo"
                           class="avatar-image"

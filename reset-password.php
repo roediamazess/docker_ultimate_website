@@ -48,7 +48,7 @@ if (isset($_POST['reset_password']) && $user) {
     } else {
         // Hash password dan clear token
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                        $clear_sql = "UPDATE users SET password = ?, reset_token = NULL, reset_expires = NULL WHERE user_id = ?";
+                        $clear_sql = "UPDATE users SET password = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?";
         $clear_stmt = $pdo->prepare($clear_sql);
         
         if ($clear_stmt->execute([$hashed_password, $user['id']])) {

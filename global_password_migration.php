@@ -19,13 +19,13 @@ try {
             if ($pwd === '' || $pwd === null) {
                 // kosong -> set default hashed
                 $hash = password_hash($default, PASSWORD_DEFAULT);
-                $up = $pdo->prepare('UPDATE users SET password = :pwd WHERE user_id = :uid');
+                $up = $pdo->prepare('UPDATE users SET password = :pwd WHERE id = :uid');
                 $up->execute(['pwd' => $hash, 'uid' => $uid]);
                 $fixed++; $setDefault++;
             } elseif (strpos($pwd, '$') !== 0) {
                 // plaintext -> hash-kan in-place ke hash yang sama nilainya
                 $hash = password_hash($pwd, PASSWORD_DEFAULT);
-                $up = $pdo->prepare('UPDATE users SET password = :pwd WHERE user_id = :uid');
+                $up = $pdo->prepare('UPDATE users SET password = :pwd WHERE id = :uid');
                 $up->execute(['pwd' => $hash, 'uid' => $uid]);
                 $fixed++; $hashedPlain++;
             }

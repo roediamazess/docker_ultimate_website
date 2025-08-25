@@ -35,17 +35,12 @@ try {
         $stmt->execute([$user['email']]);
         
         if ($stmt->fetchColumn() == 0) {
-            $sql = "INSERT INTO users (display_name, full_name, email, password, tier, role, start_work) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO users (email, password) 
+                    VALUES (?, ?)";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
-                $user['display_name'],
-                $user['full_name'],
                 $user['email'],
-                $user['password'],
-                $user['tier'],
-                $user['role'],
-                $user['start_work']
+                $user['password']
             ]);
             echo "User {$user['email']} berhasil ditambahkan!\n";
         } else {

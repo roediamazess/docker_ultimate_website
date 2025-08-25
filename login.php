@@ -46,8 +46,8 @@ if (isset($_POST['login'])) {
 						// Upgrade to hashed password transparently
 						try {
 							$newHash = password_hash($password, PASSWORD_DEFAULT);
-							$up = $pdo->prepare("UPDATE users SET password = :pwd WHERE user_id = :uid");
-							$up->execute(['pwd' => $newHash, 'uid' => $user['user_id']]);
+							$up = $pdo->prepare("UPDATE users SET password = :pwd WHERE id = :uid");
+							$up->execute(['pwd' => $newHash, 'uid' => $user['id']]);
 							$user['password'] = $newHash;
 						} catch (Throwable $e) { /* ignore upgrade errors */ }
 					}
@@ -57,10 +57,10 @@ if (isset($_POST['login'])) {
 			if ($user && $isValid) {
 				// Login sukses (keamanan dan session tetap berjalan seperti biasa)
 				session_regenerate_id(true);
-				$_SESSION['user_id'] = $user['user_id'];
+				$_SESSION['user_id'] = $user['id'];
 				$_SESSION['user_email'] = $user['email'];
 				$_SESSION['user_role'] = $user['role'];
-				$_SESSION['user_display_name'] = $user['user_id'];
+				$_SESSION['user_display_name'] = $user['display_name'];
 				$_SESSION['login_time'] = time();
 				
 				// Clear login attempts

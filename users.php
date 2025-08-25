@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error_message = "You do not have permission to create users.";
         } else {
             // Create new user logic...
-            $user_id = trim($_POST['user_id']);
+            $display_name = trim($_POST['display_name'] ?? '');
             $full_name = trim($_POST['full_name']);
             $email = trim($_POST['email']);
             $password = $_POST['password'];
@@ -49,25 +49,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $start_work = $_POST['start_work'] ?: null;
             
             try {
-                $check_user_id_sql = "SELECT user_id FROM users WHERE user_id = :user_id";
-                $check_user_id_stmt = $pdo->prepare($check_user_id_sql);
-                $check_user_id_stmt->execute(['user_id' => $user_id]);
+                // Check if display_name already exists
+                $check_display_name_sql = "SELECT id FROM users WHERE display_name = :display_name";
+                $check_display_name_stmt = $pdo->prepare($check_display_name_sql);
+                $check_display_name_stmt->execute(['display_name' => $display_name]);
                 
-                if ($check_user_id_stmt->fetch()) {
-                    $error_message = "User ID already exists!";
+                if ($check_display_name_stmt->fetch()) {
+                    $error_message = "Display name is already taken! Please choose a different one.";
                 } else {
-                    $check_email_sql = "SELECT user_id FROM users WHERE email = :email";
+                    // Check if email already exists
+                    $check_email_sql = "SELECT id FROM users WHERE email = :email";
                     $check_email_stmt = $pdo->prepare($check_email_sql);
                     $check_email_stmt->execute(['email' => $email]);
                     
                     if ($check_email_stmt->fetch()) {
                         $error_message = "Email is already registered!";
                     } else {
+                        // Set default values if not provided
+                        $tier = $tier ?: 'New Born';
+                        $role = $role ?: 'User';
+                        
                         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                        $insert_sql = "INSERT INTO users (user_id, full_name, email, password, tier, role, start_work, created_at) VALUES (:user_id, :full_name, :email, :password, :tier, :role, :start_work, NOW())";
+                        $insert_sql = "INSERT INTO users (display_name, full_name, email, password, tier, role, start_work, created_at) VALUES (:display_name, :full_name, :email, :password, :tier, :role, :start_work, NOW())";
                         $insert_stmt = $pdo->prepare($insert_sql);
                         $insert_stmt->execute([
-                            'user_id' => $user_id,
+                            'display_name' => $display_name,
                             'full_name' => $full_name,
                             'email' => $email,
                             'password' => $hashed_password,
@@ -89,31 +95,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$can_update) {
             $error_message = "You do not have permission to update users.";
         } else {
-            // Update existing user logic...
-            $user_id = $_POST['user_id'];
-            $full_name = trim($_POST['full_name']);
-            $email = trim($_POST['email']);
-            $tier = $_POST['tier'];
-            $role = $_POST['role'];
-            $start_work = $_POST['start_work'] ?: null;
+                         // Update existing user logic...
+             $user_id = $_POST['user_id'];
+             $display_name = trim($_POST['display_name'] ?? '');
+             $full_name = trim($_POST['full_name']);
+             $tier = $_POST['tier'];
+             $role = $_POST['role'];
+             $start_work = $_POST['start_work'] ?: null;
             $new_password = $_POST['new_password'] ?? '';
             $confirm_password = $_POST['confirm_password'] ?? '';
             
             try {
-                $curr_stmt = $pdo->prepare("SELECT email, role AS current_role FROM users WHERE user_id = :user_id");
+                $curr_stmt = $pdo->prepare("SELECT role AS current_role, tier FROM users WHERE id = :user_id");
                 $curr_stmt->execute(['user_id' => $user_id]);
                 $current = $curr_stmt->fetch(PDO::FETCH_ASSOC);
-                $current_email = trim($current['email'] ?? '');
                 $current_role = $current['current_role'] ?? null;
 
-                $emailToSave = (strcasecmp($email, $current_email) === 0) ? $current_email : $email;
+                $tierToSave = ($tier === '' || $tier === null) ? $current['tier'] : $tier;
                 $roleToSave = ($role === '' || $role === null) ? $current_role : $role;
                 
-                $setParts = ['full_name = :full_name', 'email = :email', 'tier = :tier', 'role = :role', 'start_work = :start_work'];
+                $setParts = ['full_name = :full_name', 'tier = :tier', 'role = :role', 'start_work = :start_work'];
                 $params = [
                     'full_name' => $full_name,
-                    'email' => $emailToSave,
-                    'tier' => $tier,
+                    'tier' => $tierToSave,
                     'role' => $roleToSave,
                     'start_work' => $start_work,
                     'user_id' => $user_id
@@ -127,21 +131,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $setParts[] = 'password = :password';
                 }
 
-                $update_sql = 'UPDATE users SET ' . implode(', ', $setParts) . ' WHERE user_id = :user_id';
+                $update_sql = 'UPDATE users SET ' . implode(', ', $setParts) . ' WHERE id = :user_id';
                 $update_stmt = $pdo->prepare($update_sql);
                 $update_stmt->execute($params);
 
                 $_SESSION['notification'] = ['type' => 'success', 'message' => 'User updated successfully!'];
                 header("Location: users.php");
                 exit;
-            } catch (PDOException $e) {
-                $msg = $e->getMessage();
-                if (stripos($msg, 'unique') !== false || stripos($msg, 'duplicate') !== false) {
-                    $error_message = "Email is already registered by another user!";
-                } else {
-                    $error_message = "Error: " . $e->getMessage();
-                }
-            }
+                         } catch (PDOException $e) {
+                 $error_message = "Error: " . $e->getMessage();
+             }
         }
     }
 }
@@ -155,7 +154,7 @@ $where_conditions = [];
 $params = [];
 
 if ($search) {
-    $where_conditions[] = "(user_id ILIKE :search OR full_name ILIKE :search OR email ILIKE :search)";
+    $where_conditions[] = "(id::text ILIKE :search OR display_name ILIKE :search OR full_name ILIKE :search OR email ILIKE :search)";
     $params['search'] = "%$search%";
 }
 
@@ -187,7 +186,7 @@ $total_users = $count_stmt->fetchColumn();
 $total_pages = ceil($total_users / $limit);
 
 // Get users with pagination
-$sql = "SELECT * FROM users $where_clause ORDER BY created_at DESC LIMIT $limit OFFSET $offset";
+$sql = "SELECT id, display_name, full_name, email, tier, role, start_work, created_at FROM users $where_clause ORDER BY id DESC LIMIT $limit OFFSET $offset";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -218,7 +217,7 @@ include './partials/layouts/layoutHorizontal.php'
                             <div class="filter-row">
                                 <div class="filter-group">
                                     <label class="filter-label">Search</label>
-                                    <input type="text" name="search" class="form-control" placeholder="Search by ID, Name, Email..." value="<?= htmlspecialchars($search) ?>">
+                                    <input type="text" name="search" class="form-control" placeholder="Search by ID, Display Name, Full Name, Email..." value="<?= htmlspecialchars($search) ?>">
                                 </div>
                                 <div class="filter-group">
                                     <label class="filter-label">Role</label>
@@ -262,9 +261,10 @@ include './partials/layouts/layoutHorizontal.php'
                         <table class="table table-striped mb-0">
                             <thead>
                                 <tr>
-                                    <th scope="col" style="width: 25%;"><div class="table-header">User ID</div></th>
-                                    <th scope="col" style="width: 25%;"><div class="table-header">Full Name</div></th>
-                                    <th scope="col" style="width: 25%;"><div class="table-header">Email</div></th>
+                                    <th scope="col" style="width: 15%;"><div class="table-header">User ID</div></th>
+                                    <th scope="col" style="width: 20%;"><div class="table-header">Display Name</div></th>
+                                    <th scope="col" style="width: 20%;"><div class="table-header">Full Name</div></th>
+                                    <th scope="col" style="width: 20%;"><div class="table-header">Email</div></th>
                                     <th scope="col" style="width: 10%;"><div class="table-header">Tier</div></th>
                                     <th scope="col" style="width: 10%;"><div class="table-header">Role</div></th>
                                     <th scope="col" style="width: 15%;"><div class="table-header">Start Work</div></th>
@@ -272,10 +272,11 @@ include './partials/layouts/layoutHorizontal.php'
                             </thead>
                             <tbody>
                                 <?php foreach ($users as $u): ?>
-                                <tr class="user-row" data-id="<?= $u['user_id'] ?>" data-user_id="<?= htmlspecialchars($u['user_id'] ?? '') ?>" data-full_name="<?= htmlspecialchars($u['full_name'] ?? '') ?>" data-email="<?= htmlspecialchars($u['email'] ?? '') ?>" data-role="<?= htmlspecialchars($u['role'] ?? '') ?>" data-tier="<?= htmlspecialchars($u['tier'] ?? '') ?>" data-start_work="<?= htmlspecialchars($u['start_work'] ?? '') ?>">
-                                    <td style="width: 25%;"><?= htmlspecialchars($u['user_id'] ?: '-') ?></td>
-                                    <td style="width: 25%;"><?= htmlspecialchars($u['full_name'] ?: '-') ?></td>
-                                    <td style="width: 25%;"><?= htmlspecialchars($u['email'] ?: '-') ?></td>
+                                <tr class="user-row" data-id="<?= $u['id'] ?>" data-user_id="<?= htmlspecialchars($u['id'] ?? '') ?>" data-display_name="<?= htmlspecialchars($u['display_name'] ?? '') ?>" data-full_name="<?= htmlspecialchars($u['full_name'] ?? $u['name'] ?? '') ?>" data-email="<?= htmlspecialchars($u['email'] ?? '') ?>" data-role="<?= htmlspecialchars($u['role'] ?? '') ?>" data-tier="<?= htmlspecialchars($u['tier'] ?? '') ?>" data-start_work="<?= htmlspecialchars($u['start_work'] ?? '') ?>">
+                                    <td style="width: 15%;"><?= htmlspecialchars($u['id'] ?: '-') ?></td>
+                                    <td style="width: 20%;"><?= htmlspecialchars($u['display_name'] ?: '-') ?></td>
+                                    <td style="width: 20%;"><?= htmlspecialchars($u['full_name'] ?: $u['name'] ?: '-') ?></td>
+                                    <td style="width: 20%;"><?= htmlspecialchars($u['email'] ?: '-') ?></td>
                                     <td style="width: 10%;"><span class="priority-badge bg-neutral-200 text-neutral-600 px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($u['tier'] ?: '-') ?></span></td>
                                     <td style="width: 10%;"><span class="type-badge bg-info-focus text-info-main px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($u['role'] ?: '-') ?></span></td>
                                     <td style="width: 15%;"><?= $u['start_work'] ? date('d M Y', strtotime($u['start_work'])) : '-' ?></td>
@@ -319,8 +320,9 @@ include './partials/layouts/layoutHorizontal.php'
                         <form id="createUserForm" action="users.php" method="post">
                             <div class="custom-modal-row">
                                 <div class="custom-modal-col">
-                                    <label class="custom-modal-label">User ID *</label>
-                                    <input type="text" name="user_id" class="custom-modal-input" required>
+                                    <label class="custom-modal-label">Display Name *</label>
+                                    <input type="text" name="display_name" class="custom-modal-input" placeholder="Unique display name" required>
+                                    <small style="color: #6b7280; font-size: 11px;">Display name and email must be unique and cannot be changed later</small>
                                 </div>
                                 <div class="custom-modal-col">
                                     <label class="custom-modal-label">Full Name *</label>
@@ -331,6 +333,7 @@ include './partials/layouts/layoutHorizontal.php'
                                 <div class="custom-modal-col">
                                     <label class="custom-modal-label">Email *</label>
                                     <input type="email" name="email" class="custom-modal-input" required>
+                                    <small style="color: #6b7280; font-size: 11px;">Email cannot be changed after creation</small>
                                 </div>
                                 <div class="custom-modal-col">
                                     <label class="custom-modal-label">Password *</label>
@@ -341,8 +344,7 @@ include './partials/layouts/layoutHorizontal.php'
                                 <div class="custom-modal-col">
                                     <label class="custom-modal-label">Tier *</label>
                                     <select name="tier" class="custom-modal-select" required>
-                                        <option value="">Select Tier</option>
-                                        <option value="New Born">New Born</option>
+                                        <option value="New Born" selected>New Born</option>
                                         <option value="Tier 1">Tier 1</option>
                                         <option value="Tier 2">Tier 2</option>
                                         <option value="Tier 3">Tier 3</option>
@@ -351,11 +353,10 @@ include './partials/layouts/layoutHorizontal.php'
                                 <div class="custom-modal-col">
                                     <label class="custom-modal-label">Role *</label>
                                     <select name="role" class="custom-modal-select" required>
-                                        <option value="">Select Role</option>
+                                        <option value="User" selected>User</option>
                                         <option value="Administrator">Administrator</option>
                                         <option value="Management">Management</option>
                                         <option value="Admin Office">Admin Office</option>
-                                        <option value="User">User</option>
                                         <option value="Client">Client</option>
                                     </select>
                                 </div>
@@ -394,15 +395,23 @@ include './partials/layouts/layoutHorizontal.php'
                                     <small style="color: #6b7280; font-size: 11px;">User ID cannot be changed after creation.</small>
                                 </div>
                                 <div class="custom-modal-col">
-                                    <label class="custom-modal-label">Full Name *</label>
-                                    <input type="text" name="full_name" id="edit_full_name" class="custom-modal-input" required>
+                                    <label class="custom-modal-label">Display Name</label>
+                                    <input type="text" name="display_name" id="edit_display_name" class="custom-modal-input" placeholder="Display name" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
+                                    <small style="color: #6b7280; font-size: 11px;">Display name cannot be changed after creation</small>
                                 </div>
                             </div>
                             <div class="custom-modal-row">
                                 <div class="custom-modal-col">
-                                    <label class="custom-modal-label">Email *</label>
-                                    <input type="email" name="email" id="edit_email" class="custom-modal-input" required>
+                                    <label class="custom-modal-label">Full Name *</label>
+                                    <input type="text" name="full_name" id="edit_full_name" class="custom-modal-input" required>
                                 </div>
+                                <div class="custom-modal-col">
+                                    <label class="custom-modal-label">Email *</label>
+                                    <input type="email" name="email" id="edit_email" class="custom-modal-input" required readonly style="background-color: #f3f4f6; cursor: not-allowed;">
+                                    <small style="color: #6b7280; font-size: 11px;">Email cannot be changed after creation</small>
+                                </div>
+                            </div>
+                            <div class="custom-modal-row">
                                 <div class="custom-modal-col">
                                     <label class="custom-modal-label">Start Work</label>
                                     <input type="date" name="start_work" id="edit_start_work" class="custom-modal-input">
@@ -421,10 +430,10 @@ include './partials/layouts/layoutHorizontal.php'
                                 <div class="custom-modal-col">
                                     <label class="custom-modal-label">Role</label>
                                     <select name="role" id="edit_role" class="custom-modal-select">
+                                        <option value="User">User</option>
                                         <option value="Administrator">Administrator</option>
                                         <option value="Management">Management</option>
                                         <option value="Admin Office">Admin Office</option>
-                                        <option value="User">User</option>
                                         <option value="Client">Client</option>
                                     </select>
                                 </div>
@@ -473,6 +482,10 @@ include './partials/layouts/layoutHorizontal.php'
                 align-items: center;
                 justify-content: center;
                 z-index: 1050;
+            }
+            
+            .custom-modal-overlay.show {
+                display: flex;
             }
             
             .custom-modal {
@@ -716,6 +729,7 @@ include './partials/layouts/layoutHorizontal.php'
                         // Populate edit form
                         document.getElementById('edit_user_id').value = userId;
                         document.getElementById('edit_user_id_display').value = userId;
+                        document.getElementById('edit_display_name').value = row.getAttribute('data-display_name') || '';
                         document.getElementById('edit_full_name').value = row.getAttribute('data-full_name') || '';
                         document.getElementById('edit_email').value = row.getAttribute('data-email') || '';
                         document.getElementById('edit_role').value = row.getAttribute('data-role') || '';

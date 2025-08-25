@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Upgrade hash transparently
                 try {
                     $newHash = password_hash($password, PASSWORD_DEFAULT);
-                    $pdo->prepare('UPDATE users SET password = :pwd WHERE user_id = :uid')->execute(['pwd' => $newHash, 'uid' => $user['user_id']]);
+                    $pdo->prepare('UPDATE users SET password = :pwd WHERE id = :uid')->execute(['pwd' => $newHash, 'uid' => $user['user_id']]);
                     $user['password'] = $newHash;
                 } catch (Throwable $e) { /* ignore */ }
             }

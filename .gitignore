@@ -1,0 +1,104 @@
+# Ultimate Website - Git Ignore File
+
+# Environment and Configuration Files
+.env
+config.php
+db_config.php
+*.config.php
+
+# Database Files
+*.sql
+*.db
+*.sqlite
+
+# Upload Directories (User Content)
+uploads/profile_photos/*
+!uploads/profile_photos/.gitkeep
+
+# Log Files
+*.log
+logs/
+error_log
+access_log
+
+# Cache and Temporary Files
+cache/
+tmp/
+temp/
+*.tmp
+*.temp
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup Files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Test Files
+test_*.php
+*_test.php
+debug_*.php
+
+# Composer (if using)
+vendor/
+composer.lock
+
+# Node Modules (if using)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build Files
+dist/
+build/
+*.min.js
+*.min.css
+
+# Security Files
+.htaccess
+.htpasswd
+*.key
+*.pem
+*.crt
+
+# User Uploads (Keep structure but ignore content)
+uploads/*
+!uploads/.gitkeep
+!uploads/profile_photos/.gitkeep
+
+# Session Files
+sessions/
+*.sess
+
+# Error Reports
+error_report.php
+debug_info.php
+
+# Database Dumps
+database_backup/
+*.dump
+*.backup
+
+# Configuration Overrides
+local_config.php
+production_config.php
+development_config.php

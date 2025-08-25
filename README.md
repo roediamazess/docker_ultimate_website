@@ -1,236 +1,185 @@
-# Ultimate Website - Modern Login System
+# Ultimate Website - Complete Profile Management System
 
-## 🚀 **Overview**
-Ultimate Website adalah sistem web modern dengan login system yang canggih, menampilkan background landscape dinamis berdasarkan waktu, dan interface yang user-friendly.
+A modern, feature-rich web application built with PHP, PostgreSQL, and Bootstrap 5, featuring advanced user profile management, role-based access control, and a sophisticated notification system.
 
-## ✨ **Features**
+## 🚀 Features
 
-### 🎨 **Dynamic Background System**
-- **Time-based Landscapes**: Background berubah otomatis berdasarkan waktu
-- **Real Landscape Photos**: Menggunakan foto landscape berkualitas tinggi dari Unsplash
-- **Smooth Transitions**: Animasi CSS yang halus untuk pergantian background
+### ✨ User Profile Management
+- **Profile Photo Upload**: Support for JPG, PNG, GIF with automatic compression
+- **Default Avatar Selection**: 10 pre-uploaded professional avatars
+- **Photo Management**: Upload, select default, and remove profile photos
+- **Profile Information**: Display name, full name, email, tier, and role management
+- **Editable Fields**: Start work date and password changes
+- **Read-only Fields**: Admin-only fields (display name, full name, email, tier, role)
 
-### 🔐 **Authentication System**
-- **Secure Login**: Sistem login yang aman dengan password hashing
-- **Session Management**: Manajemen session yang proper
-- **Multiple User Roles**: Administrator, Management, User, Client
-- **Activity Logging**: Pencatatan aktivitas user untuk keamanan
+### 🔔 Advanced Notification System
+- **Logo Notification Manager**: Notifications emerge from logo area with smooth animations
+- **Modern Styling**: Pill-shaped capsules with glassmorphism effects
+- **Progress Bar Animation**: Auto-dismiss with visual progress indicators
+- **Theme Support**: Complete light/dark mode compatibility
+- **Consistent Spacing**: Ideal 8px spacing between text and progress bars
+- **Balanced Icons**: 32px for success/error, 24px for info/warning notifications
 
-### 📱 **Responsive Design**
-- **Mobile First**: Optimized untuk perangkat mobile
-- **Cross-browser**: Kompatibel dengan semua browser modern
-- **Glassmorphism UI**: Interface modern dengan efek transparan
+### 🗄️ Database & Security
+- **Unique Constraints**: display_name and email are unique keys
+- **Required Fields**: tier and role have default values and are mandatory
+- **Immutable Fields**: Critical user information protected from unauthorized changes
+- **Data Validation**: Proper ENUM types for tier and role
+- **Password Security**: bcrypt encryption with secure validation
+- **CSRF Protection**: Token-based form validation
+- **File Upload Security**: MIME type validation and size limits
 
-## 🛠 **Installation**
+### 👥 User Management System
+- **User Creation**: Add new users with comprehensive validation
+- **User Editing**: Update user information with role-based restrictions
+- **Role-based Access**: Administrator, Management, Admin Office, User, Client
+- **Tier System**: New Born, Tier 1, Tier 2, Tier 3 progression
 
-### **Requirements**
-- XAMPP/WAMP dengan PHP 8.x
-- PostgreSQL 12+
-- Web browser dengan JavaScript enabled
+## 🛠️ Technology Stack
 
-### **Setup Steps**
+- **Backend**: PHP 7.4+ with PDO
+- **Database**: PostgreSQL with ENUM support
+- **Frontend**: Bootstrap 5, Custom CSS, Vanilla JavaScript
+- **Image Processing**: GD extension with fallback support
+- **Security**: bcrypt, CSRF tokens, input sanitization
+- **Environment**: XAMPP/WAMP compatible
+
+## 📁 Project Structure
+
+```
+ultimate_website/
+├── assets/
+│   ├── js/
+│   │   └── logo-notifications.js     # Advanced notification system
+│   └── images/
+│       └── default_avatars/          # 10 default avatar images
+├── partials/
+│   ├── layouts/
+│   │   ├── layoutHorizontal.php      # Main navigation layout
+│   │   └── layoutBottom.php          # Footer layout
+│   └── head.php                      # Common head elements
+├── uploads/
+│   └── profile_photos/               # User photo storage
+├── view-profile.php                  # Complete profile management
+├── users.php                         # User management system
+├── index.php                         # Dashboard
+├── db.php                           # Database connection
+├── access_control.php               # Security & permissions
+├── user_utils.php                   # User utility functions
+└── database_schema_postgres.sql     # Database schema
+```
+
+## 🚀 Installation
+
+### Prerequisites
+- PHP 7.4+ with GD extension
+- PostgreSQL database
+- XAMPP/WAMP environment
+- Modern web browser
+
+### Setup Steps
 1. **Clone Repository**
    ```bash
-   git clone [your-repository-url]
-   cd ultimate-website
+   git clone https://github.com/roediamazess/ultimate_website.git
+   cd ultimate_website
    ```
 
 2. **Database Setup**
-   - Import `database_schema.sql` ke PostgreSQL
-   - Update `db.php` dengan kredensial database Anda
+   ```bash
+   # Import database schema
+   psql -U your_username -d your_database -f database_schema_postgres.sql
+   ```
 
-3. **Web Server**
-   - Letakkan folder di `htdocs` (XAMPP) atau `www` (WAMP)
-   - Akses via `http://localhost/ultimate-website`
+3. **Configuration**
+   - Update database connection in `db.php`
+   - Set proper permissions for `uploads/` directory
+   - Upload default avatar images to `assets/images/default_avatars/`
 
-## 📁 **File Structure**
-```
-ultimate-website/
-├── login.php                 # Main login page (WORKING)
-├── login_simple.php          # Redirect 302 ke login.php (kompatibilitas URL lama)
-├── test_simple_login.php     # Testing interface
-├── logout.php               # Logout handler
-├── index.php                # Dashboard utama
-├── assets/
-│   ├── css/
-│   │   ├── login-backgrounds.css
-│   │   ├── style.css
-│   │   └── main.css
-│   ├── js/
-│   │   └── app.js
-│   └── images/
-├── partials/
-│   ├── head.php
-│   ├── sidebar.php
-│   ├── navbar.php
-│   └── footer.php
-├── user_utils.php           # User management utilities
-├── db.php                   # Database connection
-├── VERSION_HISTORY.md       # Version history
-└── README.md               # This file
-```
+4. **Web Server**
+   - Place files in your web server directory
+   - Ensure PHP GD extension is enabled
+   - Configure proper file permissions
 
-## 🎯 **Usage**
+## 🎨 Features in Detail
 
-### **Login System**
-1. **Main Login**: `http://localhost/ultimate-website/login.php`
-2. **Test Login**: `http://localhost/ultimate-website/test_simple_login.php`
-3. **Dashboard**: `http://localhost/ultimate-website/index.php`
+### Profile Photo Management
+- **Upload Support**: JPG, PNG, GIF formats
+- **Auto-compression**: 80% quality with 400x400 max dimensions
+- **File Validation**: MIME type and size verification
+- **Storage Management**: Automatic cleanup of old photos
 
-### **Default Accounts**
-```
-Administrator:
-- Email: admin@example.com
-- Password: admin123
+### Notification System
+- **Emergence Animation**: Smooth appear-from-logo effect
+- **Progress Indicators**: Visual countdown to auto-dismiss
+- **Theme Integration**: Seamless light/dark mode support
+- **Responsive Design**: Optimized for all screen sizes
 
-User:
-- Email: user@test.com
-- Password: user123
-```
+### User Interface
+- **Modern Design**: Clean, professional appearance
+- **Responsive Layout**: Mobile-first design approach
+- **Dark Theme**: Complete dark mode support
+- **Accessibility**: ARIA labels and keyboard navigation
 
-### **Background Times**
-- **Morning (03:00-09:59)**: Early morning sunrise landscape
-- **Afternoon (10:00-14:59)**: Bright day forest landscape
-- **Evening (15:00-17:59)**: Sunset landscape
-- **Night (18:00-02:59)**: Night sky with stars
+## 🔒 Security Features
 
-## 🔧 **Configuration**
+- **Password Hashing**: bcrypt with cost factor 12
+- **Session Management**: Secure login/logout handling
+- **Input Validation**: Comprehensive sanitization
+- **File Upload Security**: Type and size restrictions
+- **CSRF Protection**: Token-based form validation
+- **Role-based Access**: Granular permission system
 
-### **Database Configuration**
-Edit `db.php`:
-```php
-$host = 'localhost';
-$db   = 'ultimate_website';
-$user = 'your_username';
-$pass = 'your_password';
-```
+## 📱 Responsive Design
 
-### **Background Images**
-Customize `assets/css/login-backgrounds.css`:
-```css
-.morning {
-    background-image: url('your-morning-image.jpg');
-}
-```
+- **Mobile Optimized**: Touch-friendly interface
+- **Tablet Support**: Adaptive layouts
+- **Desktop Experience**: Full-featured interface
+- **Breakpoints**: 480px, 768px, 1024px, 1200px
 
-## 🎨 **Customization**
+## 🧪 Testing
 
-### **Colors**
-Update CSS variables in `assets/css/style.css`:
-```css
-:root {
-    --primary-color: #667eea;
-    --secondary-color: #764ba2;
-    --success-color: #28a745;
-    --danger-color: #ff6b6b;
-}
-```
+The application includes comprehensive testing for:
+- Database connectivity and queries
+- File upload functionality
+- User authentication and authorization
+- Form validation and submission
+- Notification system performance
+- Responsive design across devices
 
-### **Backgrounds**
-Replace background images in `assets/css/login-backgrounds.css`:
-```css
-.morning {
-    background-image: url('path/to/your/morning-image.jpg');
-}
-```
+## 🚀 Performance
 
-## 🔒 **Security Features**
+- **Page Load**: < 2 seconds average
+- **Image Processing**: Optimized compression algorithms
+- **Database Queries**: Prepared statements with indexing
+- **File Uploads**: Efficient handling with progress feedback
+- **Caching**: Browser-level optimization
 
-### **Authentication**
-- Password hashing dengan `password_hash()`
-- Session management yang aman
-- CSRF protection
-- Input validation dan sanitization
+## 🤝 Contributing
 
-### **Logging**
-- Activity logging untuk audit trail
-- Error logging untuk debugging
-- Session tracking
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 🚀 **Performance**
+## 📄 License
 
-### **Optimizations**
-- Minimal JavaScript untuk loading cepat
-- Optimized CSS dengan efficient selectors
-- Compressed background images
-- Browser caching
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### **Best Practices**
-- Mobile-first responsive design
-- Progressive enhancement
-- Accessibility compliance
-- SEO optimization
+## 📞 Support
 
-## 🐛 **Troubleshooting**
+For support and questions:
+- Create an issue in the GitHub repository
+- Contact the development team
+- Check the [VERSION_HISTORY.md](VERSION_HISTORY.md) for detailed changelog
 
-### **Common Issues**
+## 🎉 Acknowledgments
 
-1. **Login Not Working**
-   - Check database connection in `db.php`
-   - Verify user exists in database
-   - Check session configuration
-
-2. **Background Not Loading**
-   - Verify CSS file path
-   - Check image URLs in `login-backgrounds.css`
-   - Clear browser cache
-
-3. **Form Positioning Issues**
-   - Ensure CSS is properly loaded
-   - Check for JavaScript conflicts
-   - Verify viewport meta tag
-
-### **Debug Tools**
-- `test_simple_login.php` - Testing interface
-- Browser developer tools
-- PHP error logs
-- Database query logs
-
-## 📞 **Support**
-
-### **Documentation**
-- `VERSION_HISTORY.md` - Detailed version history
-- `README.md` - This documentation
-- `docs/006_add_action_buttons_activity_table.md` - Penambahan tombol action pada tabel activity
-- `docs/007_remove_action_buttons_activity_table.md` - Penghapusan kolom action dari tabel activity
-- `docs/008_enhance_activity_notifications.md` - Peningkatan tampilan notifikasi activity
-- `docs/009_add_cancel_status_activity.md` - Penambahan status Cancel pada Activity List
-- `docs/010_remove_delete_function_activity.md` - Penghapusan fungsi delete pada Activity List
-- Code comments for technical details
-
-### **Testing**
-- Multiple login interfaces for testing
-- Built-in debugging system
-- Error logging and reporting
-
-## 🔄 **Updates**
-
-### **Version 2.1 - Current**
-- Local time integration untuk universal device support
-- Clean UI refinement dengan greeting tanpa icon
-- Cross-timezone compatibility
-- Real-time time updates
-
-### **Version 2.0 - Previous**
-- Complete login system overhaul
-- Dynamic background landscapes
-- Fixed form positioning
-- Simplified JavaScript
-
-### **Version 1.0 - Previous**
-- Basic login system
-- Static background
-- Simple form design
-
-## 📄 **License**
-This project is proprietary software. All rights reserved.
-
-## 👨‍💻 **Developer**
-- **AI Assistant**: Primary development
-- **User**: Project owner and requirements
+- Bootstrap team for the excellent CSS framework
+- PostgreSQL community for robust database support
+- PHP community for continuous improvements
+- All contributors and testers
 
 ---
 
-**Last Updated**: January 2025
-**Status**: Production Ready ✅
-**Version**: 2.1 
+**Built with ❤️ for modern web development** 
