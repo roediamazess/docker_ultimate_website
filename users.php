@@ -263,10 +263,10 @@ include './partials/layouts/layoutHorizontal.php'
                                 <tr>
                                     <th scope="col" style="width: 25%;"><div class="table-header">Display Name</div></th>
                                     <th scope="col" style="width: 25%;"><div class="table-header">Full Name</div></th>
-                                    <th scope="col" style="width: 25%;"><div class="table-header">Email</div></th>
-                                    <th scope="col" style="width: 12%;"><div class="table-header">Tier</div></th>
-                                    <th scope="col" style="width: 13%;"><div class="table-header">Role</div></th>
-                                    <th scope="col" style="width: 20%;"><div class="table-header">Start Work</div></th>
+                                    <th scope="col" style="width: 20%;"><div class="table-header">Email</div></th>
+                                    <th scope="col" style="width: 12%;"><div class="table-header text-center">Tier</div></th>
+                                    <th scope="col" style="width: 13%;"><div class="table-header text-center">Role</div></th>
+                                    <th scope="col" style="width: 25%;"><div class="table-header">Start Work</div></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -274,10 +274,10 @@ include './partials/layouts/layoutHorizontal.php'
                                 <tr class="user-row" data-id="<?= $u['id'] ?>" data-user_id="<?= htmlspecialchars($u['id'] ?? '') ?>" data-display_name="<?= htmlspecialchars($u['display_name'] ?? '') ?>" data-full_name="<?= htmlspecialchars($u['full_name'] ?? $u['name'] ?? '') ?>" data-email="<?= htmlspecialchars($u['email'] ?? '') ?>" data-role="<?= htmlspecialchars($u['role'] ?? '') ?>" data-tier="<?= htmlspecialchars($u['tier'] ?? '') ?>" data-start_work="<?= htmlspecialchars($u['start_work'] ?? '') ?>">
                                     <td style="width: 25%;"><?= htmlspecialchars($u['display_name'] ?: '-') ?></td>
                                     <td style="width: 25%;"><?= htmlspecialchars($u['full_name'] ?? $u['name'] ?: '-') ?></td>
-                                    <td style="width: 25%;"><?= htmlspecialchars($u['email'] ?: '-') ?></td>
-                                    <td style="width: 12%;"><span class="priority-badge bg-neutral-200 text-neutral-600 px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($u['tier'] ?: '-') ?></span></td>
-                                    <td style="width: 12%;"><span class="priority-badge bg-info-focus text-info-main px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($u['role'] ?: '-') ?></span></td>
-                                    <td style="width: 20%;"><?= $u['start_work'] ? date('d M Y', strtotime($u['start_work'])) : '-' ?></td>
+                                    <td style="width: 20%;"><?= htmlspecialchars($u['email'] ?: '-') ?></td>
+                                    <td style="width: 12%; text-align: center;"><span class="priority-badge bg-neutral-200 text-neutral-600 px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($u['tier'] ?: '-') ?></span></td>
+                                    <td style="width: 12%; text-align: center;"><span class="priority-badge bg-info-focus text-info-main px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($u['role'] ?: '-') ?></span></td>
+                                    <td style="width: 25%;"><?= $u['start_work'] ? date('d M Y', strtotime($u['start_work'])) : '-' ?></td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
