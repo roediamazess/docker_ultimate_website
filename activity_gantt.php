@@ -4,25 +4,27 @@ require_once 'db.php';
 require_once 'access_control.php';
 require_login();
 
-// Ambil data dari database -> mapping ke tasks untuk Gantt
-$stmt = $pdo->query("SELECT id, no, description, status, type, priority, information_date, COALESCE(due_date, information_date) AS due_date FROM activities ORDER BY no ASC");
+ // Ambil data dari database -> mapping ke tasks untuk Gantt
+ $stmt = $pdo->query("SELECT id, no, description, status, type, priority, information_date, COALESCE(due_date, information_date) AS due_date, department, action_solution FROM activities ORDER BY no ASC");
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$tasks = array_map(function($r){
-    $start = $r['information_date'] ?: date('Y-m-d');
-    $end = $r['due_date'] ?: $start;
-    if (strtotime($end) < strtotime($start)) { $end = $start; }
-  return [
-    'id' => (int)$r['id'],
-    'no' => (int)$r['no'],
-    'description' => (string)($r['description'] ?? '-'),
-    'status' => (string)($r['status'] ?? 'Open'),
-    'type' => (string)($r['type'] ?? 'Issue'),
-    'priority' => (string)($r['priority'] ?? 'Normal'),
-        'start' => $start,
-        'end' => $end,
-    ];
-}, $rows);
+ $tasks = array_map(function($r){
+     $start = $r['information_date'] ?: date('Y-m-d');
+     $end = $r['due_date'] ?: $start;
+     if (strtotime($end) < strtotime($start)) { $end = $start; }
+   return [
+     'id' => (int)$r['id'],
+     'no' => (int)$r['no'],
+     'description' => (string)($r['description'] ?? '-'),
+     'status' => (string)($r['status'] ?? 'Open'),
+     'type' => (string)($r['type'] ?? 'Issue'),
+     'priority' => (string)($r['priority'] ?? 'Normal'),
+     'department' => (string)($r['department'] ?? ''),
+     'action_solution' => (string)($r['action_solution'] ?? ''),
+         'start' => $start,
+         'end' => $end,
+     ];
+ }, $rows);
 ?>
 <?php include './partials/layouts/layoutHorizontal.php'; ?>
 <style>
@@ -221,11 +223,243 @@ $tasks = array_map(function($r){
         .task-cell { min-height: 80px; }
         .timeline-cell { min-height: 80px; }
     </style>
-    <style>
-    /* Page-level card tone override to match Activity List */
-    [data-theme="light"] .card { background-color:#f8fafc !important; border:1px solid #e5e7eb !important; box-shadow:0 1px 2px rgba(0,0,0,.06) !important; }
-    [data-theme="dark"] .card { background-color:#0f172a !important; border:1px solid #1e293b !important; box-shadow:0 1px 2px rgba(0,0,0,.35) !important; }
-</style>
+         <style>
+     /* Page-level card tone override to match Activity List */
+     [data-theme="light"] .card { background-color:#f8fafc !important; border:1px solid #e5e7eb !important; box-shadow:0 1px 2px rgba(0,0,0,.06) !important; }
+     [data-theme="dark"] .card { background-color:#0f172a !important; border:1px solid #1e293b !important; box-shadow:0 1px 2px rgba(0,0,0,.35) !important; }
+     
+     /* Custom Modal Styles */
+     .custom-modal-overlay {
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background-color: rgba(0, 0, 0, 0.5);
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         z-index: 9999;
+         opacity: 0;
+         visibility: hidden;
+         transition: all 0.3s ease;
+     }
+     
+     .custom-modal-overlay.show {
+         opacity: 1;
+         visibility: visible;
+     }
+     
+     .custom-modal {
+         background: white;
+         border-radius: 8px;
+         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+         max-width: 800px;
+         width: 90%;
+         max-height: 90vh;
+         overflow-y: auto;
+         position: relative;
+         transform: scale(0.7);
+         transition: transform 0.3s ease;
+     }
+     
+     .custom-modal-overlay.show .custom-modal {
+         transform: scale(1);
+     }
+     
+     .custom-modal-header {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         padding: 20px 24px;
+         border-bottom: 1px solid #e5e7eb;
+         background: #f8fafc;
+         border-radius: 8px 8px 0 0;
+     }
+     
+     .custom-modal-title {
+         margin: 0;
+         font-size: 18px;
+         font-weight: 600;
+         color: #1f2937;
+     }
+     
+     .custom-modal-close {
+         background: none;
+         border: none;
+         font-size: 24px;
+         cursor: pointer;
+         color: #6b7280;
+         padding: 0;
+         width: 30px;
+         height: 30px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         border-radius: 4px;
+         transition: all 0.2s;
+     }
+     
+     .custom-modal-close:hover {
+         background: #f3f4f6;
+         color: #374151;
+     }
+     
+     .custom-modal-body {
+         padding: 24px;
+     }
+     
+     .custom-modal-row {
+         display: grid;
+         grid-template-columns: 1fr 1fr;
+         gap: 20px;
+         margin-bottom: 20px;
+     }
+     
+     .custom-modal-col {
+         display: flex;
+         flex-direction: column;
+     }
+     
+     .custom-modal-label {
+         font-size: 14px;
+         font-weight: 500;
+         color: #374151;
+         margin-bottom: 8px;
+     }
+     
+     .custom-modal-input,
+     .custom-modal-select,
+     .custom-modal-textarea {
+         padding: 10px 12px;
+         border: 1px solid #d1d5db;
+         border-radius: 6px;
+         font-size: 14px;
+         transition: border-color 0.2s, box-shadow 0.2s;
+         background: white;
+     }
+     
+     .custom-modal-input:focus,
+     .custom-modal-select:focus,
+     .custom-modal-textarea:focus {
+         outline: none;
+         border-color: #3b82f6;
+         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+     }
+     
+     .custom-modal-textarea {
+         resize: vertical;
+         min-height: 80px;
+     }
+     
+     .custom-modal-footer {
+         display: flex;
+         justify-content: flex-end;
+         gap: 12px;
+         padding: 20px 24px;
+         border-top: 1px solid #e5e7eb;
+         background: #f8fafc;
+         border-radius: 0 0 8px 8px;
+     }
+     
+     .custom-btn {
+         padding: 10px 20px;
+         border: none;
+         border-radius: 6px;
+         font-size: 14px;
+         font-weight: 500;
+         cursor: pointer;
+         transition: all 0.2s;
+         text-decoration: none;
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+     }
+     
+     .custom-btn-primary {
+         background: #3b82f6;
+         color: white;
+     }
+     
+     .custom-btn-primary:hover {
+         background: #2563eb;
+         transform: translateY(-1px);
+     }
+     
+     .custom-btn-secondary {
+         background: #6b7280;
+         color: white;
+     }
+     
+     .custom-btn-secondary:hover {
+         background: #4b5563;
+         transform: translateY(-1px);
+     }
+     
+     /* Dark mode support */
+     [data-theme="dark"] .custom-modal {
+         background: #1f2937;
+         color: #e5e7eb;
+     }
+     
+     [data-theme="dark"] .custom-modal-header {
+         background: #111827;
+         border-bottom-color: #374151;
+     }
+     
+     [data-theme="dark"] .custom-modal-title {
+         color: #e5e7eb;
+     }
+     
+     [data-theme="dark"] .custom-modal-close {
+         color: #9ca3af;
+     }
+     
+     [data-theme="dark"] .custom-modal-close:hover {
+         background: #374151;
+         color: #d1d5db;
+     }
+     
+     [data-theme="dark"] .custom-modal-label {
+         color: #d1d5db;
+     }
+     
+     [data-theme="dark"] .custom-modal-input,
+     [data-theme="dark"] .custom-modal-select,
+     [data-theme="dark"] .custom-modal-textarea {
+         background: #374151;
+         border-color: #4b5563;
+         color: #e5e7eb;
+     }
+     
+     [data-theme="dark"] .custom-modal-input:focus,
+     [data-theme="dark"] .custom-modal-select:focus,
+     [data-theme="dark"] .custom-modal-textarea:focus {
+         border-color: #60a5fa;
+         box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+     }
+     
+     [data-theme="dark"] .custom-modal-footer {
+         background: #111827;
+         border-top-color: #374151;
+     }
+     
+     [data-theme="dark"] .custom-btn-primary {
+         background: #2563eb;
+     }
+     
+     [data-theme="dark"] .custom-btn-primary:hover {
+         background: #1d4ed8;
+     }
+     
+     [data-theme="dark"] .custom-btn-secondary {
+         background: #4b5563;
+     }
+     
+     [data-theme="dark"] .custom-btn-secondary:hover {
+         background: #374151;
+     }
+ </style>
     <script>const SERVER_TASKS = <?php echo json_encode($tasks, JSON_UNESCAPED_UNICODE); ?>;</script>
 
     <div class="dashboard-main-body" id="gantt-root">
@@ -389,16 +623,18 @@ $tasks = array_map(function($r){
     
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            let allTasks = (Array.isArray(SERVER_TASKS) ? SERVER_TASKS : []).map(t => ({
-                id: t.id,
-                no: t.no,
-                description: t.description || '-',
-                status: t.status || 'Open',
-                type: t.type || 'Issue',
-                priority: t.priority || 'Normal',
-                start: t.start,
-                end: t.end
-            }));
+                         let allTasks = (Array.isArray(SERVER_TASKS) ? SERVER_TASKS : []).map(t => ({
+                 id: t.id,
+                 no: t.no,
+                 description: t.description || '-',
+                 status: t.status || 'Open',
+                 type: t.type || 'Issue',
+                 priority: t.priority || 'Normal',
+                 department: t.department || '',
+                 action_solution: t.action_solution || '',
+                 start: t.start,
+                 end: t.end
+             }));
 
             const timelineDatesEl = document.getElementById('timeline-dates');
             const ganttBodyEl = document.getElementById('gantt-body');
@@ -486,10 +722,226 @@ $tasks = array_map(function($r){
                 searchTimeout = setTimeout(applyFilters, 300);
             });
             
-            // Modal functions
-            function openQuickEditModal(task) {
-                // Redirect to activity.php for editing
-                window.location.href = `activity.php?edit=${task.id}`;
+                         // Modal functions - make them globally available
+             window.openQuickEditModal = function(task) {
+                // Create edit modal using the same structure as activity.php
+                const modal = document.createElement('div');
+                modal.id = 'quickEditModal';
+                modal.className = 'custom-modal-overlay';
+                modal.innerHTML = `
+                    <div class="custom-modal">
+                        <div class="custom-modal-header">
+                            <h5 class="custom-modal-title">Edit Activity</h5>
+                            <button type="button" class="custom-modal-close" onclick="closeQuickEditModal()">&times;</button>
+                        </div>
+                        <form id="quickEditForm">
+                            <div class="custom-modal-body">
+                                <input type="hidden" id="qe_id" value="${task.id}">
+                                <div class="custom-modal-row">
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Status *</label>
+                                        <select id="qe_status" class="custom-modal-select" required>
+                                            <option value="Open" ${task.status === 'Open' ? 'selected' : ''}>Open</option>
+                                            <option value="On Progress" ${task.status === 'On Progress' ? 'selected' : ''}>On Progress</option>
+                                            <option value="Need Requirement" ${task.status === 'Need Requirement' ? 'selected' : ''}>Need Requirement</option>
+                                            <option value="Done" ${task.status === 'Done' ? 'selected' : ''}>Done</option>
+                                            <option value="Cancel" ${task.status === 'Cancel' ? 'selected' : ''}>Cancel</option>
+                                        </select>
+                                    </div>
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Priority *</label>
+                                        <select id="qe_priority" class="custom-modal-select" required>
+                                            <option value="Urgent" ${task.priority === 'Urgent' ? 'selected' : ''}>Urgent</option>
+                                            <option value="Normal" ${task.priority === 'Normal' ? 'selected' : ''}>Normal</option>
+                                            <option value="Low" ${task.priority === 'Low' ? 'selected' : ''}>Low</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="custom-modal-row">
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Information Date *</label>
+                                        <input type="date" id="qe_information_date" value="${task.start}" class="custom-modal-input" required>
+                                    </div>
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Due Date</label>
+                                        <input type="date" id="qe_due_date" value="${task.end}" class="custom-modal-input">
+                                    </div>
+                                </div>
+                                <div class="custom-modal-row">
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Type</label>
+                                        <select id="qe_type" class="custom-modal-select">
+                                            <option value="Setup" ${task.type === 'Setup' ? 'selected' : ''}>Setup</option>
+                                            <option value="Question" ${task.type === 'Question' ? 'selected' : ''}>Question</option>
+                                            <option value="Issue" ${task.type === 'Issue' ? 'selected' : ''}>Issue</option>
+                                            <option value="Report Issue" ${task.type === 'Report Issue' ? 'selected' : ''}>Report Issue</option>
+                                            <option value="Report Request" ${task.type === 'Report Request' ? 'selected' : ''}>Report Request</option>
+                                            <option value="Feature Request" ${task.type === 'Feature Request' ? 'selected' : ''}>Feature Request</option>
+                                        </select>
+                                    </div>
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Department</label>
+                                                                                 <select id="qe_department" class="custom-modal-select">
+                                             <option value="">Select Department</option>
+                                             <option value="Food & Beverage" ${task.department === 'Food & Beverage' ? 'selected' : ''}>Food & Beverage</option>
+                                             <option value="Kitchen" ${task.department === 'Kitchen' ? 'selected' : ''}>Kitchen</option>
+                                             <option value="Room Division" ${task.department === 'Room Division' ? 'selected' : ''}>Room Division</option>
+                                             <option value="Front Office" ${task.department === 'Front Office' ? 'selected' : ''}>Front Office</option>
+                                             <option value="Housekeeping" ${task.department === 'Housekeeping' ? 'selected' : ''}>Housekeeping</option>
+                                             <option value="Engineering" ${task.department === 'Engineering' ? 'selected' : ''}>Engineering</option>
+                                             <option value="Sales & Marketing" ${task.department === 'Sales & Marketing' ? 'selected' : ''}>Sales & Marketing</option>
+                                             <option value="IT / EDP" ${task.department === 'IT / EDP' ? 'selected' : ''}>IT / EDP</option>
+                                             <option value="Accounting" ${task.department === 'Accounting' ? 'selected' : ''}>Accounting</option>
+                                             <option value="Executive Office" ${task.department === 'Executive Office' ? 'selected' : ''}>Executive Office</option>
+                                         </select>
+                                    </div>
+                                </div>
+                                <div class="custom-modal-row">
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Description</label>
+                                        <textarea id="qe_description" class="custom-modal-textarea" rows="3">${task.description}</textarea>
+                                    </div>
+                                    <div class="custom-modal-col">
+                                        <label class="custom-modal-label">Action Solution</label>
+                                                                                 <textarea id="qe_action_solution" class="custom-modal-textarea" rows="3">${task.action_solution}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="custom-modal-footer">
+                                <button type="submit" class="custom-btn custom-btn-primary">Update</button>
+                                <button type="button" class="custom-btn custom-btn-secondary" onclick="closeQuickEditModal()">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                // Auto-calculate due date when information_date or type changes
+                const infoDateEl = document.getElementById('qe_information_date');
+                const typeEl = document.getElementById('qe_type');
+                const dueDateEl = document.getElementById('qe_due_date');
+                
+                function calculateDueDate() {
+                    const infoDate = infoDateEl.value;
+                    const type = typeEl.value;
+                    
+                    if (infoDate && type) {
+                        const offsetByType = {
+                            'Setup': 2,
+                            'Question': 1,
+                            'Issue': 1,
+                            'Report Issue': 2,
+                            'Report Request': 7,
+                            'Feature Request': 30
+                        };
+                        
+                        const offsetDays = offsetByType[type] || 0;
+                        if (offsetDays > 0) {
+                            const dueDate = new Date(infoDate);
+                            dueDate.setDate(dueDate.getDate() + offsetDays);
+                            dueDateEl.value = dueDate.toISOString().split('T')[0];
+                        }
+                    }
+                }
+                
+                // Add event listeners for auto-calculation
+                infoDateEl.addEventListener('change', calculateDueDate);
+                typeEl.addEventListener('change', calculateDueDate);
+                
+                // Handle form submission
+                document.getElementById('quickEditForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveQuickEdit(task);
+                });
+                
+                // Close modal when clicking outside
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeQuickEditModal();
+                    }
+                });
+                
+                // Show modal
+                modal.classList.add('show');
+            }
+            
+                         window.closeQuickEditModal = function() {
+                const modal = document.getElementById('quickEditModal');
+                if (modal) {
+                    modal.classList.remove('show');
+                    setTimeout(() => {
+                        modal.remove();
+                    }, 300);
+                }
+            }
+            
+            window.saveQuickEdit = function(task) {
+                const id = document.getElementById('qe_id').value;
+                const status = document.getElementById('qe_status').value;
+                const priority = document.getElementById('qe_priority').value;
+                const information_date = document.getElementById('qe_information_date').value;
+                const due_date = document.getElementById('qe_due_date').value;
+                const type = document.getElementById('qe_type').value;
+                const department = document.getElementById('qe_department').value;
+                const description = document.getElementById('qe_description').value;
+                const action_solution = document.getElementById('qe_action_solution').value;
+                
+                // Update task in memory
+                const taskToUpdate = allTasks.find(t => t.id == id);
+                if (taskToUpdate) {
+                    taskToUpdate.status = status;
+                    taskToUpdate.priority = priority;
+                    taskToUpdate.start = information_date;
+                    taskToUpdate.end = due_date;
+                    taskToUpdate.type = type;
+                    taskToUpdate.description = description;
+                }
+                
+                // Send to server
+                fetch('api_activity.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'quick_update',
+                        id: id,
+                        status: status,
+                        priority: priority,
+                        information_date: information_date,
+                        due_date: due_date,
+                        type: type,
+                        department: department,
+                        description: description,
+                        action_solution: action_solution
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        closeQuickEditModal();
+                        renderGantt(currentDate);
+                        if (window.showActivityToast) {
+                            window.showActivityToast('Activity berhasil diperbarui!', 'success', 3000);
+                        }
+                    } else {
+                        if (window.showActivityToast) {
+                            window.showActivityToast('Gagal memperbarui activity: ' + (data.message || 'Unknown error'), 'error', 3000);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (window.showActivityToast) {
+                        window.showActivityToast('Terjadi kesalahan saat menyimpan: ' + error.message, 'error', 3000);
+                    }
+                });
             }
 
             const renderGantt = (date) => {
@@ -510,9 +962,12 @@ $tasks = array_map(function($r){
                 const typeIcons = {
                     'Issue': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bug-fill text-red-500" viewBox="0 0 16 16"><path d="M4.978.855a.5.5 0 1 0-.956.29l.41 1.352A4.985 4.985 0 0 0 3 6h10a4.985 4.985 0 0 0-1.432-3.503l.41-1.352a.5.5 0 1 0-.956-.29l-.291.956A4.978 4.978 0 0 0 8 1a4.979 4.979 0 0 0-2.731.811l-.29-.956z"/><path d="M13 6v1H8.5v8.975A5 5 0 0 0 13 11h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 1 0 1 0v-.5a1.5 1.5 0 0 0-1.5-1.5H13V9h1.5a.5.5 0 0 0 0-1H13V7h.5A1.5 1.5 0 0 0 15 5.5V5a.5.5 0 0 0-1 0v.5a.5.5 0 0 1-.5.5H13zm-5.5 9.975V7H3V6h-.5a.5.5 0 0 1-.5-.5V5a.5.5 0 0 0-1 0v.5A1.5 1.5 0 0 0 2.5 7H3v1H1.5a.5.5 0 0 0 0 1H3v2h-.5A1.5 1.5 0 0 0 1 11.5V12a.5.5 0 0 0 1 0v-.5a.5.5 0 0 1 .5-.5H3a5 5 0 0 0 4.5 4.975z"/></svg>`,
                     'Setup': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear-fill text-blue-500" viewBox="0 0 16 16"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311a1.464 1.464 0 0 1-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705-1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c-1.4-.413-1.4-2.397 0-2.81l.34-.1a1.464 1.464 0 0 1 .872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.858 2.929 2.929 0 0 1 0 5.858z"/></svg>`,
-                    'Question': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle-fill text-gray-500" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.496 6.033h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286a.237.237 0 0 0 .241.247zm2.325 6.443c.61 0 1.029-.394 1.029-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94 0 .533.425.927 1.01.927z"/></svg>`
+                    'Question': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle-fill text-gray-500" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.496 6.033h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286a.237.237 0 0 0 .241.247zm2.325 6.443c.61 0 1.029-.394 1.029-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94 0 .533.425.927 1.01.927z"/></svg>`,
+                    'Report Issue': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill text-orange-500" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>`,
+                    'Report Request': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-text-fill text-purple-500" viewBox="0 0 16 16"><path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM4.5 9a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1h-7zM4 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm.5 1.5a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1h-4z"/></svg>`,
+                    'Feature Request': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-yellow-500" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg>`
                 };
-                const groupOrder = ['Issue', 'Setup', 'Question'];
+                const groupOrder = ['Issue', 'Setup', 'Question', 'Report Issue', 'Report Request', 'Feature Request'];
 
                 const getDayDiff = (startDate, endDate) => {
                     const msPerDay = 1000 * 60 * 60 * 24;

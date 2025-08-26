@@ -1,5 +1,52 @@
 # Ultimate Website - Version History
 
+## Version 2.1.2: Gantt Chart Quick Edit Modal Fix
+**Date:** January 2025
+
+### Changes:
+- **Fixed Gantt Chart Quick Edit Modal**: Resolved persistent error during activity updates from Gantt chart's edit modal
+- **Improved Error Handling**: Fixed response body reading issue in `saveQuickEdit` function
+- **Enhanced User Experience**: Modal now properly saves changes without console errors
+- **Data Population**: Department and Action Solution fields now correctly pre-filled from database
+- **Robust API Communication**: Improved fetch API error handling for better reliability
+
+### Technical Details:
+- Modified `activity_gantt.php` JavaScript to fix response parsing
+- Updated `api_activity.php` to handle quick updates properly
+- Enhanced modal field population with database values
+- Improved error handling and user feedback
+
+### Files Modified:
+- `activity_gantt.php` - Fixed saveQuickEdit function and modal population
+- `api_activity.php` - Enhanced quick update handling
+- `VERSION_HISTORY.md` - Added version documentation
+
+---
+
+## Version 2.1.1: UI/UX Enhancement, Clean CSS
+**Date:** January 2025
+
+### Changes:
+- **Fixed Table Layout**: Corrected column widths and text alignment in activity list
+- **Enhanced Gantt Chart**: Added all activity types with proper grouping and icons
+- **Improved Modal System**: Implemented custom quick edit modal for Gantt chart
+- **Better User Experience**: Clean CSS styling and responsive design
+- **Auto-calculation**: Due date automatically calculated based on type and information date
+
+### Technical Details:
+- Refined CSS for table columns (No, Type, Status, Description, Action/Solution, etc.)
+- Added comprehensive modal styling with dark mode support
+- Implemented JavaScript for auto-calculation of due dates
+- Enhanced Gantt chart with all activity types and proper grouping
+
+### Files Modified:
+- `activity.php` - Fixed table layout and column styling
+- `activity_gantt.php` - Enhanced with custom modal and all activity types
+- `api_activity.php` - Added quick update functionality
+- `VERSION_HISTORY.md` - Added version documentation
+
+---
+
 ## Version 2.1.0 - Activity Database Structure Overhaul
 **Date**: August 26, 2025  
 **Status**: ✅ COMPLETED

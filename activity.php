@@ -656,92 +656,114 @@ $script = ($script ?? '')
                         .table thead th { padding: 0 !important; vertical-align: middle !important; }
 
                         /* Column widths - optimized for content */
-                        .table th:nth-child(1) {
-                            width: 70px;
-                            min-width: 70px;
-                            max-width: 70px;
+                        .table th:nth-child(1) { /* No */
+                            width: 60px;
+                            min-width: 60px;
+                            max-width: 60px;
                         }
                         
-                        .table th:nth-child(2) {
-                            width: 140px;
-                            min-width: 140px;
-                            max-width: 140px;
+                        .table th:nth-child(2) { /* Information Date */
+                            width: 120px;
+                            min-width: 120px;
+                            max-width: 120px;
                         }
                         
-                        .table th:nth-child(3) {
-                            width: 130px; /* widen PRIORITY so text stays on one line */
-                            min-width: 130px;
-                            max-width: 130px;
-                        }
-                        
-                        .table th:nth-child(4) { /* Due Date */
-                            width: 140px;
-                            min-width: 140px;
-                            max-width: 140px;
-                        }
-                        
-                        .table th:nth-child(5) {
-                            width: 150px;
-                            min-width: 150px;
-                            max-width: 150px;
-                        }
-                        
-                        .table th:nth-child(6) {
-                            width: 140px; /* widen APPLICATION similar to PRIORITY */
-                            min-width: 140px;
-                            max-width: 140px;
-                        }
-                        
-                        .table th:nth-child(7) {
+                        .table th:nth-child(3) { /* Priority */
                             width: 100px;
                             min-width: 100px;
                             max-width: 100px;
                         }
                         
-                        .table th:nth-child(8) {
+                        .table th:nth-child(4) { /* Due Date */
+                            width: 120px;
+                            min-width: 120px;
+                            max-width: 120px;
+                        }
+                        
+                        .table th:nth-child(5) { /* User & Position */
+                            width: 160px;
+                            min-width: 160px;
+                            max-width: 160px;
+                        }
+                        
+                        .table th:nth-child(6) { /* Department */
+                            width: 140px;
+                            min-width: 140px;
+                            max-width: 140px;
+                        }
+                        
+                        .table th:nth-child(7) { /* Application */
+                            width: 120px;
+                            min-width: 120px;
+                            max-width: 120px;
+                        }
+                        
+                        .table th:nth-child(8) { /* Type */
+                            width: 140px;
+                            min-width: 140px;
+                            max-width: 140px;
+                        }
+                        
+                        .table th:nth-child(9) { /* Description */
+                            width: 250px;
+                            min-width: 250px;
+                            max-width: 250px;
+                        }
+                        
+                        .table th:nth-child(10) { /* Action / Solution */
                             width: 200px;
                             min-width: 200px;
                             max-width: 200px;
                         }
                         
-                        .table th:nth-child(9) {
-                            width: 180px;
-                            min-width: 180px;
-                            max-width: 180px;
-                        }
-                        
-                        .table th:nth-child(10) {
+                        .table th:nth-child(11) { /* Status */
                             width: 120px;
                             min-width: 120px;
                             max-width: 120px;
                         }
                         
                         /* Center align data in specific columns */
-                        .table td:nth-child(2) {
+                        .table td:nth-child(1) { /* No */
                             text-align: center;
                         }
                         
-                        .table td:nth-child(3) {
+                        .table td:nth-child(2) { /* Information Date */
+                            text-align: center;
+                        }
+                        
+                        .table td:nth-child(3) { /* Priority */
                             text-align: center;
                         }
                         
                         .table td:nth-child(4) { /* Due Date */
-                            text-align: left;
-                        }
-                        
-                        .table td:nth-child(5) {
-                            text-align: left;
-                        }
-                        
-                        .table td:nth-child(6) {
                             text-align: center;
                         }
                         
-                        .table td:nth-child(7) {
+                        .table td:nth-child(5) { /* User & Position */
+                            text-align: left;
+                        }
+                        
+                        .table td:nth-child(6) { /* Department */
                             text-align: center;
                         }
                         
-                        .table td:nth-child(10) {
+                        .table td:nth-child(7) { /* Application */
+                            text-align: center;
+                        }
+                        
+                        .table td:nth-child(8) { /* Type */
+                            text-align: center;
+                        }
+                        
+                        .table td:nth-child(9) { /* Description */
+                            text-align: left;
+                        }
+                        
+                        .table td:nth-child(10) { /* Action / Solution */
+                            text-align: left;
+                        }
+                        
+                        .table td:nth-child(11) { /* Status */
                             text-align: center;
                         }
                         
@@ -770,18 +792,20 @@ $script = ($script ?? '')
                         }
                         
                         /* Text alignment for specific columns */
-                        .table.table-striped td:nth-child(2),
-                        .table.table-striped td:nth-child(3),
-                        .table.table-striped td:nth-child(6),
-                        .table.table-striped td:nth-child(7),
-                        .table.table-striped td:nth-child(10) {
+                        .table.table-striped td:nth-child(1), /* No */
+                        .table.table-striped td:nth-child(2), /* Information Date */
+                        .table.table-striped td:nth-child(3), /* Priority */
+                        .table.table-striped td:nth-child(4), /* Due Date */
+                        .table.table-striped td:nth-child(6), /* Department */
+                        .table.table-striped td:nth-child(7), /* Application */
+                        .table.table-striped td:nth-child(8), /* Type */
+                        .table.table-striped td:nth-child(11) { /* Status */
                             text-align: center;
                         }
                         
-                        .table.table-striped td:nth-child(4),
-                        .table.table-striped td:nth-child(5),
-                        .table.table-striped td:nth-child(8),
-                        .table.table-striped td:nth-child(9) {
+                        .table.table-striped td:nth-child(5), /* User & Position */
+                        .table.table-striped td:nth-child(9), /* Description */
+                        .table.table-striped td:nth-child(10) { /* Action / Solution */
                             text-align: left;
                         }
                         
@@ -1262,7 +1286,8 @@ $script = ($script ?? '')
                                 data-action-solution="<?= htmlspecialchars($a['action_solution'] ?? '') ?>"
                                 data-status="<?= htmlspecialchars($a['status'] ?? '') ?>"
                                 data-priority="<?= htmlspecialchars($a['priority'] ?? '') ?>"
-                                data-information-date="<?= htmlspecialchars($a['information_date'] ?? '') ?>">
+                                data-information-date="<?= htmlspecialchars($a['information_date'] ?? '') ?>"
+                                data-due-date="<?= htmlspecialchars($a['due_date'] ?? '') ?>">
                                 <td data-label="No"><?= htmlspecialchars($a['no'] ?: '-') ?></td>
                                 <td data-label="Information Date"><?= $a['information_date'] ? date('d M Y', strtotime($a['information_date'])) : '-' ?></td>
                                 <td data-label="Priority">
@@ -1355,6 +1380,40 @@ function showCreateModal() {
     modalEl.style.display = 'block';
     modalEl.style.visibility = 'visible';
     modalEl.style.opacity = '1';
+    
+    // Setup auto-calculation for create modal
+    const infoDateEl = document.getElementById('create_information_date');
+    const typeEl = document.getElementById('create_type');
+    const dueDateEl = document.getElementById('create_due_date');
+    
+    function calculateDueDateCreate() {
+        const infoDate = infoDateEl.value;
+        const type = typeEl.value;
+        
+        if (infoDate && type) {
+            const offsetByType = {
+                'Setup': 2,
+                'Question': 1,
+                'Issue': 1,
+                'Report Issue': 2,
+                'Report Request': 7,
+                'Feature Request': 30
+            };
+            
+            const offsetDays = offsetByType[type] || 0;
+            if (offsetDays > 0) {
+                const dueDate = new Date(infoDate);
+                dueDate.setDate(dueDate.getDate() + offsetDays);
+                dueDateEl.value = dueDate.toISOString().split('T')[0];
+            }
+        }
+    }
+    
+    // Add event listeners for auto-calculation in create modal
+    if (infoDateEl && typeEl && dueDateEl) {
+        infoDateEl.addEventListener('change', calculateDueDateCreate);
+        typeEl.addEventListener('change', calculateDueDateCreate);
+    }
     
     console.log('Custom modal shown successfully');
 }
@@ -1565,6 +1624,43 @@ document.querySelectorAll('.activity-row').forEach(function(row) {
         document.getElementById('edit_type').value = type;
         document.getElementById('edit_status').value = status;
         document.getElementById('edit_information_date').value = infoDate ? infoDate.substring(0,10) : '';
+        
+        // Fill due date from database data
+        const dueDate = row.dataset.dueDate || '';
+        document.getElementById('edit_due_date').value = dueDate ? dueDate.substring(0,10) : '';
+        
+        // Auto-calculate due date when information_date or type changes
+        const infoDateEl = document.getElementById('edit_information_date');
+        const typeEl = document.getElementById('edit_type');
+        const dueDateEl = document.getElementById('edit_due_date');
+        
+        function calculateDueDate() {
+            const infoDate = infoDateEl.value;
+            const type = typeEl.value;
+            
+            if (infoDate && type) {
+                const offsetByType = {
+                    'Setup': 2,
+                    'Question': 1,
+                    'Issue': 1,
+                    'Report Issue': 2,
+                    'Report Request': 7,
+                    'Feature Request': 30
+                };
+                
+                const offsetDays = offsetByType[type] || 0;
+                if (offsetDays > 0) {
+                    const dueDate = new Date(infoDate);
+                    dueDate.setDate(dueDate.getDate() + offsetDays);
+                    dueDateEl.value = dueDate.toISOString().split('T')[0];
+                }
+            }
+        }
+        
+        // Add event listeners for auto-calculation
+        infoDateEl.addEventListener('change', calculateDueDate);
+        typeEl.addEventListener('change', calculateDueDate);
+        
         // Enforce min for due date in edit modal as well
         try {
             const dueEl = document.getElementById('edit_due_date');
