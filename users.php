@@ -261,25 +261,23 @@ include './partials/layouts/layoutHorizontal.php'
                         <table class="table table-striped mb-0">
                             <thead>
                                 <tr>
-                                    <th scope="col" style="width: 15%;"><div class="table-header">User ID</div></th>
-                                    <th scope="col" style="width: 20%;"><div class="table-header">Display Name</div></th>
-                                    <th scope="col" style="width: 20%;"><div class="table-header">Full Name</div></th>
-                                    <th scope="col" style="width: 20%;"><div class="table-header">Email</div></th>
-                                    <th scope="col" style="width: 10%;"><div class="table-header">Tier</div></th>
-                                    <th scope="col" style="width: 10%;"><div class="table-header">Role</div></th>
-                                    <th scope="col" style="width: 15%;"><div class="table-header">Start Work</div></th>
+                                    <th scope="col" style="width: 25%;"><div class="table-header">Display Name</div></th>
+                                    <th scope="col" style="width: 25%;"><div class="table-header">Full Name</div></th>
+                                    <th scope="col" style="width: 25%;"><div class="table-header">Email</div></th>
+                                    <th scope="col" style="width: 12%;"><div class="table-header">Tier</div></th>
+                                    <th scope="col" style="width: 13%;"><div class="table-header">Role</div></th>
+                                    <th scope="col" style="width: 20%;"><div class="table-header">Start Work</div></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($users as $u): ?>
                                 <tr class="user-row" data-id="<?= $u['id'] ?>" data-user_id="<?= htmlspecialchars($u['id'] ?? '') ?>" data-display_name="<?= htmlspecialchars($u['display_name'] ?? '') ?>" data-full_name="<?= htmlspecialchars($u['full_name'] ?? $u['name'] ?? '') ?>" data-email="<?= htmlspecialchars($u['email'] ?? '') ?>" data-role="<?= htmlspecialchars($u['role'] ?? '') ?>" data-tier="<?= htmlspecialchars($u['tier'] ?? '') ?>" data-start_work="<?= htmlspecialchars($u['start_work'] ?? '') ?>">
-                                    <td style="width: 15%;"><?= htmlspecialchars($u['id'] ?: '-') ?></td>
-                                    <td style="width: 20%;"><?= htmlspecialchars($u['display_name'] ?: '-') ?></td>
-                                    <td style="width: 20%;"><?= htmlspecialchars($u['full_name'] ?: $u['name'] ?: '-') ?></td>
-                                    <td style="width: 20%;"><?= htmlspecialchars($u['email'] ?: '-') ?></td>
-                                    <td style="width: 10%;"><span class="priority-badge bg-neutral-200 text-neutral-600 px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($u['tier'] ?: '-') ?></span></td>
-                                    <td style="width: 10%;"><span class="type-badge bg-info-focus text-info-main px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($u['role'] ?: '-') ?></span></td>
-                                    <td style="width: 15%;"><?= $u['start_work'] ? date('d M Y', strtotime($u['start_work'])) : '-' ?></td>
+                                    <td style="width: 25%;"><?= htmlspecialchars($u['display_name'] ?: '-') ?></td>
+                                    <td style="width: 25%;"><?= htmlspecialchars($u['full_name'] ?? $u['name'] ?: '-') ?></td>
+                                    <td style="width: 25%;"><?= htmlspecialchars($u['email'] ?: '-') ?></td>
+                                    <td style="width: 12%;"><span class="priority-badge bg-neutral-200 text-neutral-600 px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($u['tier'] ?: '-') ?></span></td>
+                                    <td style="width: 12%;"><span class="priority-badge bg-info-focus text-info-main px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($u['role'] ?: '-') ?></span></td>
+                                    <td style="width: 20%;"><?= $u['start_work'] ? date('d M Y', strtotime($u['start_work'])) : '-' ?></td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -390,33 +388,27 @@ include './partials/layouts/layoutHorizontal.php'
                             <input type="hidden" name="user_id" id="edit_user_id">
                             <div class="custom-modal-row">
                                 <div class="custom-modal-col">
-                                    <label class="custom-modal-label">User ID</label>
-                                    <input type="text" name="_user_id_display" id="edit_user_id_display" class="custom-modal-input" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
-                                    <small style="color: #6b7280; font-size: 11px;">User ID cannot be changed after creation.</small>
-                                </div>
-                                <div class="custom-modal-col">
                                     <label class="custom-modal-label">Display Name</label>
                                     <input type="text" name="display_name" id="edit_display_name" class="custom-modal-input" placeholder="Display name" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
                                     <small style="color: #6b7280; font-size: 11px;">Display name cannot be changed after creation</small>
                                 </div>
-                            </div>
-                            <div class="custom-modal-row">
                                 <div class="custom-modal-col">
                                     <label class="custom-modal-label">Full Name *</label>
                                     <input type="text" name="full_name" id="edit_full_name" class="custom-modal-input" required>
                                 </div>
+                            </div>
+                            <div class="custom-modal-row">
                                 <div class="custom-modal-col">
                                     <label class="custom-modal-label">Email *</label>
                                     <input type="email" name="email" id="edit_email" class="custom-modal-input" required readonly style="background-color: #f3f4f6; cursor: not-allowed;">
                                     <small style="color: #6b7280; font-size: 11px;">Email cannot be changed after creation</small>
                                 </div>
-                            </div>
-                            <div class="custom-modal-row">
                                 <div class="custom-modal-col">
                                     <label class="custom-modal-label">Start Work</label>
                                     <input type="date" name="start_work" id="edit_start_work" class="custom-modal-input">
                                 </div>
                             </div>
+
                             <div class="custom-modal-row">
                                 <div class="custom-modal-col">
                                     <label class="custom-modal-label">Tier</label>
