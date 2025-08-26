@@ -112,7 +112,7 @@ if (isset($_POST['update'])) {
                 if ($due < $inf) { $dueDate = $inf->format('Y-m-d'); }
             } catch (Exception $e) { }
         }
-        $stmt = $pdo->prepare('UPDATE activities SET project_id=?, no=?, information_date=?, user_position=?, department=?, application=?, type=?, description=?, action_solution=?, due_date=?, status=?, cnc_number=?, priority=?, customer=?, project=?, updated_by=? WHERE id=?');
+        $stmt = $pdo->prepare('UPDATE activities SET project_id=?, no=?, information_date=?, user_position=?, department=?, application=?, type=?, description=?, action_solution=?, due_date=?, status=?, cnc_number=?, priority=?, customer=?, project=?, edited_by=?, edited_at=? WHERE id=?');
         $stmt->execute([
             $_POST['project_id'] ?? null,
             $_POST['no'] ?? null,
@@ -129,7 +129,8 @@ if (isset($_POST['update'])) {
             $_POST['priority'] ?? 'Normal',
             $_POST['customer'] ?? null,
             $_POST['project'] ?? null,
-            get_current_user_id(), // Set updated_by
+            get_current_user_id(), // Set edited_by
+            date('Y-m-d H:i:s'), // Set edited_at
             $_POST['id']
         ]);
         
@@ -235,7 +236,7 @@ $stmt->execute($params);
 $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get projects for dropdown
-$projects = $pdo->query('SELECT project_id, project_name FROM projects ORDER BY project_name')->fetchAll(PDO::FETCH_ASSOC);
+$projects = $pdo->query('SELECT id as project_id, name as project_name FROM projects ORDER BY name')->fetchAll(PDO::FETCH_ASSOC);
 // Next auto number for display (server tetap akan hitung saat insert)
 $next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fetchColumn());
 

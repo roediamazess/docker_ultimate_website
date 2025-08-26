@@ -408,10 +408,11 @@ html[data-theme="dark"] .horizontal-navbar .nav-surface.is-scrolled { box-shadow
                     <li class="nav-item dropdown" data-debug="dropdown-item">
                         <a href="javascript:void(0)" class="nav-link" data-debug="dropdown-link">
                             <iconify-icon icon="solar:document-text-outline" class="nav-icon"></iconify-icon>
-                            <span>Components</span>
+                            <span>Tables</span>
                             <iconify-icon icon="solar:alt-arrow-down-outline" class="dropdown-arrow"></iconify-icon>
                         </a>
                         <ul class="dropdown-menu" data-debug="dropdown-menu">
+                            <li><a href="group.php">Hotel Groups</a></li>
                             <li><a href="typography.php">Typography</a></li>
                             <li><a href="colors.php">Colors</a></li>
                             <li><a href="button.php">Button</a></li>

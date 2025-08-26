@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_photo'])) {
         // Enhanced validation
         if (!in_array($file['type'], $allowed_types)) {
                      $error = 'Only JPG, PNG, or GIF files are allowed.';
-     } elseif ($file['size'] > $max_size) {
+        } elseif ($file['size'] > $max_size) {
          $error = 'Maximum file size is 2MB.';
      } elseif ($file['size'] === 0) {
          $error = 'File is empty or corrupted.';
@@ -105,22 +105,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_photo'])) {
          
          if (!in_array($mime_type, $allowed_types)) {
              $error = 'Invalid file type.';
-            } else {
-                $upload_dir = 'uploads/profile_photos/';
-                if (!is_dir($upload_dir)) {
-                    mkdir($upload_dir, 0755, true);
-                }
-                
+        } else {
+            $upload_dir = 'uploads/profile_photos/';
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0755, true);
+            }
+            
                 $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-                $filename = 'user_' . $user_id . '_' . time() . '.' . $file_extension;
-                $filepath = $upload_dir . $filename;
+            $filename = 'user_' . $user_id . '_' . time() . '.' . $file_extension;
+            $filepath = $upload_dir . $filename;
                 
                 // Delete old profile photo if exists
                 if (!empty($user['profile_photo']) && file_exists($user['profile_photo'])) {
                     unlink($user['profile_photo']);
                 }
-                
-                if (move_uploaded_file($file['tmp_name'], $filepath)) {
+            
+            if (move_uploaded_file($file['tmp_name'], $filepath)) {
                     // Compress and resize image
                     $compressed_filepath = $upload_dir . 'compressed_' . $filename;
                     if (compressImage($filepath, $compressed_filepath, 80, 400, 400)) {
@@ -132,22 +132,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_photo'])) {
                      $message = 'Profile photo uploaded successfully! (compression failed)';
                  }
                     
-                    // Update database with photo path
-                    $stmt = $pdo->prepare("UPDATE users SET profile_photo = ? WHERE id = ?");
-                    if ($stmt->execute([$filepath, $user_id])) {
+                // Update database with photo path
+                $stmt = $pdo->prepare("UPDATE users SET profile_photo = ? WHERE id = ?");
+                if ($stmt->execute([$filepath, $user_id])) {
                         // Refresh user data
                         $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
                         $stmt->execute([$user_id]);
                         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-                    } else {
-                        $error = 'Failed to save photo data to database.';
-                    }
                 } else {
+                        $error = 'Failed to save photo data to database.';
+                }
+            } else {
                     $error = 'Failed to upload file.';
                 }
             }
         }
-         } else {
+    } else {
          $error = 'Please select a photo file first or upload error occurred.';
      }
 }
@@ -235,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         if ($stmt->execute([$start_workParam, $user_id])) {
             $message = 'Start work date updated successfully!';
             $has_changes = true;
-        } else {
+            } else {
             $error = 'Failed to update start work date.';
         }
     }
@@ -293,11 +293,11 @@ include './partials/head.php';
 ?>
 
 <body>
-         <?php include './partials/layouts/layoutHorizontal.php'; ?>
- 
+    <?php include './partials/layouts/layoutHorizontal.php'; ?>
+
           <!-- Logo Notification System will be handled by JavaScript -->
- 
-     <div class="container-fluid">
+
+    <div class="container-fluid">
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -305,7 +305,7 @@ include './partials/head.php';
                         <h4 class="card-title">Profile Settings</h4>
                         <p class="card-subtitle">Kelola foto profil, tanggal mulai kerja, dan password Anda</p>
                     </div>
-                                         <div class="card-body">
+                    <div class="card-body">
 
                         <div class="row">
                             <!-- Profile Photo Section -->
@@ -323,9 +323,9 @@ include './partials/head.php';
                                         <?php endif; ?>
                                     </div>
                                     
-                                                                         <!-- Photo Upload Form -->
-                                     <form method="POST" enctype="multipart/form-data" class="mb-3">
-                                         <div class="mb-3">
+                                    <!-- Photo Upload Form -->
+                                    <form method="POST" enctype="multipart/form-data" class="mb-3">
+                                        <div class="mb-3">
                                              <label class="form-label">Pilih Avatar Default</label>
                                              <div class="default-avatars-grid mb-3">
                                                  <?php
@@ -361,20 +361,20 @@ include './partials/head.php';
                                          
                                          <div class="mb-3">
                                              <label for="profile_photo" class="form-label">Atau Upload Foto Profil</label>
-                                             <input type="file" 
-                                                    class="form-control" 
-                                                    id="profile_photo" 
-                                                    name="profile_photo" 
+                                            <input type="file" 
+                                                   class="form-control" 
+                                                   id="profile_photo" 
+                                                   name="profile_photo" 
                                                     accept="image/*">
-                                             <div class="form-text">
+                                            <div class="form-text">
                                                  Format: JPG, PNG, GIF. Maksimal 2MB.
-                                             </div>
-                                         </div>
+                                            </div>
+                                        </div>
                                          
                                          <div class="d-grid gap-2">
-                                             <button type="submit" name="upload_photo" class="btn btn-primary">
-                                                 <i class="fas fa-upload me-2"></i>Upload Foto
-                                             </button>
+                                        <button type="submit" name="upload_photo" class="btn btn-primary">
+                                            <i class="fas fa-upload me-2"></i>Upload Foto
+                                        </button>
                                              
                                              <button type="submit" name="select_default_avatar" class="btn btn-outline-primary" id="selectDefaultBtn" style="display: none;">
                                                  <i class="fas fa-user me-2"></i>Pilih Avatar Default
@@ -390,7 +390,7 @@ include './partials/head.php';
                                          
                                          <!-- Hidden input untuk avatar default -->
                                          <input type="hidden" name="selected_default_avatar" id="selectedDefaultAvatar" value="">
-                                     </form>
+                                    </form>
                                 </div>
                             </div>
 
@@ -407,10 +407,10 @@ include './partials/head.php';
                                                    value="<?= htmlspecialchars($user['display_name'] ?? '') ?>"
                                                    placeholder="Nama yang ditampilkan"
                                                    readonly style="background-color: #f3f4f6; cursor: not-allowed;">
-                                                                                         <div class="form-text text-muted">
-                                                 <i class="fas fa-lock me-1"></i>
+                                            <div class="form-text text-muted">
+                                                <i class="fas fa-lock me-1"></i>
                                                  Hanya dapat diubah oleh Administrator
-                                             </div>
+                                            </div>
                                         </div>
                                         
                                         <div class="col-md-6 mb-3">
@@ -541,21 +541,21 @@ include './partials/head.php';
         </div>
     </div>
 
-         <?php include './partials/layouts/layoutBottom.php'; ?>
+    <?php include './partials/layouts/layoutBottom.php'; ?>
      
      <!-- Logo Notification System -->
      <script src="assets/js/logo-notifications.js"></script>
 
          <style>
-        .profile-photo-container {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .profile-photo {
-            width: 150px;
-            height: 150px;
-            border: 3px solid #e9ecef;
+     .profile-photo-container {
+         position: relative;
+         display: inline-block;
+     }
+     
+     .profile-photo {
+         width: 150px;
+         height: 150px;
+         border: 3px solid #e9ecef;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             transition: transform 0.3s ease;
             object-fit: cover;
@@ -563,92 +563,92 @@ include './partials/head.php';
         
         .profile-photo:hover {
             transform: scale(1.05);
-        }
-        
-        .card {
-            border: none;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            border-radius: 15px;
-        }
-        
-        .card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 15px 15px 0 0 !important;
-            border: none;
-        }
-        
-        .form-control, .form-select {
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        
-        .btn {
-            border-radius: 10px;
-            padding: 10px 20px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-        
-        .alert {
-            border-radius: 10px;
-            border: none;
-        }
-        
-        .alert-success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-        }
-        
-                 .alert-danger {
-             background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
-             color: white;
-         }
+     }
+     
+     .card {
+         border: none;
+         box-shadow: 0 0 20px rgba(0,0,0,0.1);
+         border-radius: 15px;
+     }
+     
+     .card-header {
+         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+         color: white;
+         border-radius: 15px 15px 0 0 !important;
+         border: none;
+     }
+     
+     .form-control, .form-select {
+         border-radius: 10px;
+         border: 2px solid #e9ecef;
+         transition: all 0.3s ease;
+     }
+     
+     .form-control:focus, .form-select:focus {
+         border-color: #667eea;
+         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+     }
+     
+     .btn {
+         border-radius: 10px;
+         padding: 10px 20px;
+         font-weight: 500;
+         transition: all 0.3s ease;
+     }
+     
+     .btn-primary {
+         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+         border: none;
+     }
+     
+     .btn-primary:hover {
+         transform: translateY(-2px);
+         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+     }
+     
+     .alert {
+         border-radius: 10px;
+         border: none;
+     }
+     
+     .alert-success {
+         background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+         color: white;
+     }
+     
+     .alert-danger {
+         background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+         color: white;
+     }
          
 
-        
-        /* Dark Theme Adjustments */
-        [data-theme="dark"] .card {
-            background-color: #2d3748 !important;
-            color: #e2e8f0 !important;
-        }
-        
-        [data-theme="dark"] .card-header {
-            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
-            color: #e2e8f0 !important;
-        }
-        
-        [data-theme="dark"] .form-control,
-        [data-theme="dark"] .form-select {
-            background-color: #4a5568 !important;
-            border-color: #718096 !important;
-            color: #e2e8f0 !important;
-        }
-        
+     
+     /* Dark Theme Adjustments */
+     [data-theme="dark"] .card {
+         background-color: #2d3748 !important;
+         color: #e2e8f0 !important;
+     }
+     
+     [data-theme="dark"] .card-header {
+         background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
+         color: #e2e8f0 !important;
+     }
+     
+     [data-theme="dark"] .form-control,
+     [data-theme="dark"] .form-select {
+         background-color: #4a5568 !important;
+         border-color: #718096 !important;
+         color: #e2e8f0 !important;
+     }
+     
         [data-theme="dark"] input[type="file"] {
-            background-color: #4a5568 !important;
+         background-color: #4a5568 !important;
             border-color: #718096 !important;
-            color: #e2e8f0 !important;
-        }
-        
+         color: #e2e8f0 !important;
+     }
+     
         [data-theme="dark"] input[type="file"]:hover {
-            background-color: #2d3748 !important;
+         background-color: #2d3748 !important;
             border-color: #667eea !important;
         }
         
@@ -836,8 +836,8 @@ include './partials/head.php';
                 width: 120px;
                 height: 120px;
             }
-        }
-    </style>
+     }
+     </style>
 
     <script>
         // Function to select default avatar

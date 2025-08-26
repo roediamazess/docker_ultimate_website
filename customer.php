@@ -7,21 +7,19 @@ require_once 'user_utils.php';
 // Cek akses menggunakan utility function
 require_login();
 
-// Ensure DB schema: unique customer_id and status enum column
-try {
-    // Create enum type if not exists
-    $pdo->exec("DO $$ BEGIN CREATE TYPE customer_status AS ENUM ('Active','Inactive'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;");
-    // Add status column if not exists
-    $pdo->exec("ALTER TABLE customers ADD COLUMN IF NOT EXISTS status customer_status");
-    // Add email column if not exists
-    $pdo->exec("ALTER TABLE customers ADD COLUMN IF NOT EXISTS email VARCHAR(255)");
-    // Backfill and set NOT NULL
-    $pdo->exec("UPDATE customers SET status = 'Active' WHERE status IS NULL");
-    $pdo->exec("ALTER TABLE customers ALTER COLUMN status SET NOT NULL");
-    // Unique index on customer_id
-    $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_customer_id_unique ON customers (customer_id)");
-} catch (Exception $e) {
-    // Silently ignore if database user lacks permissions; UI will still work
+// Helper functions to update group counts
+function updateGroupCount($pdo, $group_name, $direction) {
+    if (empty($group_name)) {
+        return;
+    }
+    $operator = $direction === 'increment' ? '+' : '-';
+    try {
+        $sql = "UPDATE hotel_groups SET customer_count = customer_count {$operator} 1 WHERE name = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$group_name]);
+    } catch (PDOException $e) {
+        // Log error or handle it silently
+    }
 }
 
 // Fungsi helper untuk logging - menggunakan utility function
@@ -46,43 +44,28 @@ $notification_type = '';
 
 // Create Customer
 if (isset($_POST['create'])) {
-    if (!csrf_verify()) {
-        $message = 'CSRF token tidak valid!';
-        $notification_type = 'error';
-    } else {
+    if (csrf_verify()) {
         try {
-            $stmt = $pdo->prepare('INSERT INTO customers (customer_id, name, star, room, outlet, type, "group", zone, address, billing, status, email_gm, email_executive, email_hr, email_acc_head, email_chief_acc, email_cost_control, email_ap, email_ar, email_fb, email_fo, email_hk, email_engineering, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $pdo->beginTransaction();
+            $stmt = $pdo->prepare('INSERT INTO customers (customer_id, name, star, room, outlet, type, "group", zone, address, billing, status, email_gm, email_executive, email_hr, email_acc_head, email_chief_acc, email_cost_control, email_ap, email_ar, email_fb, email_fo, email_hk, email_engineering, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())');
             $stmt->execute([
-                $_POST['customer_id'],
-                $_POST['name'],
-                $_POST['star'] ?: null,
-                $_POST['room'],
-                $_POST['outlet'] ?: 1,
-                $_POST['type'] ?: null,
-                $_POST['group'],
-                $_POST['zone'],
-                $_POST['address'],
-                $_POST['billing'] ?: null,
-                $_POST['status'] ?: 'Active',
-                $_POST['email_gm'] ?: null,
-                $_POST['email_executive'] ?: null,
-                $_POST['email_hr'] ?: null,
-                $_POST['email_acc_head'] ?: null,
-                $_POST['email_chief_acc'] ?: null,
-                $_POST['email_cost_control'] ?: null,
-                $_POST['email_ap'] ?: null,
-                $_POST['email_ar'] ?: null,
-                $_POST['email_fb'] ?: null,
-                $_POST['email_fo'] ?: null,
-                $_POST['email_hk'] ?: null,
-                $_POST['email_engineering'] ?: null,
-                $_SESSION['user_id'],
-                date('Y-m-d H:i:s')
+                $_POST['customer_id'], $_POST['name'], $_POST['star'] ?: null, $_POST['room'], $_POST['outlet'] ?: 1,
+                $_POST['type'] ?: null, $_POST['group'], $_POST['zone'], $_POST['address'], $_POST['billing'] ?: null,
+                $_POST['status'] ?: 'Active', $_POST['email_gm'] ?: null, $_POST['email_executive'] ?: null,
+                $_POST['email_hr'] ?: null, $_POST['email_acc_head'] ?: null, $_POST['email_chief_acc'] ?: null,
+                $_POST['email_cost_control'] ?: null, $_POST['email_ap'] ?: null, $_POST['email_ar'] ?: null,
+                $_POST['email_fb'] ?: null, $_POST['email_fo'] ?: null, $_POST['email_hk'] ?: null,
+                $_POST['email_engineering'] ?: null
             ]);
+            
+            updateGroupCount($pdo, $_POST['group'], 'increment');
+            
+            $pdo->commit();
             $message = 'Customer berhasil dibuat!';
             $notification_type = 'created';
             log_activity('create_customer', 'Customer ID: ' . $_POST['customer_id']);
         } catch (PDOException $e) {
+            $pdo->rollBack();
             $message = 'Error: ' . $e->getMessage();
             $notification_type = 'error';
         }
@@ -91,42 +74,37 @@ if (isset($_POST['create'])) {
 
 // Update Customer
 if (isset($_POST['update'])) {
-    if (!csrf_verify()) {
-        $message = 'CSRF token tidak valid!';
-        $notification_type = 'error';
-    } else {
+    if (csrf_verify()) {
         try {
+            $pdo->beginTransaction();
+
+            $old_group_stmt = $pdo->prepare('SELECT "group" FROM customers WHERE id = ?');
+            $old_group_stmt->execute([$_POST['id']]);
+            $old_group = $old_group_stmt->fetchColumn();
+
             $stmt = $pdo->prepare('UPDATE customers SET customer_id=?, name=?, star=?, room=?, outlet=?, type=?, "group"=?, zone=?, address=?, billing=?, status=?, email_gm=?, email_executive=?, email_hr=?, email_acc_head=?, email_chief_acc=?, email_cost_control=?, email_ap=?, email_ar=?, email_fb=?, email_fo=?, email_hk=?, email_engineering=? WHERE id=?');
             $stmt->execute([
-                $_POST['customer_id'],
-                $_POST['name'],
-                $_POST['star'] ?: null,
-                $_POST['room'],
-                $_POST['outlet'] ?: 1,
-                $_POST['type'] ?: null,
-                $_POST['group'],
-                $_POST['zone'],
-                $_POST['address'],
-                $_POST['billing'] ?: null,
-                $_POST['status'] ?: 'Active',
-                $_POST['email_gm'] ?: null,
-                $_POST['email_executive'] ?: null,
-                $_POST['email_hr'] ?: null,
-                $_POST['email_acc_head'] ?: null,
-                $_POST['email_chief_acc'] ?: null,
-                $_POST['email_cost_control'] ?: null,
-                $_POST['email_ap'] ?: null,
-                $_POST['email_ar'] ?: null,
-                $_POST['email_fb'] ?: null,
-                $_POST['email_fo'] ?: null,
-                $_POST['email_hk'] ?: null,
-                $_POST['email_engineering'] ?: null,
-                $_POST['id']
+                $_POST['customer_id'], $_POST['name'], $_POST['star'] ?: null, $_POST['room'], $_POST['outlet'] ?: 1,
+                $_POST['type'] ?: null, $_POST['group'], $_POST['zone'], $_POST['address'], $_POST['billing'] ?: null,
+                $_POST['status'] ?: 'Active', $_POST['email_gm'] ?: null, $_POST['email_executive'] ?: null,
+                $_POST['email_hr'] ?: null, $_POST['email_acc_head'] ?: null, $_POST['email_chief_acc'] ?: null,
+                $_POST['email_cost_control'] ?: null, $_POST['email_ap'] ?: null, $_POST['email_ar'] ?: null,
+                $_POST['email_fb'] ?: null, $_POST['email_fo'] ?: null, $_POST['email_hk'] ?: null,
+                $_POST['email_engineering'] ?: null, $_POST['id']
             ]);
+
+            $new_group = $_POST['group'];
+            if ($old_group !== $new_group) {
+                updateGroupCount($pdo, $old_group, 'decrement');
+                updateGroupCount($pdo, $new_group, 'increment');
+            }
+            
+            $pdo->commit();
             $message = 'Customer berhasil diperbarui!';
             $notification_type = 'updated';
             log_activity('update_customer', 'Customer ID: ' . $_POST['customer_id']);
         } catch (PDOException $e) {
+            $pdo->rollBack();
             $message = 'Error: ' . $e->getMessage();
             $notification_type = 'error';
         }
@@ -135,18 +113,25 @@ if (isset($_POST['update'])) {
 
 // Delete Customer
 if (isset($_POST['delete'])) {
-    if (!csrf_verify()) {
-        $message = 'CSRF token tidak valid!';
-        $notification_type = 'error';
-    } else {
+    if (csrf_verify()) {
         try {
-            $id = $_POST['id'];
+            $pdo->beginTransaction();
+            
+            $old_group_stmt = $pdo->prepare('SELECT "group" FROM customers WHERE id = ?');
+            $old_group_stmt->execute([$_POST['id']]);
+            $old_group = $old_group_stmt->fetchColumn();
+
             $stmt = $pdo->prepare('DELETE FROM customers WHERE id = ?');
-            $stmt->execute([$id]);
+            $stmt->execute([$_POST['id']]);
+
+            updateGroupCount($pdo, $old_group, 'decrement');
+
+            $pdo->commit();
             $message = 'Customer berhasil dihapus!';
             $notification_type = 'deleted';
-            log_activity('delete_customer', 'Customer ID: ' . $id);
+            log_activity('delete_customer', 'Customer ID: ' . $_POST['id']);
         } catch (PDOException $e) {
+            $pdo->rollBack();
             $message = 'Error: ' . $e->getMessage();
             $notification_type = 'error';
         }
@@ -197,12 +182,31 @@ $total_customers = $count_stmt->fetchColumn();
 $total_pages = ceil($total_customers / $limit);
 
 // Get customers with pagination
-$sql = "SELECT c.*, u.full_name as creator_name FROM customers c 
-        LEFT JOIN users u ON c.created_by = u.user_id 
+$sql = "SELECT c.* FROM customers c 
         $where_clause ORDER BY c.created_at DESC LIMIT $limit OFFSET $offset";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$provinces = [
+    'Aceh', 'Bali', 'Bangka Belitung', 'Banten', 'Bengkulu', 'DI Yogyakarta', 
+    'DKI Jakarta', 'Gorontalo', 'Jambi', 'Jawa Barat', 'Jawa Tengah', 'Jawa Timur', 
+    'Kalimantan Barat', 'Kalimantan Selatan', 'Kalimantan Tengah', 'Kalimantan Timur', 
+    'Kalimantan Utara', 'Kepulauan Riau', 'Lampung', 'Maluku', 'Maluku Utara', 
+    'Nusa Tenggara Barat', 'Nusa Tenggara Timur', 'Papua', 'Papua Barat', 
+    'Papua Barat Daya', 'Papua Pegunungan', 'Papua Selatan', 'Papua Tengah', 'Riau', 
+    'Sulawesi Barat', 'Sulawesi Selatan', 'Sulawesi Tengah', 'Sulawesi Tenggara', 
+    'Sulawesi Utara', 'Sumatera Barat', 'Sumatera Selatan', 'Sumatera Utara'
+];
+sort($provinces);
+
+// Fetch Hotel Groups
+try {
+    $hotel_groups_stmt = $pdo->query('SELECT * FROM hotel_groups ORDER BY name ASC');
+    $hotel_groups = $hotel_groups_stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $hotel_groups = []; // Default to empty array on error
+}
 
 // Get distinct values for filters
 try {
@@ -363,11 +367,21 @@ try {
                                         <div class="custom-modal-row">
                                             <div class="custom-modal-col">
                                                 <label class="custom-modal-label">Group</label>
-                                                <input type="text" name="group" class="custom-modal-input">
+                                                <select name="group" class="custom-modal-select">
+                                                    <option value="">- Pilih Grup -</option>
+                                                    <?php foreach ($hotel_groups as $group): ?>
+                                                        <option value="<?= htmlspecialchars($group['name']) ?>"><?= htmlspecialchars($group['name']) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
                                             </div>
                                             <div class="custom-modal-col">
                                                 <label class="custom-modal-label">Zone</label>
-                                                <input type="text" name="zone" class="custom-modal-input">
+                                                <select name="zone" class="custom-modal-select">
+                                                    <option value="">- Pilih Provinsi -</option>
+                                                    <?php foreach ($provinces as $province): ?>
+                                                        <option value="<?= htmlspecialchars($province) ?>"><?= htmlspecialchars($province) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="custom-modal-row">
@@ -525,11 +539,21 @@ try {
                                         <div class="custom-modal-row">
                                             <div class="custom-modal-col">
                                                 <label class="custom-modal-label">Group</label>
-                                                <input type="text" name="group" id="edit_group" class="custom-modal-input">
+                                                <select name="group" id="edit_group" class="custom-modal-select">
+                                                    <option value="">- Pilih Grup -</option>
+                                                    <?php foreach ($hotel_groups as $group): ?>
+                                                        <option value="<?= htmlspecialchars($group['name']) ?>"><?= htmlspecialchars($group['name']) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
                                             </div>
                                             <div class="custom-modal-col">
                                                 <label class="custom-modal-label">Zone</label>
-                                                <input type="text" name="zone" id="edit_zone" class="custom-modal-input">
+                                                <select name="zone" id="edit_zone" class="custom-modal-select">
+                                                    <option value="">- Pilih Provinsi -</option>
+                                                    <?php foreach ($provinces as $province): ?>
+                                                        <option value="<?= htmlspecialchars($province) ?>"><?= htmlspecialchars($province) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="custom-modal-row">
@@ -648,6 +672,9 @@ try {
                                         <div class="table-header text-center-important">Outlet</div>
                                     </th>
                                     <th scope="col" class="text-center-important">
+                                        <div class="table-header text-center-important">Zone</div>
+                                    </th>
+                                    <th scope="col" class="text-center-important">
                                         <div class="table-header text-center-important">Billing</div>
                                     </th>
                                 </tr>
@@ -698,6 +725,7 @@ try {
                                     </td>
                                     <td data-label="Room" class="text-center-important"><?= htmlspecialchars($c['room'] ?: '-') ?></td>
                                     <td data-label="Outlet" class="text-center-important"><?= htmlspecialchars($c['outlet'] ?: '-') ?></td>
+                                    <td data-label="Zone" class="text-center-important"><?= htmlspecialchars($c['zone'] ?: '-') ?></td>
                                     <td data-label="Billing" class="text-center-important">
                                         <?php if ($c['billing']): ?>
                                             <span class="billing-badge bg-success-focus text-success-main px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($c['billing']) ?></span>

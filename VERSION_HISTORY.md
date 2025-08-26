@@ -1,5 +1,75 @@
 # Ultimate Website - Version History
 
+## Version 2.1.0 - Activity Database Structure Overhaul
+**Date**: August 26, 2025  
+**Status**: ✅ COMPLETED
+
+### 🎯 Major Features Implemented
+
+#### **1. Database Structure Overhaul**
+- ✅ **Complete table recreation** with new column order and constraints
+- ✅ **Automatic due date calculation** based on activity type
+- ✅ **Smart default values** for all required fields
+- ✅ **Removed redundant fields** (title, completed_date, start_date, end_date, user_id)
+- ✅ **Added new tracking fields** (edited_by, edited_at)
+
+#### **2. Automatic Due Date Calculation**
+- ✅ **Trigger function** for automatic due date calculation
+- ✅ **Smart behavior**: Auto-calculate if NULL, preserve manual entries
+- ✅ **Type-based rules**: Setup (3 days), Question (1 day), Issue (1 day), Report Issue (3 days), Report Request (7 days), Feature Request (30 days)
+- ✅ **Update support**: Recalculates when type changes
+
+#### **3. Enhanced Data Integrity**
+- ✅ **Proper constraints**: NOT NULL where required, defaults where appropriate
+- ✅ **Better tracking**: Using created_by instead of user_id
+- ✅ **Edit history**: Track who edited and when
+- ✅ **Data validation**: Proper field types and lengths
+
+#### **4. Improved User Experience**
+- ✅ **Minimal input required**: Most fields have smart defaults
+- ✅ **Flexible due dates**: Auto-calculate or manual override
+- ✅ **Better organization**: Logical column order
+- ✅ **Cleaner interface**: Removed redundant fields
+
+### 🔧 Technical Improvements
+
+#### **Database & Performance**
+- ✅ **Optimized structure**: Removed redundant fields for better performance
+- ✅ **Trigger functions**: PostgreSQL triggers for automatic calculations
+- ✅ **Data migration**: Preserved all existing data during restructure
+- ✅ **Query optimization**: Better organized for faster queries
+
+#### **Code Quality**
+- ✅ **Cleaner codebase**: Removed redundant code
+- ✅ **Better maintainability**: Well-organized structure
+- ✅ **Enhanced documentation**: Comprehensive update documentation
+- ✅ **Testing coverage**: All features tested and verified
+
+### 📁 Updated File Structure
+```
+ultimate_website/
+├── activity.php (✅ UPDATED - New database structure)
+├── database_schema_postgres.sql (✅ UPDATED - New schema)
+├── VERSION_ACTIVITY_DATABASE_UPDATE.md (✅ NEW - Detailed documentation)
+└── [Previous structure maintained]
+```
+
+### 🚀 Migration Notes
+
+#### **Database Changes**
+- Complete activities table restructure
+- Added trigger function for due date calculation
+- Preserved all existing data
+- Enhanced data integrity constraints
+
+#### **User Impact**
+- Due dates now automatically calculated based on activity type
+- Minimal input required for new activities
+- Better tracking of activity changes
+- Improved data consistency
+
+---
+
 ## Version 1.0.0 - Complete Profile Management System
 **Date**: January 2025  
 **Status**: ✅ COMPLETED
@@ -97,7 +167,16 @@ ultimate_website/
 
 ### 🔄 Recent Updates
 
-#### **Notification System (Latest)**
+#### **Activity Database Structure Update (Latest)**
+- ✅ **Complete table restructure** with new column order and constraints
+- ✅ **Automatic due date calculation** based on activity type
+- ✅ **Smart default values** for all required fields
+- ✅ **Removed redundant fields** (title, completed_date, start_date, end_date, user_id)
+- ✅ **Added edit tracking** (edited_by, edited_at)
+- ✅ **Trigger function** for automatic due date calculation
+- ✅ **Enhanced data integrity** with proper constraints
+
+#### **Notification System**
 - ✅ **Icon Sizing**: Balanced 32px for success/error, 24px for info/warning
 - ✅ **Progress Bar Spacing**: Ideal 8px between text and progress bar
 - ✅ **Consistent Styling**: All notifications follow Welcome dashboard style
