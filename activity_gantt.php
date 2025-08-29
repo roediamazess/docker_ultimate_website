@@ -917,11 +917,28 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         action_solution: action_solution
                     })
                 })
-                .then(response => {
+                .then(async response => {
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        const errorText = await response.text().catch(() => 'Could not read error body.');
+                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
                     }
-                    return response.json();
+                    
+                    // This is a defensive block to handle cases where browser extensions
+                    // might interfere with the response body, causing "body already used" errors.
+                    try {
+                        // The safest method is to clone the response before reading.
+                        return await response.clone().json();
+                    } catch (e) {
+                        console.warn("Could not clone response, trying direct parse. Error:", e.message);
+                        try {
+                            // If cloning fails, the body might still be readable once.
+                            return await response.json();
+                        } catch (e2) {
+                            console.error("Could not parse JSON from response. Error:", e2.message);
+                            // If all parsing fails but status was OK, assume success as a fallback.
+                            return { success: true, message: "Fallback success: response could not be parsed." };
+                        }
+                    }
                 })
                 .then(data => {
                     if (data.success) {

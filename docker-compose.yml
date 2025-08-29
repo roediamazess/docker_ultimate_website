@@ -1,0 +1,69 @@
+services:
+  web:
+    build: .
+    container_name: ultimate-website-web
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=ultimate_website
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+    networks:
+      - ultimate-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: ultimate-website-db
+    environment:
+      POSTGRES_DB: ultimate_website
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ultimate-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ultimate-website-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8081:80"
+    depends_on:
+      - db
+    networks:
+      - ultimate-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: ultimate-website-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - ultimate-network
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: ultimate-website-mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - ultimate-network
+
+volumes:
+  postgres_data:
+
+networks:
+  ultimate-network:
+    driver: bridge

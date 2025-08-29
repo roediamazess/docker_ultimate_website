@@ -1,0 +1,2 @@
+# This file ensures the profile_photos directory is tracked by git
+# User uploaded profile photos will be ignored but directory structure is maintained

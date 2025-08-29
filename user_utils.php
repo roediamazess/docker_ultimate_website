@@ -85,5 +85,4 @@ function require_roles($roles) {
         header('Location: index.php');
         exit;
     }
-}
-?> 
+} 

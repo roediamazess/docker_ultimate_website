@@ -1,185 +1,194 @@
-# Ultimate Website - Complete Profile Management System
+# 🚀 Ultimate Website - Docker Edition
 
-A modern, feature-rich web application built with PHP, PostgreSQL, and Bootstrap 5, featuring advanced user profile management, role-based access control, and a sophisticated notification system.
+Website management system yang modern dengan teknologi Docker, PostgreSQL, dan PHP 8.1.
 
-## 🚀 Features
+## 🌟 Fitur Utama
 
-### ✨ User Profile Management
-- **Profile Photo Upload**: Support for JPG, PNG, GIF with automatic compression
-- **Default Avatar Selection**: 10 pre-uploaded professional avatars
-- **Photo Management**: Upload, select default, and remove profile photos
-- **Profile Information**: Display name, full name, email, tier, and role management
-- **Editable Fields**: Start work date and password changes
-- **Read-only Fields**: Admin-only fields (display name, full name, email, tier, role)
+- **Modern Stack**: Docker, PostgreSQL, Redis, Mailpit
+- **User Management**: Multi-role system (Administrator, Management, Admin Office, User, Client)
+- **Project Management**: Complete project lifecycle management
+- **Activity Tracking**: Real-time activity monitoring
+- **Customer Management**: Comprehensive customer database
+- **Responsive Design**: Modern UI dengan Bootstrap 5
 
-### 🔔 Advanced Notification System
-- **Logo Notification Manager**: Notifications emerge from logo area with smooth animations
-- **Modern Styling**: Pill-shaped capsules with glassmorphism effects
-- **Progress Bar Animation**: Auto-dismiss with visual progress indicators
-- **Theme Support**: Complete light/dark mode compatibility
-- **Consistent Spacing**: Ideal 8px spacing between text and progress bars
-- **Balanced Icons**: 32px for success/error, 24px for info/warning notifications
+## 🛠️ Tech Stack
 
-### 🗄️ Database & Security
-- **Unique Constraints**: display_name and email are unique keys
-- **Required Fields**: tier and role have default values and are mandatory
-- **Immutable Fields**: Critical user information protected from unauthorized changes
-- **Data Validation**: Proper ENUM types for tier and role
-- **Password Security**: bcrypt encryption with secure validation
-- **CSRF Protection**: Token-based form validation
-- **File Upload Security**: MIME type validation and size limits
+- **Backend**: PHP 8.1 + Apache
+- **Database**: PostgreSQL 15
+- **Cache**: Redis 7
+- **Email Testing**: Mailpit
+- **Database Admin**: PgAdmin 4
+- **Containerization**: Docker & Docker Compose
 
-### 👥 User Management System
-- **User Creation**: Add new users with comprehensive validation
-- **User Editing**: Update user information with role-based restrictions
-- **Role-based Access**: Administrator, Management, Admin Office, User, Client
-- **Tier System**: New Born, Tier 1, Tier 2, Tier 3 progression
+## 🚀 Quick Start
 
-## 🛠️ Technology Stack
+### Prerequisites
+- Docker Desktop
+- Git
 
-- **Backend**: PHP 7.4+ with PDO
-- **Database**: PostgreSQL with ENUM support
-- **Frontend**: Bootstrap 5, Custom CSS, Vanilla JavaScript
-- **Image Processing**: GD extension with fallback support
-- **Security**: bcrypt, CSRF tokens, input sanitization
-- **Environment**: XAMPP/WAMP compatible
+### 1. Clone Repository
+```bash
+git clone https://github.com/roediamazess/docker_ultimate_website.git
+cd docker_ultimate_website
+```
+
+### 2. Setup Environment
+```bash
+# Copy environment file
+cp env.example .env
+```
+
+### 3. Start Application
+```bash
+# Using PowerShell (Windows)
+.\start_website_simple.ps1
+
+# Using Docker Compose
+docker-compose up -d
+```
+
+### 4. Access Application
+- **Website**: http://localhost:8080
+- **Database Admin**: http://localhost:8081
+  - Email: `admin@admin.com`
+  - Password: `admin`
+- **Email Testing**: http://localhost:8025
 
 ## 📁 Project Structure
 
 ```
-ultimate_website/
-├── assets/
-│   ├── js/
-│   │   └── logo-notifications.js     # Advanced notification system
-│   └── images/
-│       └── default_avatars/          # 10 default avatar images
-├── partials/
-│   ├── layouts/
-│   │   ├── layoutHorizontal.php      # Main navigation layout
-│   │   └── layoutBottom.php          # Footer layout
-│   └── head.php                      # Common head elements
-├── uploads/
-│   └── profile_photos/               # User photo storage
-├── view-profile.php                  # Complete profile management
-├── users.php                         # User management system
-├── index.php                         # Dashboard
-├── db.php                           # Database connection
-├── access_control.php               # Security & permissions
-├── user_utils.php                   # User utility functions
-└── database_schema_postgres.sql     # Database schema
+docker_ultimate_website/
+├── assets/                 # CSS, JS, Images
+├── partials/              # PHP includes
+├── uploads/               # User uploads
+├── Dockerfile             # PHP/Apache image
+├── docker-compose.yml     # Multi-service setup
+├── docker-entrypoint.sh   # Container startup script
+├── postgres_schema.sql    # Database schema
+├── .env                   # Environment variables
+├── start_website_simple.ps1  # Start script
+├── stop_website.ps1       # Stop script
+└── test_website.ps1       # Test script
 ```
 
-## 🚀 Installation
+## 🔧 Management Scripts
 
-### Prerequisites
-- PHP 7.4+ with GD extension
-- PostgreSQL database
-- XAMPP/WAMP environment
-- Modern web browser
+### Start Website
+```powershell
+.\start_website_simple.ps1
+```
 
-### Setup Steps
-1. **Clone Repository**
-   ```bash
-   git clone https://github.com/roediamazess/ultimate_website.git
-   cd ultimate_website
-   ```
+### Stop Website
+```powershell
+.\stop_website.ps1
+```
 
-2. **Database Setup**
-   ```bash
-   # Import database schema
-   psql -U your_username -d your_database -f database_schema_postgres.sql
-   ```
+### Test Website
+```powershell
+.\test_website.ps1
+```
 
-3. **Configuration**
-   - Update database connection in `db.php`
-   - Set proper permissions for `uploads/` directory
-   - Upload default avatar images to `assets/images/default_avatars/`
+### Setup Auto Startup
+```powershell
+.\setup_auto_startup.ps1
+```
 
-4. **Web Server**
-   - Place files in your web server directory
-   - Ensure PHP GD extension is enabled
-   - Configure proper file permissions
+## 🗄️ Database
 
-## 🎨 Features in Detail
+### Default Credentials
+- **Host**: `db` (Docker service)
+- **Port**: `5432`
+- **Database**: `ultimate_website`
+- **Username**: `postgres`
+- **Password**: `password`
 
-### Profile Photo Management
-- **Upload Support**: JPG, PNG, GIF formats
-- **Auto-compression**: 80% quality with 400x400 max dimensions
-- **File Validation**: MIME type and size verification
-- **Storage Management**: Automatic cleanup of old photos
+### Schema
+- **users**: User management
+- **customers**: Customer database
+- **projects**: Project management
+- **activities**: Activity tracking
 
-### Notification System
-- **Emergence Animation**: Smooth appear-from-logo effect
-- **Progress Indicators**: Visual countdown to auto-dismiss
-- **Theme Integration**: Seamless light/dark mode support
-- **Responsive Design**: Optimized for all screen sizes
+## 🛠️ Development
 
-### User Interface
-- **Modern Design**: Clean, professional appearance
-- **Responsive Layout**: Mobile-first design approach
-- **Dark Theme**: Complete dark mode support
-- **Accessibility**: ARIA labels and keyboard navigation
+### Making Changes
+1. Edit files in the project directory
+2. Changes are automatically reflected (volume mounting)
+3. Restart containers if needed: `docker-compose restart`
 
-## 🔒 Security Features
+### Rebuilding Containers
+```bash
+docker-compose up -d --build
+```
 
-- **Password Hashing**: bcrypt with cost factor 12
-- **Session Management**: Secure login/logout handling
-- **Input Validation**: Comprehensive sanitization
-- **File Upload Security**: Type and size restrictions
-- **CSRF Protection**: Token-based form validation
-- **Role-based Access**: Granular permission system
+### View Logs
+```bash
+# All services
+docker-compose logs
 
-## 📱 Responsive Design
+# Specific service
+docker-compose logs web
+docker-compose logs db
+```
 
-- **Mobile Optimized**: Touch-friendly interface
-- **Tablet Support**: Adaptive layouts
-- **Desktop Experience**: Full-featured interface
-- **Breakpoints**: 480px, 768px, 1024px, 1200px
+## 🔒 Security
 
-## 🧪 Testing
+- Environment variables for sensitive data
+- Database password protection
+- Session management
+- Role-based access control
 
-The application includes comprehensive testing for:
-- Database connectivity and queries
-- File upload functionality
-- User authentication and authorization
-- Form validation and submission
-- Notification system performance
-- Responsive design across devices
+## 📊 Monitoring
 
-## 🚀 Performance
+### Container Status
+```bash
+docker-compose ps
+```
 
-- **Page Load**: < 2 seconds average
-- **Image Processing**: Optimized compression algorithms
-- **Database Queries**: Prepared statements with indexing
-- **File Uploads**: Efficient handling with progress feedback
-- **Caching**: Browser-level optimization
+### Resource Usage
+```bash
+docker stats
+```
+
+### Database Backup
+```bash
+docker exec ultimate-website-db pg_dump -U postgres ultimate_website > backup_$(date +%Y-%m-%d).sql
+```
+
+## 🐛 Troubleshooting
+
+### Website Not Accessible
+1. Check Docker Desktop is running
+2. Verify containers: `docker-compose ps`
+3. Check logs: `docker-compose logs web`
+
+### Database Connection Issues
+1. Ensure database container is running
+2. Check environment variables in `.env`
+3. Restart database: `docker-compose restart db`
+
+### Permission Issues
+1. Check file permissions in container
+2. Rebuild container: `docker-compose up -d --build`
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+2. Create feature branch: `git checkout -b feature-name`
+3. Commit changes: `git commit -am 'Add feature'`
+4. Push to branch: `git push origin feature-name`
+5. Submit pull request
 
-## 📄 License
+## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
-## 📞 Support
+## 🆘 Support
 
 For support and questions:
-- Create an issue in the GitHub repository
-- Contact the development team
-- Check the [VERSION_HISTORY.md](VERSION_HISTORY.md) for detailed changelog
-
-## 🎉 Acknowledgments
-
-- Bootstrap team for the excellent CSS framework
-- PostgreSQL community for robust database support
-- PHP community for continuous improvements
-- All contributors and testers
+- Create an issue on GitHub
+- Check the troubleshooting section
+- Review the documentation
 
 ---
 
-**Built with ❤️ for modern web development** 
+**Made with ❤️ using Docker & Modern Web Technologies** 
