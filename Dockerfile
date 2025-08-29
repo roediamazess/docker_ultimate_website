@@ -17,6 +17,15 @@ RUN docker-php-ext-install pdo pdo_pgsql pgsql zip
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
+# Configure PHP for Apache
+RUN echo 'LoadModule php_module /usr/lib/apache2/modules/libphp.so\n\
+AddHandler application/x-httpd-php .php\n\
+DirectoryIndex index.php index.html\n\
+<FilesMatch \.php$>\n\
+    SetHandler application/x-httpd-php\n\
+</FilesMatch>' > /etc/apache2/conf-available/php.conf && \
+    a2enconf php
+
 # Configure Apache
 RUN echo '<Directory /var/www/html>\n\
     Options Indexes FollowSymLinks\n\

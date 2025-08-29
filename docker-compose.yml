@@ -2,12 +2,15 @@ services:
   web:
     build: .
     container_name: ultimate-website-web
+    restart: unless-stopped
     ports:
       - "8080:80"
     volumes:
       - .:/var/www/html
+      - web_logs:/var/log/apache2
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - DB_HOST=db
       - DB_PORT=5432
@@ -16,10 +19,17 @@ services:
       - DB_PASSWORD=password
     networks:
       - ultimate-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health.php"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   db:
     image: postgres:15-alpine
     container_name: ultimate-website-db
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ultimate_website
       POSTGRES_USER: postgres
@@ -28,33 +38,51 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - db_logs:/var/log/postgresql
     networks:
       - ultimate-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ultimate_website"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: ultimate-website-pgadmin
+    restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "8081:80"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - ultimate-network
 
   redis:
     image: redis:7-alpine
     container_name: ultimate-website-redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
     networks:
       - ultimate-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   mailpit:
     image: axllent/mailpit:latest
     container_name: ultimate-website-mailpit
+    restart: unless-stopped
     ports:
       - "8025:8025"
       - "1025:1025"
@@ -63,6 +91,13 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  web_logs:
+    driver: local
+  db_logs:
+    driver: local
 
 networks:
   ultimate-network:

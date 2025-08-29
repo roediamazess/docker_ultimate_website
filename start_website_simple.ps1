@@ -11,3 +11,7 @@ Write-Host "Website started!" -ForegroundColor Green
 Write-Host "Access at: http://localhost:8080" -ForegroundColor Cyan
 Write-Host "PgAdmin at: http://localhost:8081" -ForegroundColor Cyan
 
+
+
+
+
