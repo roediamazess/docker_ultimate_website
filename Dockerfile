@@ -1,56 +1,74 @@
-FROM php:8.1-apache
+FROM php:8.2-apache
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     libzip-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libonig-dev \
     zip \
     unzip \
     git \
     curl \
     netcat-openbsd \
+    supervisor \
+    cron \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_pgsql pgsql zip
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+    pdo \
+    pdo_pgsql \
+    pgsql \
+    zip \
+    gd \
+    bcmath \
+    mbstring \
+    exif \
+    pcntl
+
+# Install Redis extension
+RUN pecl install redis && docker-php-ext-enable redis
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
-# Configure PHP for Apache
-RUN echo 'LoadModule php_module /usr/lib/apache2/modules/libphp.so\n\
-AddHandler application/x-httpd-php .php\n\
-DirectoryIndex index.php index.html\n\
-<FilesMatch \.php$>\n\
-    SetHandler application/x-httpd-php\n\
-</FilesMatch>' > /etc/apache2/conf-available/php.conf && \
-    a2enconf php
+# Configure PHP
+RUN echo 'LoadModule php_module /usr/lib/apache2/modules/libphp.so\nAddHandler application/x-httpd-php .php\nDirectoryIndex index.php' > /etc/apache2/mods-available/php.conf
 
-# Configure Apache
-RUN echo '<Directory /var/www/html>\n\
-    Options Indexes FollowSymLinks\n\
-    AllowOverride All\n\
-    Require all granted\n\
-</Directory>' > /etc/apache2/conf-available/docker-php.conf && \
-    a2enconf docker-php
+# Configure Apache for Laravel
+RUN echo '<Directory /var/www/html/public>\n    Options Indexes FollowSymLinks\n    AllowOverride All\n    Require all granted\n</Directory>' > /etc/apache2/conf-available/laravel.conf
 
-# Set working directory
+# Set document root to public directory
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+
+# Enable Laravel configuration
+RUN a2enconf laravel
+
 WORKDIR /var/www/html
 
-# Copy application files
+# Copy application files first
 COPY . /var/www/html/
 
-# Set permissions
+# Install Composer dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# Set permissions for Laravel
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
-    && find /var/www/html -name "*.php" -exec chmod 644 {} \; 2>/dev/null || true \
-    && find /var/www/html -name "*.html" -exec chmod 644 {} \; 2>/dev/null || true \
-    && find /var/www/html -name "*.css" -exec chmod 644 {} \; 2>/dev/null || true \
-    && find /var/www/html -name "*.js" -exec chmod 644 {} \; 2>/dev/null || true
+    && chmod -R 775 storage bootstrap/cache
 
 # Copy entrypoint script
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+EXPOSE 80
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]

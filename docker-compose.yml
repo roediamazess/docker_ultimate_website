@@ -8,6 +8,7 @@ services:
     volumes:
       - .:/var/www/html
       - web_logs:/var/log/apache2
+      - composer_cache:/root/.composer
     depends_on:
       db:
         condition: service_healthy
@@ -17,6 +18,11 @@ services:
       - DB_DATABASE=ultimate_website
       - DB_USERNAME=postgres
       - DB_PASSWORD=password
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - CACHE_DRIVER=file
+      - SESSION_DRIVER=file
+      - QUEUE_CONNECTION=sync
     networks:
       - ultimate-network
     healthcheck:
@@ -97,6 +103,8 @@ volumes:
   web_logs:
     driver: local
   db_logs:
+    driver: local
+  composer_cache:
     driver: local
 
 networks:

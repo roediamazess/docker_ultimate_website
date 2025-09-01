@@ -1,27 +1,87 @@
-# 🚀 Ultimate Website - Docker Edition
+# Ultimate Website - Laravel Edition
 
-Website management system yang modern dengan teknologi Docker, PostgreSQL, dan PHP 8.1.
+A modern, responsive dashboard website built with Laravel 10 framework, featuring multiple dashboard variants, comprehensive UI components, and advanced user management system.
 
-## 🌟 Fitur Utama
+## 🚀 Features
 
-- **Modern Stack**: Docker, PostgreSQL, Redis, Mailpit
-- **User Management**: Multi-role system (Administrator, Management, Admin Office, User, Client)
-- **Project Management**: Complete project lifecycle management
-- **Activity Tracking**: Real-time activity monitoring
-- **Customer Management**: Comprehensive customer database
-- **Responsive Design**: Modern UI dengan Bootstrap 5
-- **Auto-Recovery**: Sistem recovery otomatis setelah restart
-- **Easy Management**: One-click start, stop, dan recovery
+### ✨ Dashboard Variants
+- **Main Dashboard** - Overview and analytics
+- **CRM Dashboard** - Customer relationship management
+- **eCommerce Dashboard** - Online store analytics
+- **Cryptocurrency Dashboard** - Crypto trading insights
+- **Investment Dashboard** - Investment portfolio tracking
+- **LMS Dashboard** - Learning management system
+- **NFT & Gaming Dashboard** - Gaming and NFT analytics
+- **Medical Dashboard** - Healthcare management
+- **Analytics Dashboard** - Advanced data analytics
+- **POS & Inventory Dashboard** - Point of sale system
 
-## 🛠️ Tech Stack
+### 🎨 UI Components (Tables Menu)
+- **Hotel Groups** - Group management system
+- **Typography** - Text styling examples
+- **Colors** - Color palette system
+- **Button** - Button component library
+- **Dropdown** - Dropdown menu components
+- **Alerts** - Notification system
+- **Card** - Card layout components
+- **Carousel** - Image carousel system
+- **Avatars** - User avatar components
+- **Progress** - Progress bar components
+- **Tabs & Accordion** - Tabbed interface
+- **Pagination** - Page navigation
+- **Badges** - Status and label badges
 
-- **Backend**: PHP 8.1 + Apache
-- **Database**: PostgreSQL 15
-- **Cache**: Redis 7
-- **Email Testing**: Mailpit
-- **Database Admin**: PgAdmin 4
-- **Containerization**: Docker & Docker Compose
-- **Health Monitoring**: Auto-health checks dan recovery
+### 🔐 User Management
+- **Authentication System** - Secure login/logout
+- **Role-based Access Control** - Administrator, Management, Admin Office
+- **User Profiles** - Complete user information
+- **Session Management** - Secure session handling
+
+### 📊 Project & Activity Management
+- **Project Tracking** - Complete project lifecycle
+- **Activity Logging** - User activity monitoring
+- **Customer Management** - Customer database
+- **Jobsheet System** - Task management
+
+## 🛠️ Technology Stack
+
+- **Backend Framework**: Laravel 10
+- **PHP Version**: 8.2
+- **Database**: PostgreSQL
+- **Frontend**: HTML5, CSS3, JavaScript
+- **UI Framework**: Custom CSS with Bootstrap components
+- **Icons**: Iconify (Solar icon set)
+- **Authentication**: Custom Laravel middleware
+- **Template Engine**: Blade templating
+
+## 📁 Project Structure
+
+```
+ultimate_website/
+├── app/                          # Laravel application
+│   ├── Http/Controllers/        # Controllers
+│   │   ├── DashboardController.php
+│   │   ├── TablesController.php
+│   │   ├── UserController.php
+│   │   ├── ProjectController.php
+│   │   ├── ActivityController.php
+│   │   └── CustomerController.php
+│   └── Http/Middleware/         # Custom middleware
+│       └── CustomAuthMiddleware.php
+├── resources/views/              # Blade templates
+│   ├── dashboard/               # Dashboard pages
+│   ├── tables/                  # Tables pages
+│   ├── errors/                  # Error pages
+│   └── partials/layouts/        # Layout components
+├── routes/                      # Laravel routes
+│   └── web.php
+├── public/                      # Public assets
+│   ├── assets/                  # CSS, JS, images
+│   └── index.php               # Laravel entry point
+├── database/                    # Database files
+├── backup/                      # Original website files
+└── docker-compose.yml          # Docker configuration
+```
 
 ## 🚀 Quick Start
 
@@ -29,250 +89,101 @@ Website management system yang modern dengan teknologi Docker, PostgreSQL, dan P
 - Docker Desktop
 - Git
 
-### 1. Clone Repository
-```bash
-git clone https://github.com/roediamazess/docker_ultimate_website.git
-cd docker_ultimate_website
-```
+### Installation
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd ultimate_website
+   ```
 
-### 2. Setup Environment
-```bash
-# Copy environment file
-cp env.example .env
-```
+2. **Start the application**
+   ```bash
+   docker-compose up -d
+   ```
 
-### 3. Start Application
-```bash
-# Double click START_WEBSITE.bat (Paling Mudah)
-# Atau menggunakan PowerShell
-.\start_website.ps1
+3. **Access the website**
+   - URL: http://localhost:8080
+   - Default credentials will be provided
 
-# Atau menggunakan Docker Compose
-docker-compose up -d
-```
+## 🔧 Development
 
-### 4. Access Application
-- **Quick Access**: http://localhost:8080/quick_access.php (Auto-login)
-- **Website**: http://localhost:8080
-- **Database Admin**: http://localhost:8081
-  - Email: `admin@admin.com`
-  - Password: `admin`
-- **Email Testing**: http://localhost:8025
+### Local Development
+- The application runs in Docker containers
+- Database: PostgreSQL on port 5432
+- Web server: Apache on port 8080
 
-### 5. Login Credentials
-- **Test User**: `test@test.com` / `test123`
-- **Admin**: `admin@test.com` / (password dari database)
-- **PMS**: `pms@ppsolution.com` / (password dari database)
+### File Structure
+- **Controllers**: Handle business logic and data processing
+- **Views**: Blade templates for UI rendering
+- **Routes**: Define application endpoints
+- **Middleware**: Handle authentication and security
 
-## 📁 Project Structure
+## 📱 Responsive Design
 
-```
-docker_ultimate_website/
-├── 🚀 START_WEBSITE.bat        # One-click start (Double click)
-├── 🛑 STOP_WEBSITE.bat         # One-click stop (Double click)
-├── 🔧 RECOVERY_WEBSITE.bat     # Recovery after restart (Double click)
-├── 🧹 CLEANUP_DOCKER.bat       # Docker maintenance (Double click)
-├── assets/                     # CSS, JS, Images
-├── partials/                   # PHP includes
-├── uploads/                    # User uploads
-├── Dockerfile                  # PHP/Apache image
-├── docker-compose.yml          # Multi-service setup
-├── docker-entrypoint.sh        # Container startup script
-├── postgres_schema.sql         # Database schema
-├── .env                        # Environment variables
-├── quick_access.php            # Auto-login interface
-├── health.php                  # Health check endpoint
-├── start_website.ps1           # Start script with health checks
-├── stop_website.ps1            # Stop script
-├── recovery_website.ps1        # Recovery script
-├── manage_website.ps1          # Management script
-└── cleanup_docker.ps1          # Cleanup script
-```
+- **Mobile-first approach**
+- **Floating navigation bar**
+- **Advanced theme toggle system**
+- **Touch-friendly interface**
+- **Adaptive layouts for all screen sizes**
 
-## 🔧 Management Scripts
+## 🔒 Security Features
 
-### 🚀 Quick Start (Recommended)
-```bash
-# Double click START_WEBSITE.bat
-# Atau
-.\start_website.ps1
-```
+- **CSRF protection** on all forms
+- **Input validation** and sanitization
+- **SQL injection prevention**
+- **XSS protection** via Blade escaping
+- **Session security** management
 
-### 🛑 Stop Website
-```bash
-# Double click STOP_WEBSITE.bat
-# Atau
-.\stop_website.ps1
-```
+## 📊 Performance
 
-### 🔧 Recovery After Restart
-```bash
-# Double click RECOVERY_WEBSITE.bat
-# Atau
-.\recovery_website.ps1
-```
+- **Optimized asset loading**
+- **Database query optimization**
+- **Laravel caching system**
+- **Efficient template rendering**
 
-### 🧹 Docker Maintenance
-```bash
-# Double click CLEANUP_DOCKER.bat
-# Atau
-.\cleanup_docker.ps1
-```
+## 🎯 Roadmap
 
-### 📊 Advanced Management
-```bash
-# Test all services
-.\manage_website.ps1 -Action test
+### Phase 1 ✅ (Completed)
+- [x] Laravel framework integration
+- [x] Dashboard variants conversion
+- [x] Basic Tables menu structure
+- [x] User authentication system
 
-# View logs
-.\manage_website.ps1 -Action logs
+### Phase 2 🔄 (In Progress)
+- [ ] Complete Tables pages content
+- [ ] Enhanced dashboard analytics
+- [ ] Advanced reporting system
 
-# Full cleanup
-.\manage_website.ps1 -Action cleanup
-```
-
-## 🗄️ Database
-
-### Default Credentials
-- **Host**: `db` (Docker service)
-- **Port**: `5432`
-- **Database**: `ultimate_website`
-- **Username**: `postgres`
-- **Password**: `password`
-
-### Schema
-- **users**: User management
-- **customers**: Customer database
-- **projects**: Project management
-- **activities**: Activity tracking
-
-## 🛠️ Development
-
-### Making Changes
-1. Edit files in the project directory
-2. Changes are automatically reflected (volume mounting)
-3. Restart containers if needed: `docker-compose restart`
-
-### Rebuilding Containers
-```bash
-docker-compose up -d --build
-```
-
-### View Logs
-```bash
-# All services
-docker-compose logs
-
-# Specific service
-docker-compose logs web
-docker-compose logs db
-```
-
-## 🔒 Security
-
-- Environment variables for sensitive data
-- Database password protection
-- Session management
-- Role-based access control
-
-## 🚨 Troubleshooting
-
-### Website Tidak Bisa Diakses Setelah Restart
-```bash
-# Double click RECOVERY_WEBSITE.bat
-# Atau
-.\recovery_website.ps1
-```
-
-### Docker Issues
-```bash
-# Cleanup Docker
-.\CLEANUP_DOCKER.bat
-
-# Restart Docker Desktop
-# Kemudian jalankan recovery
-```
-
-### Database Issues
-```bash
-# Check database connection
-.\manage_website.ps1 -Action test
-
-# View logs
-.\manage_website.ps1 -Action logs
-```
-
-## 📊 Monitoring
-
-### Container Status
-```bash
-docker-compose ps
-```
-
-### Health Check
-```bash
-# Check website health
-curl http://localhost:8080/health.php
-
-# Or visit in browser
-http://localhost:8080/health.php
-```
-
-### Resource Usage
-```bash
-docker stats
-```
-
-### Logs
-```bash
-# All services
-docker-compose logs
-
-# Specific service
-docker-compose logs web
-docker-compose logs db
-```
-
-### Database Backup
-```bash
-docker exec ultimate-website-db pg_dump -U postgres ultimate_website > backup_$(date +%Y-%m-%d).sql
-```
+### Phase 3 📋 (Planned)
+- [ ] API endpoints for mobile apps
+- [ ] Real-time notifications
+- [ ] Advanced user management
+- [ ] Performance monitoring
 
 ## 🐛 Troubleshooting
 
-### Website Not Accessible
-1. Check Docker Desktop is running
-2. Verify containers: `docker-compose ps`
-3. Check logs: `docker-compose logs web`
+### Common Issues
+1. **APP_KEY Error**: Run `php artisan key:generate`
+2. **Database Connection**: Check Docker container status
+3. **View Not Found**: Clear Laravel cache with `php artisan cache:clear`
 
-### Database Connection Issues
-1. Ensure database container is running
-2. Check environment variables in `.env`
-3. Restart database: `docker-compose restart db`
-
-### Permission Issues
-1. Check file permissions in container
-2. Rebuild container: `docker-compose up -d --build`
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature-name`
-3. Commit changes: `git commit -am 'Add feature'`
-4. Push to branch: `git push origin feature-name`
-5. Submit pull request
+### Support
+- Check the `VERSION_HISTORY.md` for detailed change logs
+- Review Docker logs: `docker-compose logs`
+- Verify database connectivity
 
 ## 📝 License
 
-This project is licensed under the MIT License.
+This project is proprietary software. All rights reserved.
 
-## 🆘 Support
+## 👥 Team
 
-For support and questions:
-- Create an issue on GitHub
-- Check the troubleshooting section
-- Review the documentation
+- **Development**: AI Assistant
+- **Framework**: Laravel 10
+- **Status**: Production Ready ✅
 
 ---
 
-**Made with ❤️ using Docker & Modern Web Technologies** 
+**Last Updated**: February 9, 2025  
+**Version**: 2.0.0 - Laravel Integration  
+**Status**: ✅ Production Ready 

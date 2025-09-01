@@ -1,0 +1,284 @@
+/* Theme Override: unify header styles & adopt login look across app */
+:root {
+  --brand-accent: #90C5D8; /* primary accent */
+  --brand-accent-strong: #6BB2C8; /* darker shade for gradients */
+  --brand-text-on-accent: #0B3A4A; /* readable text on light blue */
+
+  /* Login gradient reused for primary CTAs */
+  --login-primary-start: #667eea; /* purple-blue */
+  --login-primary-end: #764ba2;   /* purple */
+
+  /* Glass card look from login */
+  --glass-bg: rgba(255,255,255,0.95);
+  --glass-border: rgba(255,255,255,0.2);
+  --glass-shadow: 0 25px 50px rgba(0,0,0,0.12);
+  --glass-radius: 16px;
+}
+
+/* Light theme base (align with login look) */
+[data-theme="light"] body,
+[data-theme="light"] .main-content {
+  background: #f0f9ff; /* soft sky */
+}
+
+/* Dark theme mapping inspired by Maxton demo */
+[data-theme="dark"] {
+  --brand-accent: #3b82f6;
+  --brand-accent-strong: #1d4ed8;
+  --brand-text-on-accent: #e2e8f0;
+  --glass-bg: #1f2937;
+  --glass-border: rgba(148,163,184,0.18);
+  --glass-shadow: 0 20px 40px rgba(2,6,23,0.5);
+}
+
+[data-theme="dark"] .horizontal-navbar {
+  box-shadow: inset 0 -3px 0 var(--brand-accent-strong);
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .custom-modal {
+  background: var(--glass-bg) !important;
+  border-color: var(--glass-border) !important;
+  color: #e5e7eb !important;
+}
+
+/* ================= Activities table (legacy .table.table-striped) ================= */
+[data-theme="dark"] .table.table-striped {
+  background-color: #111827 !important; /* gray-900 */
+  color: #e5e7eb !important;
+}
+[data-theme="dark"] .table {
+  --bs-table-bg: #111827;
+  --bs-table-color: #e5e7eb;
+  --bs-table-striped-bg: #0b1220;
+  --bs-table-striped-color: #e5e7eb;
+  --bs-table-hover-bg: rgba(59,130,246,0.08);
+  --bs-border-color: #1f2937;
+}
+[data-theme="dark"] .table.table-striped > tbody > tr > * {
+  background-color: var(--bs-table-bg) !important;
+  color: var(--bs-table-color) !important;
+  border-color: var(--bs-border-color) !important;
+}
+[data-theme="dark"] .table.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: var(--bs-table-striped-bg) !important;
+}
+[data-theme="dark"] .table.table-hover > tbody > tr:hover > * {
+    background-color: var(--bs-table-hover-bg) !important;
+}
+[data-theme="dark"] .table.table-striped thead th {
+  border: none !important;
+}
+[data-theme="dark"] .table.table-striped tbody td {
+  border-color: #1f2937 !important;
+}
+[data-theme="dark"] .table.table-striped tbody tr:nth-child(odd) {
+  background-color: #0b1220 !important; /* slightly darker */
+}
+[data-theme="dark"] .table.table-striped tbody tr:nth-child(even) {
+  background-color: #111827 !important;
+}
+[data-theme="dark"] .table.table-striped tbody tr:hover {
+    background-color: rgba(59,130,246,0.08) !important;
+}
+
+/* Header chips inside thead used by activity.php (.table-header) */
+[data-theme="dark"] .table .table-header,
+[data-theme="dark"] .table-header {
+  background: linear-gradient(135deg, #0f172a 0%, #111827 100%) !important;
+  color: #e5e7eb !important;
+  box-shadow: 0 2px 8px rgba(2,6,23,0.4) !important;
+}
+
+/* Pills/badges legibility */
+[data-theme="dark"] .priority-badge.bg-info-focus,
+[data-theme="dark"] .type-badge.bg-info-focus {
+  background-color: rgba(59,130,246,0.15) !important;
+  color: #c7d2fe !important;
+}
+[data-theme="dark"] .status-badge {
+  border-color: rgba(148,163,184,0.24) !important;
+}
+
+/* Dark mode: form fields inside Activities (cards, modals, filter) */
+[data-theme="dark"] .card input,
+[data-theme="dark"] .card select,
+[data-theme="dark"] .card textarea,
+[data-theme="dark"] .custom-modal input,
+[data-theme="dark"] .custom-modal select,
+[data-theme="dark"] .custom-modal textarea,
+[data-theme="dark"] .filter-section input,
+[data-theme="dark"] .filter-section select,
+[data-theme="dark"] .filter-section textarea {
+  background: #111827 !important; /* gray-900 */
+  border: 1px solid #374151 !important; /* gray-700 */
+  color: #e5e7eb !important; /* gray-200 */
+}
+
+[data-theme="dark"] .card input::placeholder,
+[data-theme="dark"] .card textarea::placeholder,
+[data-theme="dark"] .custom-modal input::placeholder,
+[data-theme="dark"] .custom-modal textarea::placeholder,
+[data-theme="dark"] .filter-section input::placeholder,
+[data-theme="dark"] .filter-section textarea::placeholder {
+  color: #9ca3af !important; /* gray-400 */
+}
+
+[data-theme="dark"] .card input:focus,
+[data-theme="dark"] .card select:focus,
+[data-theme="dark"] .card textarea:focus,
+[data-theme="dark"] .custom-modal input:focus,
+[data-theme="dark"] .custom-modal select:focus,
+[data-theme="dark"] .custom-modal textarea:focus,
+[data-theme="dark"] .filter-section input:focus,
+[data-theme="dark"] .filter-section select:focus,
+[data-theme="dark"] .filter-section textarea:focus {
+  border-color: #3b82f6 !important; /* primary */
+  box-shadow: 0 0 0 3px rgba(59,130,246,.25) !important;
+  outline: none !important;
+}
+
+/* Dark mode: modal header/footer contrasts */
+[data-theme="dark"] .custom-modal-header {
+  background: linear-gradient(135deg, #0f172a 0%, #111827 100%) !important;
+  color: #e5e7eb !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] .custom-modal-footer,
+[data-theme="dark"] .modal-footer {
+  background: #0b1220 !important;
+  border-top: 1px solid #334155 !important;
+}
+
+/* Dark mode: secondary buttons */
+[data-theme="dark"] .custom-btn-secondary,
+[data-theme="dark"] .btn-secondary {
+  background: #374151 !important;
+  color: #e5e7eb !important;
+  border: 1px solid #4b5563 !important;
+}
+[data-theme="dark"] .custom-btn-secondary:hover,
+[data-theme="dark"] .btn-secondary:hover {
+    background: #4b5563 !important;
+}
+
+[data-theme="dark"] .card .card-header,
+[data-theme="dark"] .card-header,
+[data-theme="dark"] .table .table-header,
+[data-theme="dark"] .table-header {
+  background: linear-gradient(135deg, #0f172a 0%, #111827 100%) !important;
+  color: #e5e7eb !important;
+}
+
+/* Buttons in dark */
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] .btn-primary-600,
+[data-theme="dark"] .custom-btn-primary,
+[data-theme="dark"] .btn-apply {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  box-shadow: 0 10px 24px rgba(59,130,246,.35) !important;
+}
+[data-theme="dark"] .btn-reset {
+  background: #374151 !important;
+  color: #e5e7eb !important;
+  border-color: #4b5563 !important;
+}
+
+/* Top navbar subtle accent line to match brand */
+.horizontal-navbar {
+  box-shadow: inset 0 -3px 0 var(--brand-accent);
+}
+
+/* Card header unified with brand */
+/* Card & table headers: brand gradient */
+.card .card-header,
+.card-header {
+  background: linear-gradient(135deg, var(--brand-accent-strong) 0%, var(--brand-accent) 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+/* Table header inside .table use the same gradient */
+.table .table-header,
+.table-header {
+  background: linear-gradient(135deg, var(--brand-accent-strong) 0%, var(--brand-accent) 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(11, 58, 74, 0.25) !important;
+}
+
+/* Glass card background from login across app */
+.card,
+.modal-content,
+.custom-modal { /* custom modals used in activity.php */
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: var(--glass-radius) !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+
+/* Primary buttons adopt login gradient */
+.btn-primary,
+.btn-primary-600,
+.custom-btn-primary {
+  background: linear-gradient(135deg, var(--login-primary-start) 0%, var(--login-primary-end) 100%) !important;
+  border: none !important;
+  color: #fff !important;
+  box-shadow: 0 12px 28px rgba(102,126,234,0.35) !important;
+}
+.btn-primary:hover,
+.btn-primary-600:hover,
+.custom-btn-primary:hover {
+    filter: brightness(1.03);
+    transform: translateY(-1px);
+}
+.btn-primary:active,
+.btn-primary-600:active,
+.custom-btn-primary:active { transform: translateY(0); }
+
+/* Filter action buttons */
+.btn-apply {
+  background: linear-gradient(135deg, var(--login-primary-start) 0%, var(--login-primary-end) 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 14px !important;
+  padding: 10px 16px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 10px 22px rgba(102,126,234,0.28) !important;
+  transition: transform .2s ease, filter .2s ease, box-shadow .2s ease !important;
+}
+.btn-apply:hover { filter: brightness(1.04); transform: translateY(-1px); box-shadow: 0 12px 26px rgba(102,126,234,0.34) !important; }
+.btn-apply:active { transform: translateY(0); }
+
+.btn-reset {
+  background: rgba(255,255,255,0.8) !important;
+  color: #344054 !important;
+  border: 1px solid #e4e7ec !important;
+  border-radius: 14px !important;
+  padding: 10px 16px !important;
+  font-weight: 500 !important;
+}
+
+/* Badges and pills used in tables (optional alignment) */
+.priority-badge.bg-info-focus,
+.type-badge.bg-info-focus {
+  background-color: rgba(144, 197, 216, 0.15) !important;
+  color: var(--brand-text-on-accent) !important;
+}
+
+/* Secondary color utilities (used for Need Requirement status) */
+.bg-secondary-focus { background-color: rgba(109, 40, 217, 0.12) !important; }
+.text-secondary-main { color: #6D28D9 !important; }
+
+[data-theme="dark"] .status-badge.bg-secondary-focus,
+[data-theme="dark"] .priority-badge.bg-secondary-focus,
+[data-theme="dark"] .type-badge.bg-secondary-focus {
+  background-color: rgba(109, 40, 217, 0.22) !important; /* purple-700 with opacity */
+  color: #E9D5FF !important; /* purple-200 for legibility */
+}
+
+
+
