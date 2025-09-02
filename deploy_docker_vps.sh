@@ -14,9 +14,9 @@ NC='\033[0m' # No Color
 
 # Configuration
 PROJECT_DIR="/opt/ultimate-website"
-GITHUB_REPO="https://github.com/YOUR_USERNAME/ultimate-website.git"
-VPS_IP="YOUR_VPS_IP"
-DB_PASSWORD="YOUR_STRONG_PASSWORD_HERE"
+GITHUB_REPO="https://github.com/roediamazess/docker_ultimate_website.git"
+VPS_IP="103.150.101.26"
+DB_PASSWORD="UltimateWebsite2024!"
 
 echo -e "${BLUE}🐳 Ultimate Website - Docker VPS Deployment${NC}"
 echo -e "${BLUE}===========================================${NC}"
@@ -104,14 +104,30 @@ fi
 
 # Step 8: Generate APP_KEY
 print_info "Step 8: Generating application key..."
-APP_KEY=$(docker run --rm -v $(pwd):/app -w /app php:8.2-cli php -r "echo 'base64:' . base64_encode(random_bytes(32)) . PHP_EOL;" 2>/dev/null || echo "base64:$(openssl rand -base64 32)")
-sed -i "s/APP_KEY=.*/APP_KEY=$APP_KEY/" .env
+APP_KEY=$(openssl rand -base64 32)
+# Use a safer approach to update APP_KEY
+if grep -q "APP_KEY=" .env; then
+    sed -i "s/APP_KEY=.*/APP_KEY=base64:$APP_KEY/" .env
+else
+    echo "APP_KEY=base64:$APP_KEY" >> .env
+fi
 print_status "Application key generated"
 
 # Step 9: Update environment variables
 print_info "Step 9: Updating environment variables..."
-sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env
-sed -i "s/APP_URL=.*/APP_URL=http:\/\/$VPS_IP:8080/" .env
+# Update DB_PASSWORD
+if grep -q "DB_PASSWORD=" .env; then
+    sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env
+else
+    echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+fi
+
+# Update APP_URL
+if grep -q "APP_URL=" .env; then
+    sed -i "s|APP_URL=.*|APP_URL=http://$VPS_IP:8080|" .env
+else
+    echo "APP_URL=http://$VPS_IP:8080" >> .env
+fi
 print_status "Environment variables updated"
 
 # Step 10: Setup SSL directory
