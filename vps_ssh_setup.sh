@@ -23,4 +23,3 @@ ssh -o StrictHostKeyChecking=no localhost "echo 'SSH local test successful'"
 
 echo "SSH setup complete!"
 echo "You can now connect from Windows using: ssh roediamazess@103.150.101.26"
-EOF
