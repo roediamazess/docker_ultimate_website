@@ -1,0 +1,26 @@
+
+# Setup SSH untuk akses dari Windows
+echo "Setting up SSH for Windows access..."
+
+# Buat authorized_keys jika belum ada
+if [ ! -f ~/.ssh/authorized_keys ]; then
+    touch ~/.ssh/authorized_keys
+    chmod 600 ~/.ssh/authorized_keys
+fi
+
+# Tambahkan public key ke authorized_keys
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCfysJ6n01CWeN5sWxLehiaEGeAXAjrTz4URx+nZ6IDqwcgS1gcypWuEb7oI80nG1DeWm16Fk68uLrg0NdK8n8uhnIlof4HvLloHbXhP6z1g90ZhwsaqsQjNSDJXjUZS2DmAJZcs212762TQKECvrVaURLY81KAgGCLVhDwn/pZBs37YMazHn+qLRNhN014pqEvLa3bd1mVQHDrJXvx6Ki681nDnyxMQVfZTYK1kw1uls90IabonacxrBfYqIo36vxGyMe5h1hZldnw/J0XeuDIugT9FvIBQratBo03j3Bio2nNAB+ov18v81eDNe/vSS+/M1ch+W8yqtN5pVPOUTjmUcKvlbxhpG/9P23EcVqIyqbfKBhhP8cDnFMVMjf2Qx+Qtk7pWwghndzW91rICvFXtJoM/jQNjH0SWybm/zJoMvvfDlqkudTx/XOLk37w/HbFQ+3SuBS3ttA4X2+vyI9A/gJNZ9T/eXDbaRYY9QK1WDpAMc1vnUxRkjMQFb10iFsJjXRvG8SfXJtXLOORxsP0Nf8ty7udk1EF8+CtU0UwTyQh6m20nzi590FoXvPV+cGGL0o4gBCTRHNHDD9skmVwopaABb6yzkLmvdet08NV1T/hWPudwdTedrvhdPz+tLuo0U22v2D3tf7I10Sxwa6NnWsEiPaXy4WdoRUR+8Jeiw== rudianto.learnabout.ai@gmail.com" >> ~/.ssh/authorized_keys
+
+# Set permission yang benar
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/id_rsa
+chmod 644 ~/.ssh/id_rsa.pub
+
+# Test SSH local
+echo "Testing SSH local connection..."
+ssh -o StrictHostKeyChecking=no localhost "echo 'SSH local test successful'"
+
+echo "SSH setup complete!"
+echo "You can now connect from Windows using: ssh roediamazess@103.150.101.26"
+EOF
