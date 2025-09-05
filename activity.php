@@ -222,1554 +222,710 @@ if ($filter_application) {
 
 $where_clause = $where_conditions ? 'WHERE ' . implode(' AND ', $where_conditions) : '';
 
-// Get total count
-$count_sql = "SELECT COUNT(*) FROM activities a $where_clause";
-$count_stmt = $pdo->prepare($count_sql);
-$count_stmt->execute($params);
-$total_activities = $count_stmt->fetchColumn();
-$total_pages = ceil($total_activities / $limit);
+// Query untuk data activities
+$query = "SELECT a.*, 
+                 CASE 
+                     WHEN a.due_date < CURRENT_DATE AND a.status NOT IN ('Done', 'Cancel') THEN 'Overdue'
+                     WHEN a.due_date = CURRENT_DATE AND a.status NOT IN ('Done', 'Cancel') THEN 'Due Today'
+                     WHEN a.due_date > CURRENT_DATE AND a.status NOT IN ('Done', 'Cancel') THEN 'Upcoming'
+                     ELSE a.status
+                 END as status_display
+          FROM activities a 
+          $where_clause 
+          ORDER BY a.$sort_column $sort_order 
+          LIMIT ? OFFSET ?";
 
-// Get activities with pagination and sorting - hanya kolom yang diperlukan untuk display
-$sql = "SELECT a.no, a.information_date, a.due_date, a.priority, a.user_position, a.department, a.application, a.type, a.description, a.action_solution, a.status, a.id FROM activities a $where_clause ORDER BY a.$sort_column $sort_order LIMIT $limit OFFSET $offset";
-$stmt = $pdo->prepare($sql);
+$params[] = $limit;
+$params[] = $offset;
+
+$stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get projects for dropdown
-$projects = $pdo->query('SELECT id as project_id, name as project_name FROM projects ORDER BY name')->fetchAll(PDO::FETCH_ASSOC);
-// Next auto number for display (server tetap akan hitung saat insert)
-$next_no = (int)($pdo->query('SELECT COALESCE(MAX(no),0)+1 FROM activities')->fetchColumn());
+// Query untuk total count
+$count_query = "SELECT COUNT(*) FROM activities a $where_clause";
+$count_stmt = $pdo->prepare($count_query);
+$count_stmt->execute(array_slice($params, 0, -2)); // Remove limit and offset
+$total_records = $count_stmt->fetchColumn();
+$total_pages = ceil($total_records / $limit);
 
-// Include logo notification script and trigger after DOM ready so it always appears under logo
-$script = ($script ?? '')
-    . "<script>document.addEventListener('DOMContentLoaded',function(){\n"
-    . "  var t=" . json_encode($notification_type ?? '') . ";\n"
-    . "  var msg=" . json_encode($message ?? '') . ";\n"
-    . "  if(t && window.logoNotificationManager){\n"
-    . "    switch(t){\n"
-    . "      case 'created': window.logoNotificationManager.showActivityCreated(msg||'Activity berhasil dibuat!',5000); break;\n"
-    . "      case 'updated': window.logoNotificationManager.showActivityUpdated(msg||'Activity berhasil diperbarui!',5000); break;\n"
-    . "      case 'cancelled': window.logoNotificationManager.showActivityCanceled(msg||'Activity dibatalkan!',5000); break;\n"
-    . "      case 'error': window.logoNotificationManager.showActivityError(msg||'Terjadi kesalahan!',5000); break;\n"
-    . "    }\n"
-    . "  }\n"
-    . "});</script>\n";
+// Get user info
+$user_id = $_SESSION['user_id'] ?? null;
+$user_name = $_SESSION['user_display_name'] ?? 'User';
+$user_email = $_SESSION['user_email'] ?? 'user@example.com';
+$user_role = $_SESSION['user_role'] ?? 'User';
+
+// Get activities count
+try {
+    $stmt = $pdo->query('SELECT COUNT(*) as total FROM activities');
+    $total_activities = $stmt->fetchColumn();
+} catch (Exception $e) {
+    $total_activities = 0;
+}
 ?>
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerPro Dashboard - Activity</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.7/dist/iconify-icon.min.js"></script>
+    <style>
+        body { 
+            background: #f8fafc; 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .dashboard-header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            padding: 2rem; 
+            border-radius: 12px; 
+            margin-bottom: 2rem; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .activity-card { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 1.5rem; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            margin-bottom: 1rem; 
+            border: 1px solid #e2e8f0;
+        }
+        
+        .user-info { 
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); 
+            padding: 1.5rem; 
+            border-radius: 12px; 
+            margin-bottom: 1.5rem; 
+            border-left: 4px solid #2196f3;
+        }
+        
+        .quick-actions { 
+            display: flex; 
+            gap: 1rem; 
+            flex-wrap: wrap; 
+        }
+        
+        .btn-action { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            border: none; 
+            padding: 0.75rem 1.5rem; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .btn-action:hover { 
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%); 
+            color: white; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .nav-sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-item a {
+            color: #64748b;
+            text-decoration: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .nav-item a:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+        
+        .nav-item a.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .table-modern {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .table-modern thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .table-modern thead th {
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        
+        .table-modern tbody td {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+        
+        .table-modern tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        .badge-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-progress { background: #dbeafe; color: #1e40af; }
+        .badge-done { background: #d1fae5; color: #065f46; }
+        .badge-cancel { background: #fee2e2; color: #991b1b; }
+        .badge-overdue { background: #fecaca; color: #dc2626; }
+        .badge-due-today { background: #fed7aa; color: #ea580c; }
+        .badge-upcoming { background: #e0e7ff; color: #3730a3; }
+        
+        .btn-modern {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary-modern {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary-modern:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .btn-success-modern {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .btn-warning-modern {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+        
+        .btn-danger-modern {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        .filter-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .pagination-modern .page-link {
+            border: none;
+            color: #667eea;
+            padding: 0.75rem 1rem;
+            margin: 0 0.25rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .pagination-modern .page-link:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .pagination-modern .page-item.active .page-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .alert-modern {
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .alert-success-modern {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+        
+        .alert-error-modern {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+        
+        .alert-warning-modern {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .alert-info-modern {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0 d-flex align-items-center gap-2">
+                        <iconify-icon icon="solar:calendar-outline" style="font-size: 1.5rem;"></iconify-icon>
+                        Activity Dashboard
+                    </h1>
+                    <p class="mb-0 opacity-75">Manage and track your activities efficiently</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stats-card">
+                        <div class="stats-number"><?= $total_activities ?></div>
+                        <div class="stats-label">Total Activities</div>
+                    </div>
+                    <a href="logout.php" class="btn btn-outline-light d-flex align-items-center gap-2">
+                        <iconify-icon icon="solar:logout-2-outline"></iconify-icon>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
 
-<?php include './partials/layouts/layoutHorizontal.php'; ?>
-
-        <div class="dashboard-main-body">
-
-                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-                <h6 class="fw-semibold mb-0">Activity List</h6>
-                     <ul class="d-flex align-items-center gap-2">
-                    <li class="fw-medium">
-                        <a href="index.php" class="d-flex align-items-center gap-1 hover-text-primary">
-                            <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-                            Dashboard
-                        </a>
-                    </li>
-                    <li>-</li>
-                    <li class="fw-medium">Activity List</li>
-                </ul>
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3">
+                <div class="nav-sidebar">
+                    <h6 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                        <iconify-icon icon="solar:menu-outline"></iconify-icon>
+                        Navigation
+                    </h6>
+                    <ul class="list-unstyled">
+                        <li class="nav-item">
+                            <a href="index.php" class="d-flex align-items-center gap-2">
+                                <iconify-icon icon="solar:home-smile-angle-outline"></iconify-icon>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="customer.php" class="d-flex align-items-center gap-2">
+                                <iconify-icon icon="solar:users-group-two-rounded-outline"></iconify-icon>
+                                Customers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="activity.php" class="d-flex align-items-center gap-2 active">
+                                <iconify-icon icon="solar:calendar-outline"></iconify-icon>
+                                Activity
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="users.php" class="d-flex align-items-center gap-2">
+                                <iconify-icon icon="solar:users-group-rounded-outline"></iconify-icon>
+                                Users
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
-                <div class="card">
-                    <div class="d-flex justify-content-end p-3"><div class="d-flex gap-2">
-                        <a href="activity.php" class="btn btn-primary">List View</a>
-                        <a href="activity_kanban.php" class="btn btn-secondary">Kanban View</a>
-                        <a href="activity_gantt.php" class="btn btn-secondary">Gantt Chart</a>
-                    </div></div>
-                <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <!-- User Information -->
+                <div class="user-info">
+                    <h6 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                        <iconify-icon icon="solar:user-outline"></iconify-icon>
+                        User Information
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <strong class="text-primary">Name:</strong><br>
+                                <span class="text-dark"><?= htmlspecialchars($user_name) ?></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <strong class="text-primary">Email:</strong><br>
+                                <span class="text-dark"><?= htmlspecialchars($user_email) ?></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <strong class="text-primary">Role:</strong><br>
+                                <span class="badge bg-primary"><?= htmlspecialchars($user_role) ?></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Message Alert -->
+                <?php if ($message): ?>
+                    <div class="alert-modern alert-<?= $message_type ?>-modern">
                         <div class="d-flex align-items-center gap-2">
-                        <span class="fw-semibold">Show</span>
-                            <select class="form-select form-select-sm w-auto" name="limit" onchange="this.form.submit()">
-                                <option value="10" <?= $limit===10?'selected':''; ?>>10</option>
-                                <option value="15" <?= $limit===15?'selected':''; ?>>15</option>
-                                <option value="20" <?= $limit===20?'selected':''; ?>>20</option>
+                            <iconify-icon icon="solar:info-circle-outline"></iconify-icon>
+                            <?= htmlspecialchars($message) ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Filter Card -->
+                <div class="filter-card">
+                    <h6 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                        <iconify-icon icon="solar:filter-outline"></iconify-icon>
+                        Filter & Search
+                    </h6>
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" name="search" placeholder="Search activities..." value="<?= htmlspecialchars($search) ?>">
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" name="filter_status">
+                                <option value="">All Status</option>
+                                <option value="not_done" <?= $filter_status === 'not_done' ? 'selected' : '' ?>>Not Done</option>
+                                <option value="Pending" <?= $filter_status === 'Pending' ? 'selected' : '' ?>>Pending</option>
+                                <option value="In Progress" <?= $filter_status === 'In Progress' ? 'selected' : '' ?>>In Progress</option>
+                                <option value="Done" <?= $filter_status === 'Done' ? 'selected' : '' ?>>Done</option>
+                                <option value="Cancel" <?= $filter_status === 'Cancel' ? 'selected' : '' ?>>Cancel</option>
                             </select>
                         </div>
-                </div>
-                
-                <!-- Filter Section -->
-                <div class="filter-section">
-                    <form method="get" class="filter-form">
-                        <div class="filter-row">
-                            <div class="filter-group">
-                                <label class="filter-label">Search</label>
-                        <div class="icon-field">
-                                    <input type="text" name="search" class="form-control" placeholder="Search activities..." value="<?= htmlspecialchars($search) ?>">
-                            <span class="icon">
-                                <iconify-icon icon="ion:search-outline"></iconify-icon>
-                            </span>
+                        <div class="col-md-2">
+                            <select class="form-select" name="filter_priority">
+                                <option value="">All Priority</option>
+                                <option value="High" <?= $filter_priority === 'High' ? 'selected' : '' ?>>High</option>
+                                <option value="Normal" <?= $filter_priority === 'Normal' ? 'selected' : '' ?>>Normal</option>
+                                <option value="Low" <?= $filter_priority === 'Low' ? 'selected' : '' ?>>Low</option>
+                            </select>
                         </div>
-                            </div>
-                            <div class="filter-group">
-                                <label class="filter-label">Priority</label>
-                                <select class="form-select" name="filter_priority">
-                            <option value="">All Priority</option>
-                            <option value="Urgent" <?= $filter_priority === 'Urgent' ? 'selected' : '' ?>>Urgent</option>
-                            <option value="Normal" <?= $filter_priority === 'Normal' ? 'selected' : '' ?>>Normal</option>
-                            <option value="Low" <?= $filter_priority === 'Low' ? 'selected' : '' ?>>Low</option>
-                        </select>
-                            </div>
-                            <div class="filter-group">
-                                <label class="filter-label">Department</label>
-                                <select class="form-select" name="filter_department">
-                                    <option value="">All Department</option>
-                                    <option value="Food & Beverage" <?= $filter_department === 'Food & Beverage' ? 'selected' : '' ?>>Food & Beverage</option>
-                                    <option value="Kitchen" <?= $filter_department === 'Kitchen' ? 'selected' : '' ?>>Kitchen</option>
-                                    <option value="Room Division" <?= $filter_department === 'Room Division' ? 'selected' : '' ?>>Room Division</option>
-                                    <option value="Front Office" <?= $filter_department === 'Front Office' ? 'selected' : '' ?>>Front Office</option>
-                                    <option value="Housekeeping" <?= $filter_department === 'Housekeeping' ? 'selected' : '' ?>>Housekeeping</option>
-                                    <option value="Engineering" <?= $filter_department === 'Engineering' ? 'selected' : '' ?>>Engineering</option>
-                                    <option value="Sales & Marketing" <?= $filter_department === 'Sales & Marketing' ? 'selected' : '' ?>>Sales & Marketing</option>
-                                    <option value="IT / EDP" <?= $filter_department === 'IT / EDP' ? 'selected' : '' ?>>IT / EDP</option>
-                                    <option value="Accounting" <?= $filter_department === 'Accounting' ? 'selected' : '' ?>>Accounting</option>
-                                    <option value="Executive Office" <?= $filter_department === 'Executive Office' ? 'selected' : '' ?>>Executive Office</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label class="filter-label">Application</label>
-                                <select class="form-select" name="filter_application">
-                                    <option value="">All Application</option>
-                                    <option value="POS" <?= $filter_application === 'POS' ? 'selected' : '' ?>>POS</option>
-                                    <option value="PMS" <?= $filter_application === 'PMS' ? 'selected' : '' ?>>PMS</option>
-                                    <option value="Back Office" <?= $filter_application === 'Back Office' ? 'selected' : '' ?>>Back Office</option>
-                                    <option value="Website" <?= $filter_application === 'Website' ? 'selected' : '' ?>>Website</option>
-                                    <option value="Mobile App" <?= $filter_application === 'Mobile App' ? 'selected' : '' ?>>Mobile App</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label class="filter-label">Type</label>
-                                <select class="form-select" name="filter_type">
-                            <option value="">All Type</option>
-                            <option value="Setup" <?= $filter_type === 'Setup' ? 'selected' : '' ?>>Setup</option>
-                            <option value="Question" <?= $filter_type === 'Question' ? 'selected' : '' ?>>Question</option>
-                            <option value="Issue" <?= $filter_type === 'Issue' ? 'selected' : '' ?>>Issue</option>
-                            <option value="Report Issue" <?= $filter_type === 'Report Issue' ? 'selected' : '' ?>>Report Issue</option>
-                            <option value="Report Request" <?= $filter_type === 'Report Request' ? 'selected' : '' ?>>Report Request</option>
-                            <option value="Feature Request" <?= $filter_type === 'Feature Request' ? 'selected' : '' ?>>Feature Request</option>
-                        </select>
-                            </div>
-                            <div class="filter-group">
-                                <label class="filter-label">Status</label>
-                                <select class="form-select" name="filter_status">
-                                    <option value="">All Status</option>
-                                    <option value="not_done" <?= ($filter_status === 'not_done' || ($default_status_filter === 'not_done' && !$filter_status)) ? 'selected' : '' ?>>Active (Default)</option>
-                                    <option value="Open" <?= $filter_status === 'Open' ? 'selected' : '' ?>>Open</option>
-                                    <option value="On Progress" <?= $filter_status === 'On Progress' ? 'selected' : '' ?>>On Progress</option>
-                                    <option value="Need Requirement" <?= $filter_status === 'Need Requirement' ? 'selected' : '' ?>>Need Requirement</option>
-                                    <option value="Done" <?= $filter_status === 'Done' ? 'selected' : '' ?>>Done</option>
-                                    <option value="Cancel" <?= $filter_status === 'Cancel' ? 'selected' : '' ?>>Cancel</option>
-                                </select>
-                            </div>
+                        <div class="col-md-2">
+                            <select class="form-select" name="filter_type">
+                                <option value="">All Types</option>
+                                <option value="Issue" <?= $filter_type === 'Issue' ? 'selected' : '' ?>>Issue</option>
+                                <option value="Setup" <?= $filter_type === 'Setup' ? 'selected' : '' ?>>Setup</option>
+                                <option value="Question" <?= $filter_type === 'Question' ? 'selected' : '' ?>>Question</option>
+                                <option value="Report Issue" <?= $filter_type === 'Report Issue' ? 'selected' : '' ?>>Report Issue</option>
+                                <option value="Report Request" <?= $filter_type === 'Report Request' ? 'selected' : '' ?>>Report Request</option>
+                                <option value="Feature Request" <?= $filter_type === 'Feature Request' ? 'selected' : '' ?>>Feature Request</option>
+                            </select>
                         </div>
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn-apply">Apply Filters</button>
-                            <a href="activity.php" class="btn-reset">Reset</a>
-                            <button type="button" class="btn-apply" id="createActivityBtn" onclick="showCreateModal()">
-                                Add Activity
+                        <div class="col-md-2">
+                            <select class="form-select" name="limit">
+                                <option value="10" <?= $limit === 10 ? 'selected' : '' ?>>10 per page</option>
+                                <option value="25" <?= $limit === 25 ? 'selected' : '' ?>>25 per page</option>
+                                <option value="50" <?= $limit === 50 ? 'selected' : '' ?>>50 per page</option>
+                                <option value="100" <?= $limit === 100 ? 'selected' : '' ?>>100 per page</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="submit" class="btn btn-primary-modern w-100">
+                                <iconify-icon icon="solar:magnifer-outline"></iconify-icon>
                             </button>
                         </div>
                     </form>
                 </div>
-                
-                <!-- Create Activity Modal - Custom Modal -->
-                <div class="custom-modal-overlay" id="createActivityModal" style="display: none;">
-                    <div class="custom-modal">
-                        <div class="custom-modal-header">
-                            <h5 class="custom-modal-title">Add Activity</h5>
-                            <button type="button" class="custom-modal-close" onclick="closeCreateModal()">&times;</button>
-                        </div>
-                        <form method="post">
-                            <div class="custom-modal-body">
-                                <?= csrf_field() ?>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">No</label>
-                                        <input type="number" name="no" class="custom-modal-input" value="<?= (int)$next_no ?>">
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Status *</label>
-                                        <select name="status" class="custom-modal-select" required>
-                                            <option value="Open">Open</option>
-                                            <option value="On Progress">On Progress</option>
-                                            <option value="Need Requirement">Need Requirement</option>
-                                            <option value="Done">Done</option>
-                                            <option value="Cancel">Cancel</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Information Date *</label>
-                                        <input type="date" id="create_information_date" name="information_date" class="custom-modal-input" value="<?= date('Y-m-d') ?>" required>
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Priority *</label>
-                                        <select name="priority" class="custom-modal-select" required>
-                                            <option value="Urgent">Urgent</option>
-                                            <option value="Normal" selected>Normal</option>
-                                            <option value="Low">Low</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">User Position</label>
-                                        <input type="text" name="user_position" class="custom-modal-input">
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Department</label>
-                                        <select name="department" class="custom-modal-select">
-                                            <option value="Food & Beverage" selected>Food & Beverage</option>
-                                            <option value="Kitchen">Kitchen</option>
-                                            <option value="Room Division">Room Division</option>
-                                            <option value="Front Office">Front Office</option>
-                                            <option value="Housekeeping">Housekeeping</option>
-                                            <option value="Engineering">Engineering</option>
-                                            <option value="Sales & Marketing">Sales & Marketing</option>
-                                            <option value="IT / EDP">IT / EDP</option>
-                                            <option value="Accounting">Accounting</option>
-                                            <option value="Executive Office">Executive Office</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Application *</label>
-                                        <select name="application" class="custom-modal-select" required>
-                                            <option value="Power FO" selected>Power FO</option>
-                                            <option value="My POS">My POS</option>
-                                            <option value="My MGR">My MGR</option>
-                                            <option value="Power AR">Power AR</option>
-                                            <option value="Power INV">Power INV</option>
-                                            <option value="Power AP">Power AP</option>
-                                            <option value="Power GL">Power GL</option>
-                                            <option value="Keylock">Keylock</option>
-                                            <option value="PABX">PABX</option>
-                                            <option value="DIM">DIM</option>
-                                            <option value="Dynamic Room Rate">Dynamic Room Rate</option>
-                                            <option value="Channel Manager">Channel Manager</option>
-                                            <option value="PB1">PB1</option>
-                                            <option value="Power SIGN">Power SIGN</option>
-                                            <option value="Multi Properties">Multi Properties</option>
-                                            <option value="Scanner ID">Scanner ID</option>
-                                            <option value="IPOS">IPOS</option>
-                                            <option value="Power Runner">Power Runner</option>
-                                            <option value="Power RA">Power RA</option>
-                                            <option value="Power ME">Power ME</option>
-                                            <option value="ECOS">ECOS</option>
-                                            <option value="Cloud WS">Cloud WS</option>
-                                            <option value="Power GO">Power GO</option>
-                                            <option value="Dashpad">Dashpad</option>
-                                            <option value="IPTV">IPTV</option>
-                                            <option value="HSIA">HSIA</option>
-                                            <option value="SGI">SGI</option>
-                                            <option value="Guest Survey">Guest Survey</option>
-                                            <option value="Loyalty Management">Loyalty Management</option>
-                                            <option value="AccPac">AccPac</option>
-                                            <option value="GL Consolidation">GL Consolidation</option>
-                                            <option value="Self Check In">Self Check In</option>
-                                            <option value="Check In Desk">Check In Desk</option>
-                                            <option value="Others">Others</option>
-                                        </select>
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Type</label>
-                                        <select id="create_type" name="type" class="custom-modal-select">
-                                            <option value="Setup">Setup</option>
-                                            <option value="Question">Question</option>
-                                            <option value="Issue">Issue</option>
-                                            <option value="Report Issue">Report Issue</option>
-                                            <option value="Report Request">Report Request</option>
-                                            <option value="Feature Request">Feature Request</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Customer</label>
-                                        <input type="text" name="customer" class="custom-modal-input">
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Project</label>
-                                        <input type="text" name="project" class="custom-modal-input">
-                                    </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Due Date</label>
-                                        <input type="date" id="create_due_date" name="due_date" class="custom-modal-input">
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">CNC Number</label>
-                                        <input type="text" name="cnc_number" class="custom-modal-input">
-                                    </div>
-                                </div>
-                                <div class="custom-modal-row">
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Description</label>
-                                        <textarea name="description" class="custom-modal-textarea" rows="3"></textarea>
-                                    </div>
-                                    <div class="custom-modal-col">
-                                        <label class="custom-modal-label">Action Solution</label>
-                                        <textarea name="action_solution" class="custom-modal-textarea" rows="3"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="custom-modal-footer">
-                                <button type="submit" name="create" value="1" class="custom-btn custom-btn-primary">Create</button>
-                                <button type="button" class="custom-btn custom-btn-secondary" onclick="closeCreateModal()">Close</button>
-                            </div>
-                        </form>
+
+                <!-- Activities Table -->
+                <div class="activity-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-semibold mb-0 d-flex align-items-center gap-2">
+                            <iconify-icon icon="solar:list-outline"></iconify-icon>
+                            Activities List
+                        </h6>
+                        <button class="btn btn-primary-modern" data-bs-toggle="modal" data-bs-target="#createModal">
+                            <iconify-icon icon="solar:add-circle-outline"></iconify-icon>
+                            Add Activity
+                        </button>
                     </div>
-                </div>
-                
-                <div class="card-body">
-                    <?php if ($default_status_filter === 'not_done' && !$filter_status): ?>
-                        <div class="alert alert-info d-flex align-items-center gap-2 mb-3">
-                            <iconify-icon icon="solar:info-circle-outline" class="icon text-lg"></iconify-icon>
-                            <span>Default menampilkan aktivitas dengan status yang Active (belum selesai).</span>
-                        </div>
-                    <?php endif; ?>
-                    <style>
-                        .activity-row { cursor: pointer; }
-                        .activity-row:hover { background-color: rgba(102,126,234,0.08); }
-                        
-                        /* Header chip base */
-                        .table-header {
-                            padding: 12px 16px;
-                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-                            border: none;
-                            border-radius: 8px;
-                            margin: 0;
-                            font-weight: 700;
-                            color: #fff;
-                            font-size: 12px;
-                            text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                            text-align: center;
-                            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
-                            transition: all 0.3s ease;
-                            position: relative;
-                            overflow: hidden;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            height: 100%;
-                            min-height: 56px;
-                            line-height: 1.15;
-                        }
-                        .table-header::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent); transition: left .5s; }
-                        .table-header:hover::before { left: 100%; }
-                        /* Dark theme header chip */
-                        [data-theme="dark"] .table .table-header,
-                        [data-theme="dark"] .table-header {
-                            background: linear-gradient(135deg, #0f172a 0%, #111827 100%) !important;
-                            color: #e5e7eb !important;
-                            box-shadow: 0 1px 4px rgba(0,0,0,.6) !important;
-                            border: 1px solid #334155 !important;
-                        }
-                        
-
-                        
-
-                        
-
-                        
-
-                        
-
-                        
-
-                        
-
-                        
-
-                        
-
-                        
-
-                        
-
-                        
-
-
-                        
-
-                        
-
-                        
-
-                        
-
-                        
-                        .table-responsive {
-                            overflow-x: auto;
-                            overflow-y: hidden;
-                            border-radius: 2px;
-                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-                        }
-                        
-                        /* Modern header styling for all columns */
-                        .table-header {
-                            padding: 12px 16px;
-                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-                            border: none;
-                            border-radius: 8px;
-                            margin: 0;
-                            font-weight: 600;
-                            color: white;
-                            font-size: 12px;
-                            text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                            text-align: center;
-                            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
-                            transition: all 0.3s ease;
-                            position: relative;
-                            overflow: hidden;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            height: 100%;
-                            min-height: 52px;
-                        }
-                        
-                        .table-header::before {
-                            content: '';
-                            position: absolute;
-                            top: 0;
-                            left: -100%;
-                            width: 100%;
-                            height: 100%;
-                            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-                            transition: left 0.5s;
-                        }
-                        
-                        .table-header:hover::before {
-                            left: 100%;
-                        }
-                        
-                        /* Make header chip fill cell height and equalize vertical spacing */
-                        .table thead th { padding: 0 !important; vertical-align: middle !important; }
-
-                        /* Column widths - optimized for content */
-                        .table th:nth-child(1) { /* No */
-                            width: 60px;
-                            min-width: 60px;
-                            max-width: 60px;
-                        }
-                        
-                        .table th:nth-child(2) { /* Information Date */
-                            width: 120px;
-                            min-width: 120px;
-                            max-width: 120px;
-                        }
-                        
-                        .table th:nth-child(3) { /* Priority */
-                            width: 100px;
-                            min-width: 100px;
-                            max-width: 100px;
-                        }
-                        
-                        .table th:nth-child(4) { /* Due Date */
-                            width: 120px;
-                            min-width: 120px;
-                            max-width: 120px;
-                        }
-                        
-                        .table th:nth-child(5) { /* User & Position */
-                            width: 160px;
-                            min-width: 160px;
-                            max-width: 160px;
-                        }
-                        
-                        .table th:nth-child(6) { /* Department */
-                            width: 140px;
-                            min-width: 140px;
-                            max-width: 140px;
-                        }
-                        
-                        .table th:nth-child(7) { /* Application */
-                            width: 120px;
-                            min-width: 120px;
-                            max-width: 120px;
-                        }
-                        
-                        .table th:nth-child(8) { /* Type */
-                            width: 140px;
-                            min-width: 140px;
-                            max-width: 140px;
-                        }
-                        
-                        .table th:nth-child(9) { /* Description */
-                            width: 250px;
-                            min-width: 250px;
-                            max-width: 250px;
-                        }
-                        
-                        .table th:nth-child(10) { /* Action / Solution */
-                            width: 200px;
-                            min-width: 200px;
-                            max-width: 200px;
-                        }
-                        
-                        .table th:nth-child(11) { /* Status */
-                            width: 120px;
-                            min-width: 120px;
-                            max-width: 120px;
-                        }
-                        
-                        /* Center align data in specific columns */
-                        .table td:nth-child(1) { /* No */
-                            text-align: center;
-                        }
-                        
-                        .table td:nth-child(2) { /* Information Date */
-                            text-align: center;
-                        }
-                        
-                        .table td:nth-child(3) { /* Priority */
-                            text-align: center;
-                        }
-                        
-                        .table td:nth-child(4) { /* Due Date */
-                            text-align: center;
-                        }
-                        
-                        .table td:nth-child(5) { /* User & Position */
-                            text-align: left;
-                        }
-                        
-                        .table td:nth-child(6) { /* Department */
-                            text-align: center;
-                        }
-                        
-                        .table td:nth-child(7) { /* Application */
-                            text-align: center;
-                        }
-                        
-                        .table td:nth-child(8) { /* Type */
-                            text-align: center;
-                        }
-                        
-                        .table td:nth-child(9) { /* Description */
-                            text-align: left;
-                        }
-                        
-                        .table td:nth-child(10) { /* Action / Solution */
-                            text-align: left;
-                        }
-                        
-                        .table td:nth-child(11) { /* Status */
-                            text-align: center;
-                        }
-                        
-                        /* Clean and simple vertical alignment */
-                        .table.table-striped td {
-                            padding: 12px 8px;
-                        }
-                        
-                        /* No column - center aligned */
-                        .table.table-striped td:nth-child(1) {
-                            text-align: center;
-                            vertical-align: middle !important;
-                        }
-                        
-                        /* All other columns - same alignment as No column */
-                        .table.table-striped td:nth-child(2),
-                        .table.table-striped td:nth-child(3),
-                        .table.table-striped td:nth-child(4),
-                        .table.table-striped td:nth-child(5),
-                        .table.table-striped td:nth-child(6),
-                        .table.table-striped td:nth-child(7),
-                        .table.table-striped td:nth-child(8),
-                        .table.table-striped td:nth-child(9),
-                        .table.table-striped td:nth-child(10) {
-                            vertical-align: middle !important;
-                        }
-                        
-                        /* Text alignment for specific columns */
-                        .table.table-striped td:nth-child(1), /* No */
-                        .table.table-striped td:nth-child(2), /* Information Date */
-                        .table.table-striped td:nth-child(3), /* Priority */
-                        .table.table-striped td:nth-child(4), /* Due Date */
-                        .table.table-striped td:nth-child(6), /* Department */
-                        .table.table-striped td:nth-child(7), /* Application */
-                        .table.table-striped td:nth-child(8), /* Type */
-                        .table.table-striped td:nth-child(11) { /* Status */
-                            text-align: center;
-                        }
-                        
-                        .table.table-striped td:nth-child(5), /* User & Position */
-                        .table.table-striped td:nth-child(9), /* Description */
-                        .table.table-striped td:nth-child(10) { /* Action / Solution */
-                            text-align: left;
-                        }
-                        
-                        /* Modal footer spacing improvements - safer selectors */
-                        #createActivityModal .modal-footer,
-                        .modal-footer,
-                        #editActivityModal .modal-footer {
-                            padding: 20px 24px !important;
-                            margin-top: 20px !important;
-                            border-top: 1px solid #dee2e6 !important;
-                            background-color: #f8f9fa !important;
-                            display: block !important;
-                            visibility: visible !important;
-                        }
-                        
-                        #createActivityModal .modal-footer .btn,
-                        .modal-footer .btn,
-                        #editActivityModal .modal-footer .btn {
-                            margin: 0 5px !important;
-                            padding: 10px 20px !important;
-                            font-weight: 500 !important;
-                            display: inline-block !important;
-                            visibility: visible !important;
-                            opacity: 1 !important;
-                            position: relative !important;
-                            z-index: 1 !important;
-                        }
-                        
-                        #createActivityModal .modal-footer .btn:first-child,
-                        .modal-footer .btn:first-child,
-                        #editActivityModal .modal-footer .btn:first-child {
-                            margin-left: 0 !important;
-                        }
-                        
-                        #createActivityModal .modal-footer .btn:last-child,
-                        .modal-footer .btn:last-child,
-                        #editActivityModal .modal-footer .btn:last-child {
-                            margin-right: 0 !important;
-                        }
-                        
-                        /* Modal body bottom spacing */
-                        #createActivityModal .modal-body,
-                        .modal-body,
-                        #editActivityModal .modal-body {
-                            padding-bottom: 30px !important;
-                        }
-                        
-                        /* Force show modal footer for dynamically created modals */
-                        .modal-content .modal-footer {
-                            display: block !important;
-                            visibility: visible !important;
-                            opacity: 1 !important;
-                            position: relative !important;
-                            z-index: 10 !important;
-                        }
-                        
-                        /* Ensure buttons are visible in all modals */
-                        .modal-content .modal-footer .btn {
-                            display: inline-block !important;
-                            visibility: visible !important;
-                            opacity: 1 !important;
-                            position: relative !important;
-                            z-index: 11 !important;
-                        }
-                        
-                        /* Nuclear option - force everything visible */
-                        .modal-footer,
-                        .modal-footer *,
-                        .modal-footer button,
-                        .modal-footer .btn {
-                            display: block !important;
-                            visibility: visible !important;
-                            opacity: 1 !important;
-                            position: static !important;
-                            clip: auto !important;
-                            overflow: visible !important;
-                            height: auto !important;
-                            width: auto !important;
-                            max-height: none !important;
-                            max-width: none !important;
-                            min-height: auto !important;
-                            min-width: auto !important;
-                        }
-                        
-                        /* Specific button styling */
-                        .modal-footer button.btn,
-                        .modal-footer .btn {
-                            display: inline-block !important;
-                            margin: 5px !important;
-                            padding: 10px 20px !important;
-                            border: 1px solid #ccc !important;
-                            background-color: #007bff !important;
-                            color: white !important;
-                            text-decoration: none !important;
-                            border-radius: 4px !important;
-                            cursor: pointer !important;
-                            font-size: 14px !important;
-                            line-height: 1.5 !important;
-                        }
-                        
-                        .modal-footer .btn.btn-danger {
-                            background-color: #dc3545 !important;
-                        }
-                        
-                        .modal-footer .btn.btn-secondary {
-                            background-color: #6c757d !important;
-                        }
-                        
-                        /* Custom Modal Styles - Completely independent of Bootstrap */
-                        .custom-modal-overlay {
-                            position: fixed;
-                            top: 0;
-                            left: 0;
-                            width: 100%;
-                            height: 100%;
-                            background-color: rgba(0, 0, 0, 0.5);
-                            z-index: 9999;
-                            display: none;
-                            visibility: hidden;
-                            opacity: 0;
-                            transition: opacity 0.3s ease;
-                        }
-                        
-                        .custom-modal {
-                            position: fixed;
-                            top: 50%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                            background: white;
-                            border-radius: 8px;
-                            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-                            width: 90%;
-                            max-width: 800px;
-                            max-height: 90vh;
-                            overflow-y: auto;
-                            z-index: 10000;
-                        }
-                        
-                        .custom-modal-header {
-                            padding: 20px 24px;
-                            border-bottom: 1px solid #dee2e6;
-                            background: #f8f9fa;
-                            border-radius: 8px 8px 0 0;
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                        }
-                        
-                        .custom-modal-title {
-                            margin: 0;
-                            font-size: 18px;
-                            font-weight: 600;
-                        }
-                        
-                        /* Enhanced Alert Styling */
-                        .alert-animated {
-                            border: none !important;
-                            border-radius: 12px !important;
-                            padding: 16px 20px !important;
-                            margin-bottom: 20px !important;
-                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-                            transition: all 0.3s ease !important;
-                            animation: slideInDown 0.5s ease-out !important;
-                        }
-                        
-                        .alert-animated:hover {
-                            transform: translateY(-2px) !important;
-                            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
-                        }
-                        
-                        .alert-content {
-                            display: flex !important;
-                            align-items: center !important;
-                            gap: 12px !important;
-                        }
-                        
-                        .alert-icon {
-                            font-size: 20px !important;
-                            flex-shrink: 0 !important;
-                        }
-                        
-                        .alert-message {
-                            font-weight: 500 !important;
-                            font-size: 14px !important;
-                        }
-                        
-                        /* Success Alert */
-                        .alert-success {
-                            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
-                            color: #155724 !important;
-                            border-left: 4px solid #28a745 !important;
-                        }
-                        
-                        .alert-success .alert-icon {
-                            color: #28a745 !important;
-                        }
-                        
-                        /* Info Alert */
-                        .alert-info {
-                            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%) !important;
-                            color: #0c5460 !important;
-                            border-left: 4px solid #17a2b8 !important;
-                        }
-                        
-                        .alert-info .alert-icon {
-                            color: #17a2b8 !important;
-                        }
-                        
-                        /* Warning Alert */
-                        .alert-warning {
-                            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
-                            color: #856404 !important;
-                            border-left: 4px solid #ffc107 !important;
-                        }
-                        
-                        .alert-warning .alert-icon {
-                            color: #ffc107 !important;
-                        }
-                        
-                        /* Animation Keyframes */
-                        @keyframes slideInDown {
-                            from {
-                                transform: translateY(-20px);
-                                opacity: 0;
-                            }
-                            to {
-                                transform: translateY(0);
-                                opacity: 1;
-                            }
-                        }
-                        
-                        /* Auto-hide animation */
-                        .alert-animated.fade-out {
-                            animation: fadeOutUp 0.5s ease-in forwards !important;
-                        }
-                        
-                        @keyframes fadeOutUp {
-                            from {
-                                transform: translateY(0);
-                                opacity: 1;
-                            }
-                            to {
-                                transform: translateY(-20px);
-                                opacity: 0;
-                            }
-                        }
-                            color: #333;
-                        }
-                        
-                        .custom-modal-close {
-                            background: none;
-                            border: none;
-                            font-size: 24px;
-                            cursor: pointer;
-                            color: #666;
-                            padding: 0;
-                            width: 30px;
-                            height: 30px;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                        }
-                        
-                        .custom-modal-close:hover {
-                            color: #333;
-                        }
-                        
-                        .custom-modal-body {
-                            padding: 24px;
-                        }
-                        
-
-                        
-                        .custom-modal-row {
-                            display: flex;
-                            gap: 20px;
-                            margin-bottom: 20px;
-                        }
-                        
-                        .custom-modal-col {
-                            flex: 1;
-                        }
-                        
-                        .custom-modal-label {
-                            display: block;
-                            margin-bottom: 8px;
-                            font-weight: 500;
-                            color: #333;
-                            font-size: 14px;
-                        }
-                        
-                        .custom-modal-input,
-                        .custom-modal-select,
-                        .custom-modal-textarea {
-                            width: 100%;
-                            padding: 10px 12px;
-                            border: 1px solid #ddd;
-                            border-radius: 4px;
-                            font-size: 14px;
-                            background: white;
-                        }
-                        
-                        .custom-modal-input:focus,
-                        .custom-modal-select:focus,
-                        .custom-modal-textarea:focus {
-                            outline: none;
-                            border-color: #007bff;
-                            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-                        }
-                        
-                        .custom-modal-footer {
-                            padding: 20px 24px;
-                            border-top: 1px solid #dee2e6;
-                            background: #f8f9fa;
-                            border-radius: 0 0 8px 8px;
-                            display: flex;
-                            gap: 10px;
-                            justify-content: flex-end;
-                        }
-                        
-                        .custom-btn {
-                            padding: 10px 20px;
-                            border: none;
-                            border-radius: 4px;
-                            font-size: 14px;
-                            font-weight: 500;
-                            cursor: pointer;
-                            transition: all 0.2s ease;
-                        }
-                        
-                        .custom-btn-primary {
-                            background-color: #007bff;
-                            color: white;
-                        }
-                        
-                        .custom-btn-primary:hover {
-                            background-color: #0056b3;
-                        }
-                        
-                        .custom-btn-danger {
-                            background-color: #dc3545;
-                            color: white;
-                        }
-                        
-                        .custom-btn-danger:hover {
-                            background-color: #c82333;
-                        }
-                        
-                        .custom-btn-secondary {
-                            background-color: #6c757d;
-                            color: white;
-                        }
-                        
-                        .custom-btn-secondary:hover {
-                            background-color: #545b62;
-                        }
-                        /* Dark mode overrides for custom Activity modals */
-                        [data-theme="dark"] .custom-modal {
-                            background: #1f2937 !important; /* slate-800 */
-                            color: #e5e7eb !important; /* zinc-200 */
-                            border: 1px solid #334155 !important; /* slate-700 */
-                        }
-                        [data-theme="dark"] .custom-modal-header {
-                            background: linear-gradient(135deg, #0f172a 0%, #111827 100%) !important;
-                            border-bottom: 1px solid #334155 !important;
-                            color: #e5e7eb !important;
-                        }
-                        [data-theme="dark"] .custom-modal-footer {
-                            background: #0b1220 !important;
-                            border-top: 1px solid #334155 !important;
-                        }
-                        [data-theme="dark"] .custom-modal-input,
-                        [data-theme="dark"] .custom-modal-select,
-                        [data-theme="dark"] .custom-modal-textarea {
-                            background: #111827 !important;
-                            border: 1px solid #374151 !important;
-                            color: #e5e7eb !important;
-                        }
-                        [data-theme="dark"] .custom-modal-input::placeholder,
-                        [data-theme="dark"] .custom-modal-textarea::placeholder {
-                            color: #9ca3af !important;
-                        }
-                        [data-theme="dark"] .custom-modal-input:focus,
-                        [data-theme="dark"] .custom-modal-select:focus,
-                        [data-theme="dark"] .custom-modal-textarea:focus {
-                            border-color: #3b82f6 !important;
-                            box-shadow: 0 0 0 3px rgba(59,130,246,.25) !important;
-                            outline: none !important;
-                        }
-                        [data-theme="dark"] .custom-btn-secondary {
-                            background: #374151 !important;
-                            color: #e5e7eb !important;
-                            border: 1px solid #4b5563 !important;
-                        }
-                        [data-theme="dark"] .custom-btn-secondary:hover {
-                            background: #4b5563 !important;
-                        }
-                        /* Make field labels readable in dark mode */
-                        [data-theme="dark"] .custom-modal-label,
-                        [data-theme="dark"] .filter-label,
-                        [data-theme="dark"] label {
-                            color: #e5e7eb !important;
-                            font-weight: 600 !important;
-                        }
-                        </style>
                     
-                    <!-- Force vertical alignment with JavaScript & handle openEdit from Kanban -->
-                    <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        // Handle openEdit from Kanban (?openEdit=ID)
-                        try {
-                            const params = new URLSearchParams(window.location.search);
-                            const openId = params.get('openEdit');
-                            if (openId) {
-                                const row = document.querySelector('.activity-row[data-id="' + CSS.escape(openId) + '"]');
-                                if (row) { row.click(); }
-                            }
-                        } catch (e) { console.warn(e); }
-
-                        // Force vertical alignment for all table cells - same as No column
-                        const tableCells = document.querySelectorAll('.table.table-striped tbody tr td');
-                        tableCells.forEach(function(cell) {
-                            cell.style.setProperty('vertical-align', 'middle', 'important');
-                        });
-                    });
-                    </script>
-<?php /* Alert HTML dinonaktifkan karena sudah menggunakan kapsul notifikasi di bawah logo */ ?>
-
-                    <div class="table-responsive">
-                        <table class="table table-striped mb-0">
-                        <thead>
-                            <tr>
-                                <th scope="col">
-                                    <div class="table-header">No</div>
-                                </th>
-                                <th scope="col">
-                                    <div class="table-header">Information Date</div>
-                                </th>
-                                <th scope="col">
-                                    <div class="table-header">Priority</div>
-                                </th>
-                                <th scope="col">
-                                    <div class="table-header">Due Date</div>
-                                </th>
-                                <th scope="col">
-                                    <div class="table-header">User &amp; Position</div>
-                                </th>
-                                <th scope="col">
-                                    <div class="table-header">Department</div>
-                                </th>
-                                <th scope="col">
-                                    <div class="table-header">Application</div>
-                                </th>
-                                <th scope="col">
-                                    <div class="table-header">Type</div>
-                                </th>
-                                <th scope="col">
-                                    <div class="table-header">Description</div>
-                                </th>
-                                <th scope="col">
-                                    <div class="table-header">Action / Solution</div>
-                                </th>
-                                <th scope="col">
-                                    <div class="table-header">Status</div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($activities as $index => $a): ?>
-                            <tr class="activity-row"
-                                data-id="<?= $a['id'] ?>"
-                                data-no="<?= htmlspecialchars($a['no'] ?? '') ?>"
-                                data-user-position="<?= htmlspecialchars($a['user_position'] ?? '') ?>"
-                                data-department="<?= htmlspecialchars($a['department'] ?? '') ?>"
-                                data-application="<?= htmlspecialchars($a['application'] ?? '') ?>"
-                                data-type="<?= htmlspecialchars($a['type'] ?? '') ?>"
-                                data-description="<?= htmlspecialchars($a['description'] ?? '') ?>"
-                                data-action-solution="<?= htmlspecialchars($a['action_solution'] ?? '') ?>"
-                                data-status="<?= htmlspecialchars($a['status'] ?? '') ?>"
-                                data-priority="<?= htmlspecialchars($a['priority'] ?? '') ?>"
-                                data-information-date="<?= htmlspecialchars($a['information_date'] ?? '') ?>"
-                                data-due-date="<?= htmlspecialchars($a['due_date'] ?? '') ?>">
-                                <td data-label="No"><?= htmlspecialchars($a['no'] ?: '-') ?></td>
-                                <td data-label="Information Date"><?= $a['information_date'] ? date('d M Y', strtotime($a['information_date'])) : '-' ?></td>
-                                <td data-label="Priority">
-                                    <?php
-                                    $priority_colors = [
-                                        'Urgent' => 'bg-danger-focus text-danger-main',
-                                        'Normal' => 'bg-info-focus text-info-main',
-                                        'Low' => 'bg-neutral-200 text-neutral-600'
-                                    ];
-                                    $priority_class = $priority_colors[$a['priority'] ?? 'Normal'] ?? 'bg-neutral-200 text-neutral-600';
-                                    ?>
-                                    <span class="priority-badge <?= $priority_class ?> px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($a['priority'] ?? 'Normal') ?></span>
-                                </td>
-                                <td data-label="Due Date"><?= $a['due_date'] ? date('d M Y', strtotime($a['due_date'])) : '-' ?></td>
-                                <td data-label="User & Position"><?= htmlspecialchars($a['user_position'] ?: '-') ?></td>
-                                <td data-label="Department"><?= htmlspecialchars($a['department'] ?: '-') ?></td>
-                                <td data-label="Application"><?= htmlspecialchars($a['application'] ?: '-') ?></td>
-                                <td data-label="Type">
-                                    <?php
-                                    $type_colors = [
-                                        'Setup' => 'bg-info-focus text-info-main',
-                                        'Question' => 'bg-warning-focus text-warning-main',
-                                        'Issue' => 'bg-danger-focus text-danger-main',
-                                        'Report Issue' => 'bg-danger-focus text-danger-main',
-                                        'Report Request' => 'bg-neutral-200 text-neutral-600',
-                                        'Feature Request' => 'bg-success-focus text-success-main'
-                                    ];
-                                    $color_class = $type_colors[$a['type']] ?? 'bg-neutral-200 text-neutral-600';
-                                    ?>
-                                    <span class="type-badge <?= $color_class ?> px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($a['type'] ?: '-') ?></span>
-                                </td>
-                                <td data-label="Description"><?= htmlspecialchars($a['description'] ?: '-') ?></td>
-                                <td data-label="Action / Solution"><?= htmlspecialchars($a['action_solution'] ?: '-') ?></td>
-                                <td data-label="Status">
-                                    <?php
-                                    $status_colors = [
-                                        'Open' => 'bg-warning-focus text-warning-main',
-                                        'On Progress' => 'bg-info-focus text-info-main',
-                                        'Need Requirement' => 'bg-secondary-focus text-secondary-main',
-                                        'Done' => 'bg-success-focus text-success-main',
-                                        'Cancel' => 'bg-danger-focus text-danger-main'
-                                    ];
-                                    $status_class = $status_colors[$a['status'] ?? 'Open'] ?? 'bg-neutral-200 text-neutral-600';
-                                    ?>
-                                    <span class="status-badge <?= $status_class ?> px-8 py-4 rounded-pill fw-medium text-sm"><?= htmlspecialchars($a['status'] ?? 'Open') ?></span>
-                                </td>
-                            </tr>
-<?php endforeach; ?>
-                        </tbody>
-</table>
+                    <div class="table-modern">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Information Date</th>
+                                    <th>Due Date</th>
+                                    <th>Priority</th>
+                                    <th>User Position</th>
+                                    <th>Department</th>
+                                    <th>Application</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($activities)): ?>
+                                    <tr>
+                                        <td colspan="11" class="text-center py-4">
+                                            <iconify-icon icon="solar:calendar-outline" style="font-size: 3rem; color: #cbd5e1;"></iconify-icon>
+                                            <p class="text-muted mt-3 mb-0">No activities found.</p>
+                                            <small class="text-muted">Try adjusting your filters or create a new activity.</small>
+                                        </td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($activities as $activity): ?>
+                                        <tr>
+                                            <td><strong><?= htmlspecialchars($activity['no']) ?></strong></td>
+                                            <td><?= htmlspecialchars($activity['information_date']) ?></td>
+                                            <td><?= htmlspecialchars($activity['due_date']) ?></td>
+                                            <td>
+                                                <span class="badge bg-<?= $activity['priority'] === 'High' ? 'danger' : ($activity['priority'] === 'Normal' ? 'primary' : 'secondary') ?>">
+                                                    <?= htmlspecialchars($activity['priority']) ?>
+                                                </span>
+                                            </td>
+                                            <td><?= htmlspecialchars($activity['user_position']) ?></td>
+                                            <td><?= htmlspecialchars($activity['department']) ?></td>
+                                            <td><?= htmlspecialchars($activity['application']) ?></td>
+                                            <td><?= htmlspecialchars($activity['type']) ?></td>
+                                            <td>
+                                                <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="<?= htmlspecialchars($activity['description']) ?>">
+                                                    <?= htmlspecialchars($activity['description']) ?>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <?php
+                                                $status = $activity['status_display'];
+                                                $badge_class = '';
+                                                if ($status === 'Overdue') $badge_class = 'badge-overdue';
+                                                elseif ($status === 'Due Today') $badge_class = 'badge-due-today';
+                                                elseif ($status === 'Upcoming') $badge_class = 'badge-upcoming';
+                                                elseif ($status === 'Pending') $badge_class = 'badge-pending';
+                                                elseif ($status === 'In Progress') $badge_class = 'badge-progress';
+                                                elseif ($status === 'Done') $badge_class = 'badge-done';
+                                                elseif ($status === 'Cancel') $badge_class = 'badge-cancel';
+                                                ?>
+                                                <span class="badge-status <?= $badge_class ?>"><?= htmlspecialchars($status) ?></span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-outline-primary" onclick="editActivity(<?= $activity['id'] ?>)">
+                                                        <iconify-icon icon="solar:pen-outline"></iconify-icon>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-info" onclick="viewActivity(<?= $activity['id'] ?>)">
+                                                        <iconify-icon icon="solar:eye-outline"></iconify-icon>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
                     </div>
 
-<!-- Pagination -->
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
-                        <span class="text-md text-secondary-light fw-normal">Showing <?= count($activities) ?> of <?= $total_activities ?> results</span>
-<?php if ($total_pages > 1): ?>
-                        <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
-                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-        <?php if ($i == $page): ?>
+                    <!-- Pagination -->
+                    <?php if ($total_pages > 1): ?>
+                        <nav class="mt-3">
+                            <ul class="pagination pagination-modern justify-content-center">
+                                <?php if ($page > 1): ?>
                                     <li class="page-item">
-                                        <a class="page-link bg-primary-600 text-white rounded-8 fw-medium text-md px-9 py-6" href="#"><?= $i ?></a>
+                                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>">
+                                            <iconify-icon icon="solar:arrow-left-outline"></iconify-icon>
+                                        </a>
                                     </li>
-        <?php else: ?>
+                                <?php endif; ?>
+                                
+                                <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
+                                    <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>"><?= $i ?></a>
+                                    </li>
+                                <?php endfor; ?>
+                                
+                                <?php if ($page < $total_pages): ?>
                                     <li class="page-item">
-                                        <a class="page-link bg-neutral-200 text-secondary-light rounded-8 fw-medium text-md px-9 py-6 hover-bg-primary-600 hover-text-white" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>"><?= $i ?></a>
+                                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>">
+                                            <iconify-icon icon="solar:arrow-right-outline"></iconify-icon>
+                                        </a>
                                     </li>
-        <?php endif; ?>
-    <?php endfor; ?>
-                        </ul>
-<?php endif; ?>
-</div>
+                                <?php endif; ?>
+                            </ul>
+                        </nav>
+                    <?php endif; ?>
+                </div>
             </div>
+        </div>
     </div>
-</div>
 
-<script>
-function showCreateModal() {
-    console.log('showCreateModal called - using custom modal');
-    
-    // Get the existing modal element
-    const modalEl = document.getElementById('createActivityModal');
-    console.log('Modal element found:', modalEl);
-    
-    if (!modalEl) {
-        console.error('Modal element not found!');
-        return;
-    }
-    
-    // Show custom modal
-    modalEl.style.display = 'block';
-    modalEl.style.visibility = 'visible';
-    modalEl.style.opacity = '1';
-    
-    // Setup auto-calculation for create modal
-    const infoDateEl = document.getElementById('create_information_date');
-    const typeEl = document.getElementById('create_type');
-    const dueDateEl = document.getElementById('create_due_date');
-    
-    function calculateDueDateCreate() {
-        const infoDate = infoDateEl.value;
-        const type = typeEl.value;
-        
-        if (infoDate && type) {
-            const offsetByType = {
-                'Setup': 2,
-                'Question': 1,
-                'Issue': 1,
-                'Report Issue': 2,
-                'Report Request': 7,
-                'Feature Request': 30
-            };
-            
-            const offsetDays = offsetByType[type] || 0;
-            if (offsetDays > 0) {
-                const dueDate = new Date(infoDate);
-                dueDate.setDate(dueDate.getDate() + offsetDays);
-                dueDateEl.value = dueDate.toISOString().split('T')[0];
-            }
-        }
-    }
-    
-    // Add event listeners for auto-calculation in create modal
-    if (infoDateEl && typeEl && dueDateEl) {
-        infoDateEl.addEventListener('change', calculateDueDateCreate);
-        typeEl.addEventListener('change', calculateDueDateCreate);
-    }
-    
-    console.log('Custom modal shown successfully');
-}
-
-function closeCreateModal() {
-    const modal = document.getElementById('createActivityModal');
-    if (modal) {
-        modal.style.display = 'none';
-        modal.style.visibility = 'hidden';
-        modal.style.opacity = '0';
-    }
-}
-
-
-
-function hideCreateForm() {
-    const form = document.getElementById('createActivityForm');
-    if (form) {
-        form.style.display = 'none';
-        console.log('Create form hidden');
-    } else {
-        console.log('No create form found to hide');
-    }
-}
-
-// Row click -> open edit modal and populate fields
-document.querySelectorAll('.activity-row').forEach(function(row) {
-    row.addEventListener('click', function() {
-        const id = row.dataset.id || '';
-        const noVal = row.dataset.no || '';
-        const userPosition = row.dataset.userPosition || '';
-        const department = row.dataset.department || '';
-        const application = row.dataset.application || '';
-        const type = row.dataset.type || '';
-        const description = row.dataset.description || '';
-        const actionSolution = row.dataset.actionSolution || '';
-        const status = row.dataset.status || '';
-        const priority = row.dataset.priority || 'Normal';
-        const infoDate = row.dataset.informationDate || '';
-
-        // Build a custom modal without Bootstrap dependencies
-        let modalEl = document.getElementById('editActivityModal');
-        if (!modalEl) {
-            modalEl = document.createElement('div');
-            modalEl.id = 'editActivityModal';
-            modalEl.className = 'custom-modal-overlay';
-            modalEl.innerHTML = `
-            <div class="custom-modal">
-              <div class="custom-modal-header">
-                <h5 class="custom-modal-title">Edit Activity</h5>
-                <button type="button" class="custom-modal-close" onclick="closeEditModal()">&times;</button>
+    <!-- Create Activity Modal -->
+    <div class="modal fade" id="createModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Activity</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form method="post" id="editActivityForm">
-                <div class="custom-modal-body">
+                <form method="POST">
                     <?= csrf_field() ?>
-                    <input type="hidden" name="id" id="edit_id">
-                  <div class="custom-modal-row">
-                    <div class="custom-modal-col">
-                      <label class="custom-modal-label">No</label>
-                      <input type="number" name="no" id="edit_no" class="custom-modal-input">
-                      </div>
-                    <div class="custom-modal-col">
-                      <label class="custom-modal-label">Status *</label>
-                      <select name="status" id="edit_status" class="custom-modal-select" required>
-                          <option value="Open">Open</option>
-                          <option value="On Progress">On Progress</option>
-                          <option value="Need Requirement">Need Requirement</option>
-                          <option value="Done">Done</option>
-                          <option value="Cancel">Cancel</option>
-                        </select>
-                      </div>
-                      </div>
-                  <div class="custom-modal-row">
-                    <div class="custom-modal-col">
-                      <label class="custom-modal-label">Information Date *</label>
-                      <input type="date" name="information_date" id="edit_information_date" class="custom-modal-input" required>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Project ID</label>
+                                <input type="text" class="form-control" name="project_id" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">No</label>
+                                <input type="number" class="form-control" name="no" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Information Date</label>
+                                <input type="date" class="form-control" name="information_date" value="<?= date('Y-m-d') ?>">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Due Date</label>
+                                <input type="date" class="form-control" name="due_date">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">User Position</label>
+                                <input type="text" class="form-control" name="user_position" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Department</label>
+                                <select class="form-select" name="department" required>
+                                    <option value="">Select Department</option>
+                                    <option value="IT">IT</option>
+                                    <option value="HR">HR</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Operations">Operations</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Application</label>
+                                <input type="text" class="form-control" name="application" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Type</label>
+                                <select class="form-select" name="type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="Issue">Issue</option>
+                                    <option value="Setup">Setup</option>
+                                    <option value="Question">Question</option>
+                                    <option value="Report Issue">Report Issue</option>
+                                    <option value="Report Request">Report Request</option>
+                                    <option value="Feature Request">Feature Request</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Priority</label>
+                                <select class="form-select" name="priority">
+                                    <option value="Normal">Normal</option>
+                                    <option value="High">High</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" name="status" required>
+                                    <option value="Pending">Pending</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Done">Done</option>
+                                    <option value="Cancel">Cancel</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" name="description" rows="3" required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Action/Solution</label>
+                                <textarea class="form-control" name="action_solution" rows="3"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">CNC Number</label>
+                                <input type="text" class="form-control" name="cnc_number">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Customer</label>
+                                <input type="text" class="form-control" name="customer">
+                            </div>
+                        </div>
                     </div>
-                    <div class="custom-modal-col">
-                      <label class="custom-modal-label">Priority *</label>
-                      <select name="priority" id="edit_priority" class="custom-modal-select" required>
-                          <option value="Urgent">Urgent</option>
-                          <option value="Normal">Normal</option>
-                          <option value="Low">Low</option>
-                        </select>
-                      </div>
-                      </div>
-                  <div class="custom-modal-row">
-                    <div class="custom-modal-col">
-                      <label class="custom-modal-label">User Position</label>
-                      <input type="text" name="user_position" id="edit_user_position" class="custom-modal-input">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="create" class="btn btn-primary-modern">Create Activity</button>
                     </div>
-                    <div class="custom-modal-col">
-                      <label class="custom-modal-label">Department</label>
-                      <select name="department" id="edit_department" class="custom-modal-select">
-                          <option value="">Select Department</option>
-                          <option value="Food & Beverage">Food & Beverage</option>
-                          <option value="Kitchen">Kitchen</option>
-                          <option value="Room Division">Room Division</option>
-                          <option value="Front Office">Front Office</option>
-                          <option value="Housekeeping">Housekeeping</option>
-                          <option value="Engineering">Engineering</option>
-                          <option value="Sales & Marketing">Sales & Marketing</option>
-                          <option value="IT / EDP">IT / EDP</option>
-                          <option value="Accounting">Accounting</option>
-                          <option value="Executive Office">Executive Office</option>
-                        </select>
-                      </div>
-                  </div>
-                  <div class="custom-modal-row">
-                    <div class="custom-modal-col">
-                      <label class="custom-modal-label">Application *</label>
-                      <select name="application" id="edit_application" class="custom-modal-select" required>
-                          <option value="">-</option>
-                          <option value="Power FO">Power FO</option>
-                          <option value="My POS">My POS</option>
-                          <option value="My MGR">My MGR</option>
-                          <option value="Power AR">Power AR</option>
-                          <option value="Power INV">Power INV</option>
-                          <option value="Power AP">Power AP</option>
-                          <option value="Power GL">Power GL</option>
-                          <option value="Keylock">Keylock</option>
-                          <option value="PABX">PABX</option>
-                          <option value="DIM">DIM</option>
-                          <option value="Dynamic Room Rate">Dynamic Room Rate</option>
-                          <option value="Channel Manager">Channel Manager</option>
-                          <option value="PB1">PB1</option>
-                          <option value="Power SIGN">Power SIGN</option>
-                          <option value="Multi Properties">Multi Properties</option>
-                          <option value="Scanner ID">Scanner ID</option>
-                          <option value="IPOS">IPOS</option>
-                          <option value="Power Runner">Power Runner</option>
-                          <option value="Power RA">Power RA</option>
-                          <option value="Power ME">Power ME</option>
-                          <option value="ECOS">ECOS</option>
-                          <option value="Cloud WS">Cloud WS</option>
-                          <option value="Power GO">Power GO</option>
-                          <option value="Dashpad">Dashpad</option>
-                          <option value="IPTV">IPTV</option>
-                          <option value="HSIA">HSIA</option>
-                          <option value="SGI">SGI</option>
-                          <option value="Guest Survey">Guest Survey</option>
-                          <option value="Loyalty Management">Loyalty Management</option>
-                          <option value="AccPac">AccPac</option>
-                          <option value="GL Consolidation">GL Consolidation</option>
-                          <option value="Self Check In">Self Check In</option>
-                          <option value="Check In Desk">Check In Desk</option>
-                          <option value="Others">Others</option>
-                        </select>
-                      </div>
-                    <div class="custom-modal-col">
-                      <label class="custom-modal-label">Type</label>
-                      <select name="type" id="edit_type" class="custom-modal-select">
-                          <option value="Setup">Setup</option>
-                          <option value="Question">Question</option>
-                          <option value="Issue">Issue</option>
-                          <option value="Report Issue">Report Issue</option>
-                          <option value="Report Request">Report Request</option>
-                          <option value="Feature Request">Feature Request</option>
-                        </select>
-                      </div>
-                      </div>
-                  <div class="custom-modal-row">
-                    <div class="custom-modal-col">
-                      <label class="custom-modal-label">Customer</label>
-                      <input type="text" name="customer" id="edit_customer" class="custom-modal-input">
-                      </div>
-                    <div class="custom-modal-col">
-                      <label class="custom-modal-label">Project</label>
-                      <input type="text" name="project" id="edit_project_name" class="custom-modal-input">
-                      </div>
-                      </div>
-                  <div class="custom-modal-row">
-                    <div class="custom-modal-col">
-                      <label class="custom-modal-label">Due Date</label>
-                      <input type="date" name="due_date" id="edit_due_date" class="custom-modal-input">
-                      </div>
-                    <div class="custom-modal-col">
-                      <label class="custom-modal-label">CNC Number</label>
-                      <input type="text" name="cnc_number" id="edit_cnc_number" class="custom-modal-input">
-                      </div>
-                    </div>
-                  <div class="custom-modal-row">
-                    <div class="custom-modal-col">
-                      <label class="custom-modal-label">Description</label>
-                      <textarea name="description" id="edit_description" class="custom-modal-textarea" rows="3"></textarea>
-                  </div>
-                    <div class="custom-modal-col">
-                      <label class="custom-modal-label">Action Solution</label>
-                      <textarea name="action_solution" id="edit_action_solution" class="custom-modal-textarea" rows="3"></textarea>
-                  </div>
-              </div>
-                </div>
-                <div class="custom-modal-footer">
-                  <button type="submit" name="update" value="1" class="custom-btn custom-btn-primary">Update</button>
-                  <button type="button" class="custom-btn custom-btn-secondary" onclick="closeEditModal()">Close</button>
-                </div>
-              </form>
-            </div>`;
-            document.body.appendChild(modalEl);
-        }
+                </form>
+            </div>
+        </div>
+    </div>
 
-        document.getElementById('edit_id').value = id;
-        const noInput = document.getElementById('edit_no');
-        if (noInput) noInput.value = noVal;
-        document.getElementById('edit_user_position').value = userPosition;
-        document.getElementById('edit_department').value = department;
-        document.getElementById('edit_application').value = application;
-        document.getElementById('edit_type').value = type;
-        document.getElementById('edit_status').value = status;
-        document.getElementById('edit_information_date').value = infoDate ? infoDate.substring(0,10) : '';
-        
-        // Fill due date from database data
-        const dueDate = row.dataset.dueDate || '';
-        document.getElementById('edit_due_date').value = dueDate ? dueDate.substring(0,10) : '';
-        
-        // Auto-calculate due date when information_date or type changes
-        const infoDateEl = document.getElementById('edit_information_date');
-        const typeEl = document.getElementById('edit_type');
-        const dueDateEl = document.getElementById('edit_due_date');
-        
-        function calculateDueDate() {
-            const infoDate = infoDateEl.value;
-            const type = typeEl.value;
-            
-            if (infoDate && type) {
-                const offsetByType = {
-                    'Setup': 2,
-                    'Question': 1,
-                    'Issue': 1,
-                    'Report Issue': 2,
-                    'Report Request': 7,
-                    'Feature Request': 30
-                };
-                
-                const offsetDays = offsetByType[type] || 0;
-                if (offsetDays > 0) {
-                    const dueDate = new Date(infoDate);
-                    dueDate.setDate(dueDate.getDate() + offsetDays);
-                    dueDateEl.value = dueDate.toISOString().split('T')[0];
-                }
-            }
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function editActivity(id) {
+            // Implement edit functionality
+            alert('Edit functionality will be implemented');
         }
         
-        // Add event listeners for auto-calculation
-        infoDateEl.addEventListener('change', calculateDueDate);
-        typeEl.addEventListener('change', calculateDueDate);
-        
-        // Enforce min for due date in edit modal as well
-        try {
-            const dueEl = document.getElementById('edit_due_date');
-            const infoEl = document.getElementById('edit_information_date');
-            if (dueEl && infoEl && infoEl.value) {
-                dueEl.min = infoEl.value;
-                if (dueEl.value && dueEl.value < infoEl.value) {
-                    dueEl.value = infoEl.value;
-                }
-                infoEl.addEventListener('change', function(){
-                    if (!this.value) return;
-                    dueEl.min = this.value;
-                    if (dueEl.value && dueEl.value < this.value) {
-                        dueEl.value = this.value;
-                    }
-                });
-            }
-        } catch(e) { console.warn(e); }
-        document.getElementById('edit_description').value = description;
-        document.getElementById('edit_action_solution').value = actionSolution;
-        document.getElementById('edit_priority').value = priority;
-
-        // Show custom modal
-        modalEl.style.display = 'block';
-        modalEl.style.visibility = 'visible';
-        modalEl.style.opacity = '1';
-        
-        // Modal is now visible with custom styling
-    });
-});
-
-// Simple event listener to ensure Create Activity button works
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, checking Create Activity button...');
-    
-    const createBtn = document.getElementById('createActivityBtn');
-    if (createBtn) {
-        console.log('Create Activity button found and ready');
-        
-        // Test if Bootstrap is available
-        if (typeof bootstrap !== 'undefined' && typeof bootstrap.Modal !== 'undefined') {
-            console.log('Bootstrap Modal is available - button should work');
-        } else {
-            console.error('Bootstrap Modal is NOT available!');
+        function viewActivity(id) {
+            // Implement view functionality
+            alert('View functionality will be implemented');
         }
-    } else {
-        console.error('Create Activity button not found!');
-    }
-});
-
-function closeEditModal() {
-    const modal = document.getElementById('editActivityModal');
-    if (modal) {
-        modal.style.display = 'none';
-        modal.style.visibility = 'hidden';
-        modal.style.opacity = '0';
-    }
-}
-
-// Enhanced Alert Management
-document.addEventListener('DOMContentLoaded', function() {
-    // Auto-hide alerts after 5 seconds
-    const alerts = document.querySelectorAll('.alert-animated');
-    alerts.forEach(alert => {
-        setTimeout(() => {
-            alert.classList.add('fade-out');
-            setTimeout(() => {
-                if (alert.parentNode) {
-                    alert.parentNode.removeChild(alert);
-                }
-            }, 500);
-        }, 5000);
-        
-        // Add click to dismiss functionality
-        alert.addEventListener('click', function() {
-            this.classList.add('fade-out');
-            setTimeout(() => {
-                if (this.parentNode) {
-                    this.parentNode.removeChild(this);
-                }
-            }, 500);
-        });
-        
-        // Add hover effect indicator
-        alert.style.cursor = 'pointer';
-        alert.title = 'Click to dismiss';
-    });
-});
-
-</script>
-
-<!-- Activity Table Enhancement Script -->
-<script src="assets/js/activity-table.js"></script>
-<script>
-// Close Create/Edit modals with ESC for convenience
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' || e.key === 'Esc') {
-    try {
-      const editModal = document.getElementById('editActivityModal');
-      if (editModal && editModal.style.display !== 'none' && editModal.style.visibility !== 'hidden') {
-        closeEditModal();
-      }
-      const createModal = document.getElementById('createActivityModal');
-      if (createModal && createModal.style.display !== 'none' && createModal.style.visibility !== 'hidden') {
-        closeCreateModal();
-      }
-    } catch (err) { console.warn(err); }
-  }
-});
-</script>
-
-<?php include './partials/layouts/layoutBottom.php'; ?>
+    </script>
+</body>
+</html>

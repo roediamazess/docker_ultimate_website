@@ -20,11 +20,21 @@ function loadEnv($path) {
 loadEnv(__DIR__ . '/.env');
 
 // Get database configuration from environment variables
+// For VPS deployment, use direct configuration
 $host = $_ENV['DB_HOST'] ?? 'localhost';
 $port = $_ENV['DB_PORT'] ?? '5432';
 $db   = $_ENV['DB_DATABASE'] ?? 'ultimate_website';
 $user = $_ENV['DB_USERNAME'] ?? 'postgres';
 $pass = $_ENV['DB_PASSWORD'] ?? 'password';
+
+// Fallback to direct configuration if .env is not available
+if (empty($_ENV['DB_HOST'])) {
+    $host = 'localhost';
+    $port = '5432';
+    $db   = 'ultimate_website';
+    $user = 'postgres';
+    $pass = 'password';
+}
 
 $dsn = "pgsql:host=$host;port=$port;dbname=$db";
 try {

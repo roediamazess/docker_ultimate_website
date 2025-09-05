@@ -1,69 +1,44 @@
 <?php
-// Mapping hak akses granular per role, modul, dan aksi
-// Format: $access_map[role][modul][aksi] = true/false
-$access_map = [
-    'Administrator' => [
-        'user' => ['create'=>true,'read'=>true,'update'=>true,'delete'=>true],
-        'customer' => ['create'=>true,'read'=>true,'update'=>true,'delete'=>true],
-        'project' => ['create'=>true,'read'=>true,'update'=>true,'delete'=>true],
-        'activity' => ['create'=>true,'read'=>true,'update'=>true,'delete'=>false],
-        'log' => ['read'=>true],
-    ],
-    'Management' => [
-        'user' => ['create'=>false,'read'=>true,'update'=>false,'delete'=>false],
-        'customer' => ['create'=>false,'read'=>true,'update'=>false,'delete'=>false],
-        'project' => ['create'=>false,'read'=>true,'update'=>false,'delete'=>false],
-        'activity' => ['create'=>false,'read'=>true,'update'=>false,'delete'=>false],
-        'log' => ['read'=>true],
-    ],
-    'Admin Office' => [
-        'user' => ['create'=>false,'read'=>true,'update'=>false,'delete'=>false],
-        'customer' => ['create'=>true,'read'=>true,'update'=>true,'delete'=>false],
-        'project' => ['create'=>true,'read'=>true,'update'=>true,'delete'=>false],
-        'activity' => ['create'=>true,'read'=>true,'update'=>true,'delete'=>false],
-        'log' => ['read'=>false],
-    ],
-    'User' => [
-        'user' => ['create'=>false,'read'=>true,'update'=>false,'delete'=>false],
-        'customer' => ['create'=>false,'read'=>true,'update'=>false,'delete'=>false],
-        'project' => ['create'=>false,'read'=>true,'update'=>false,'delete'=>false],
-        'activity' => ['create'=>false,'read'=>true,'update'=>false,'delete'=>false],
-        'log' => ['read'=>false],
-    ],
-    'Client' => [
-        'user' => ['create'=>false,'read'=>true,'update'=>false,'delete'=>false],
-        'customer' => ['create'=>false,'read'=>true,'update'=>false,'delete'=>false],
-        'project' => ['create'=>false,'read'=>true,'update'=>false,'delete'=>false],
-        'activity' => ['create'=>false,'read'=>true,'update'=>false,'delete'=>false],
-        'log' => ['read'=>false],
-    ],
-];
+/**
+ * Access Control - Standardisasi kontrol akses
+ * File ini berisi fungsi-fungsi standar untuk kontrol akses
+ */
 
-function has_access($role, $module, $action) {
-    global $access_map;
-    return !empty($access_map[$role][$module][$action]);
-}
-
-// Function to require login
+// Fungsi untuk mengecek apakah user sudah login
 function require_login() {
-    if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-        header('Location: login.php');
+    if (!isset($_SESSION['user_id']) || !$_SESSION['user_id']) {
+        header('Location: /login.php');
         exit;
     }
 }
 
-// Function to check if user is logged in
-function is_logged_in() {
-    return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+// Fungsi untuk mengecek role user
+function has_user_role($role) {
+    return $_SESSION['user_role'] === $role;
 }
 
-// Function to get current user role
-function get_current_user_role() {
-    return $_SESSION['user_role'] ?? 'User';
+// Fungsi untuk mengecek apakah user memiliki salah satu dari role yang diberikan
+function has_user_roles($roles) {
+    if (!is_array($roles)) {
+        $roles = [$roles];
+    }
+    return in_array($_SESSION['user_role'] ?? '', $roles);
 }
 
-// Function to check access for current user
-function check_access($module, $action) {
-    $role = get_current_user_role();
-    return has_access($role, $module, $action);
+// Fungsi untuk redirect jika user tidak memiliki role tertentu
+function require_role($role) {
+    require_login();
+    if (!has_user_role($role)) {
+        header('Location: index.php');
+        exit;
+    }
+}
+
+// Fungsi untuk redirect jika user tidak memiliki salah satu role
+function require_roles($roles) {
+    require_login();
+    if (!has_user_roles($roles)) {
+        header('Location: index.php');
+        exit;
+    }
 }

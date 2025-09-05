@@ -1,19 +1,10 @@
 <?php
 session_start();
-require_once 'user_utils.php';
 
-// Log logout activity
-if (is_user_logged_in()) {
-    log_user_activity('logout', 'User logged out successfully');
-}
-
-// Destroy session
-session_destroy();
-
-// Clear all session variables
+// Clear all session data
 $_SESSION = array();
 
-// Delete session cookie
+// Destroy the session cookie
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
     setcookie(session_name(), '', time() - 42000,
@@ -21,6 +12,9 @@ if (ini_get("session.use_cookies")) {
         $params["secure"], $params["httponly"]
     );
 }
+
+// Destroy the session
+session_destroy();
 
 // Redirect to login page
 header('Location: login.php');
