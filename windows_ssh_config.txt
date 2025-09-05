@@ -1,0 +1,9 @@
+Host powerpro-vps
+    HostName 103.150.101.26
+    User roediamazess
+    Port 22
+    IdentityFile C:\Users\%USERNAME%\.ssh\id_rsa
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
